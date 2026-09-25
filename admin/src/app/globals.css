@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root {
+  --admin-bg: #ffffff;
+  --admin-card: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-accent: #2563eb;
+  color-scheme: light;
+}
+
+/* Enforce Zero-Shadow across all elements for clean flat border-first UI */
+*,
+*::before,
+*::after {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+html,
+body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Universal Interactive Pointer Cursor */
+button,
+a,
+[role="button"],
+select,
+summary {
+  cursor: pointer !important;
+}
+
+/* Clean light scrollbar for admin tables, sidebars, and dialogs */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Table Light Theme Styling */
+table {
+  background-color: transparent !important;
+}
+
+thead,
+thead tr,
+th {
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
+}
+
+tbody tr {
+  background-color: #ffffff !important;
+  border-color: #f1f5f9 !important;
+}
+
+tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+td {
+  border-color: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+/* Form Controls (Inputs, Selects, Textareas) */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus,
+select:focus {
+  border-color: #2563eb !important;
+  background-color: #ffffff !important;
+  outline: 2px solid rgba(37, 99, 235, 0.15) !important;
+}
