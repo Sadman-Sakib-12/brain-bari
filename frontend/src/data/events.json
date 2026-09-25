@@ -1,0 +1,50 @@
+[
+  {
+    "id": "iftar-2026",
+    "title": "Brain Bari Official Ramadan Iftar Mahfil",
+    "date": "07-03-2026",
+    "time": "05:30 PM - 08:30 PM",
+    "location": "Brain Bari Office, Khagan, Dhaka",
+    "category": "latest",
+    "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=80",
+    "description": "Brain Bari hosted a special Ramadan Iftar Mahfil bringing together the entire team for reflection, unity, and celebration.",
+    "agenda": [
+      "Welcome Address & Team Fellowship",
+      "Quran Recitation & Reflection",
+      "Iftar & Dinner Gathering",
+      "Team Appreciation & Open Discussion"
+    ]
+  },
+  {
+    "id": "founders-talk-2026",
+    "title": "Founder's Talk: Agreements & Future Roadmap",
+    "date": "15-04-2026",
+    "time": "03:00 PM - 05:30 PM",
+    "location": "Brain Bari Innovation Hub & Virtual",
+    "category": "nearest",
+    "image": "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=80",
+    "description": "Exclusive strategic gathering led by Founder & Director and CEO, outlining our long-term AI platform trajectory and international partnerships.",
+    "agenda": [
+      "2026-2027 Technology Roadmap Reveal",
+      "Enterprise SaaS & Model Integration Benchmarks",
+      "Partner Agreement Signings",
+      "Interactive Engineering Q&A"
+    ]
+  },
+  {
+    "id": "ai-health-conference-2026",
+    "title": "Asian Bioethics & Healthcare AI Summit",
+    "date": "22-05-2026",
+    "time": "10:00 AM - 04:00 PM",
+    "location": "State University of Bangladesh & Digital Livestream",
+    "category": "nearest",
+    "image": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&auto=format&fit=crop&q=80",
+    "description": "An academic and industry symposium exploring the ethical deployment of conversational AI diagnostics and health monitoring systems.",
+    "agenda": [
+      "Keynote: Ethical Frontiers in Clinical AI",
+      "Live Case Study: Healthcare Conversational Assistant",
+      "Panel: Data Privacy in Public Health Tech",
+      "Closing Networking Session"
+    ]
+  }
+]

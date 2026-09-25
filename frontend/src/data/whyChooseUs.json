@@ -1,0 +1,23 @@
+[
+  {
+    "id": "wc-1",
+    "title": "Creative thinking",
+    "subtitle": "Unique & Original Solutions",
+    "description": "Come up with unique, original and high-performing AI solutions.",
+    "icon": "Sparkles"
+  },
+  {
+    "id": "wc-2",
+    "title": "Career Planning",
+    "subtitle": "Strategic Software Roadmap",
+    "description": "Plan scalable software architecture with our lead AI architects.",
+    "icon": "Compass"
+  },
+  {
+    "id": "wc-3",
+    "title": "Public Speaking",
+    "subtitle": "Multilingual High-Performance AI",
+    "description": "Communicate seamlessly with global clients via smart chatbots.",
+    "icon": "MessageSquare"
+  }
+]

@@ -1,0 +1,289 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --background: #fcfbfe;
+  --foreground: #111827;
+}
+
+.dark {
+  --background: #090d16;
+  --foreground: #f1f5f9;
+  color-scheme: dark;
+}
+
+[data-theme="dark"] {
+  --background: #090d16;
+  --foreground: #f1f5f9;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Mode Theme Overrides */
+html.dark {
+  background-color: #090d16;
+}
+
+html.dark body {
+  background-color: #090d16;
+  color: #f1f5f9;
+}
+
+html.dark header {
+  background-color: rgba(9, 13, 22, 0.95) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark header .text-\[\#0d2a4a\] {
+  color: #f1f5f9 !important;
+}
+
+html.dark header nav.rounded-full,
+html.dark header nav.rounded-\[30px\] {
+  border-color: rgba(168, 85, 247, 0.35) !important;
+}
+
+html.dark header nav.rounded-full a,
+html.dark header nav.rounded-full button,
+html.dark header nav.rounded-\[30px\] a,
+html.dark header nav.rounded-\[30px\] button {
+  color: #e2e8f0 !important;
+}
+
+html.dark header nav.rounded-full a:hover,
+html.dark header nav.rounded-full button:hover,
+html.dark header nav.rounded-\[30px\] a:hover,
+html.dark header nav.rounded-\[30px\] button:hover {
+  color: #c084fc !important;
+}
+
+html.dark .bg-\[\#ebe8fd\] {
+  background-color: #0f1523 !important;
+}
+
+html.dark .bg-\[\#fcfbfe\],
+html.dark .bg-\[\#f8f9fa\],
+html.dark .bg-gray-50 {
+  background-color: #090d16 !important;
+}
+
+html.dark .bg-white {
+  background-color: #121927 !important;
+}
+
+html.dark .bg-white\/80,
+html.dark .bg-white\/90,
+html.dark .bg-white\/95 {
+  background-color: rgba(18, 25, 39, 0.9) !important;
+}
+
+html.dark .text-gray-950,
+html.dark .text-gray-900,
+html.dark .text-gray-800 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-gray-700,
+html.dark .text-gray-600 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-purple-100,
+html.dark .border-purple-200\/80 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .bg-\[\#f8f7ff\],
+html.dark .bg-\[\#f8f8f8\] {
+  background-color: #121927 !important;
+}
+
+html.dark .text-black,
+html.dark .text-\[\#1a1a1a\],
+html.dark .text-\[\#111111\],
+html.dark .text-\[\#333\],
+html.dark .text-\[\#333333\] {
+  color: #f8fafc !important;
+}
+
+html.dark .gooey-pill {
+  background: rgba(59, 130, 246, 0.25) !important;
+  border-color: rgba(96, 165, 250, 0.45) !important;
+  box-shadow: 0 0 16px rgba(37, 99, 235, 0.35) !important;
+}
+
+html.dark .glass-card {
+  background: rgba(18, 25, 39, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+
+/* Glassmorphism custom utilities */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+.bg-background-light {
+  background-color: #fcfbfe;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  display: flex;
+  width: max-content;
+  animation: scroll 35s linear infinite;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
+/* Hero Section Smooth Auto Idle Sway & Movement Animation */
+@keyframes robotIdleSway {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1.03);
+  }
+  25% {
+    transform: translate3d(3px, -7px, 0) rotate(0.8deg) scale(1.04);
+  }
+  50% {
+    transform: translate3d(-3px, -3px, 0) rotate(-0.6deg) scale(1.032);
+  }
+  75% {
+    transform: translate3d(-2px, -8px, 0) rotate(0.5deg) scale(1.045);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(1.02);
+  }
+}
+
+.animate-robot-idle {
+  animation: robotIdleSway 6.5s ease-in-out infinite;
+  will-change: transform;
+  transform-origin: center bottom;
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 6s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+/* Vokals.ai Floating / Bobbing Animations - Balanced, Smooth & Noticeable Float */
+@keyframes vokalsBob {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes vokalsFloat1 {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes vokalsFloat2 {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes vokalsFloat3 {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+.animate-vokals-bob {
+  animation: vokalsBob 4s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-vokals-float-1 {
+  animation: vokalsFloat1 3.8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-vokals-float-2 {
+  animation: vokalsFloat2 4.5s ease-in-out 0.8s infinite;
+  will-change: transform;
+}
+
+.animate-vokals-float-3 {
+  animation: vokalsFloat3 4.2s ease-in-out 0.4s infinite;
+  will-change: transform;
+}
+
+/* React Bits: Shiny Text Keyframes */
+@keyframes shine {
+  0% {
+    background-position: 100%;
+  }
+  100% {
+    background-position: -100%;
+  }
+}
+
+.animate-shine {
+  animation: shine 5s linear infinite;
+}
+

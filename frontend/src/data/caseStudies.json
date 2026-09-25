@@ -1,0 +1,62 @@
+[
+  {
+    "id": "cs-1",
+    "title": "Automated Clinical Assistant & Appointment Engine",
+    "client": "24th Asian Bioethics Healthcare Network",
+    "category": "Healthcare AI",
+    "description": "Engineered an intelligent conversational AI chatbot integrated with hospital management databases, reducing patient intake waiting times by 68%.",
+    "metrics": "68% faster patient response",
+    "technologies": [
+      "Next.js",
+      "Python FastAPI",
+      "LangChain",
+      "OpenAI GPT-4o"
+    ],
+    "featured": true
+  },
+  {
+    "id": "cs-2",
+    "title": "Cross-Platform Tax Filing & Calculator Automation",
+    "client": "BD Tax Automated Solutions",
+    "category": "Fintech & SaaS",
+    "description": "Architected a high-load tax computation engine that accurately automates complex Bangladeshi corporate and individual tax slabs with instant PDF certificate exports.",
+    "metrics": "50,000+ calculations processed",
+    "technologies": [
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Node.js"
+    ],
+    "featured": true
+  },
+  {
+    "id": "cs-3",
+    "title": "Omnichannel Conversational Sales & Support Bot",
+    "client": "Global Logistics & Commerce Group",
+    "category": "Enterprise Bot",
+    "description": "Deployed bilingual customer support chatbots across WhatsApp, Web and Messenger, cutting repetitive tier-1 support ticket volume by 74%.",
+    "metrics": "74% support tickets resolved automatically",
+    "technologies": [
+      "Meta WhatsApp Cloud API",
+      "Node.js",
+      "Redis",
+      "Vector DB"
+    ],
+    "featured": true
+  },
+  {
+    "id": "cs-4",
+    "title": "Interactive 3D Web Product Configurator",
+    "client": "ArchTech Modern Interiors",
+    "category": "3D Web Development",
+    "description": "Engineered real-time 3D product visualizer in Three.js allowing enterprise clients to customize furniture and architectural models in browser without plugin installations.",
+    "metrics": "3.4x higher user session engagement",
+    "technologies": [
+      "Three.js",
+      "WebGL",
+      "React Three Fiber",
+      "Next.js"
+    ],
+    "featured": false
+  }
+]

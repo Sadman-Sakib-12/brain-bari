@@ -1,0 +1,171 @@
+[
+  {
+    "id": "srv-1",
+    "slug": "ai-chatbot",
+    "title": "Ai Chatbot",
+    "category": "ai-chatbot",
+    "badge": "Most Popular",
+    "startingPrice": 259,
+    "deliveryDays": 9,
+    "shortDesc": "Automate customer support, lead capture, and instant 24/7 engagement with intelligent conversational AI models.",
+    "fullDesc": "Unlock unprecedented business efficiency with custom AI chatbots trained on your company's proprietary data and documentation. Seamlessly integrates with websites, WhatsApp, Messenger, and CRM systems.",
+    "features": [
+      "Custom Knowledge-Base RAG Training",
+      "Website & WhatsApp Business Integration",
+      "Instant 24/7 Lead Capture & Qualification",
+      "Human Agent Handoff Protocol",
+      "Multilingual Conversation Support (50+ Languages)"
+    ],
+    "image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=80",
+    "rating": 4.9,
+    "active": true
+  },
+  {
+    "id": "srv-2",
+    "slug": "ai-saas",
+    "title": "Ai Saas",
+    "category": "ai-saas",
+    "badge": "High ROI",
+    "startingPrice": 450,
+    "deliveryDays": 14,
+    "shortDesc": "End-to-end multi-tenant SaaS application development powered by generative AI and modern cloud architecture.",
+    "fullDesc": "Turn your vision into a profitable AI-powered software subscription platform. Includes complete user authentication, billing integration with Stripe/LemonSqueezy, dynamic dashboards, and secure LLM API pipelines.",
+    "features": [
+      "Multi-Tenant Architecture & Database",
+      "Subscription Billing & Invoicing (Stripe)",
+      "High-Speed LLM Inference Pipelines (OpenAI/Claude)",
+      "Real-Time Analytics & User Dashboard",
+      "Role-Based Access Control (RBAC)"
+    ],
+    "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
+    "rating": 4.95,
+    "active": true
+  },
+  {
+    "id": "srv-3",
+    "slug": "custom-ai",
+    "title": "Custom Ai Assistant",
+    "category": "custom-ai",
+    "badge": "Enterprise",
+    "startingPrice": 650,
+    "deliveryDays": 21,
+    "shortDesc": "Tailor-made autonomous AI agents designed to automate complex internal enterprise workflows and data analysis.",
+    "fullDesc": "Custom AI assistants engineered for unique business operations—ranging from legal document scrutiny, medical inquiry triage, automated CRM syncing, to financial projection modeling.",
+    "features": [
+      "Proprietary Business Logic & Agentic Workflows",
+      "Deep Enterprise System & API Integrations",
+      "Automated Document Processing & Extraction",
+      "Enterprise Data Privacy & TLS Encryption",
+      "Custom Fine-Tuned Domain Models"
+    ],
+    "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "active": true
+  },
+  {
+    "id": "srv-4",
+    "slug": "ai-3d",
+    "title": "Ai & 3d website/apps",
+    "category": "ai-3d",
+    "badge": "Immersive",
+    "startingPrice": 450,
+    "deliveryDays": 14,
+    "shortDesc": "Stunning interactive 3D WebGL experiences and high-conversion web applications infused with smart AI features.",
+    "fullDesc": "Captivate your audience with next-generation web design. Combining Three.js, interactive 3D product visualizations, fluid Framer Motion choreography, and responsive full-stack architectures.",
+    "features": [
+      "Interactive 3D Canvas & Spline Integration",
+      "Ultra-Fast Next.js App Router Architecture",
+      "360° E-Commerce Product Visualization",
+      "Fluid Physics & Scroll-Driven Micro-Animations",
+      "100/100 Core Web Vitals Optimization"
+    ],
+    "image": "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=800&auto=format&fit=crop&q=80",
+    "rating": 4.88,
+    "active": true,
+    "isFeatured": false
+  },
+  {
+    "id": "srv-5",
+    "slug": "ai-agents",
+    "title": "AI Agents & Automation",
+    "category": "custom-ai",
+    "badge": "Autonomous",
+    "startingPrice": 520,
+    "deliveryDays": 12,
+    "shortDesc": "Self-operating multi-agent workflows that plan, execute, and deliver end-to-end business operations autonomously.",
+    "fullDesc": "Empower your organization with multi-agent orchestration. Autonomous agents that research, draft documents, interact with third-party APIs, verify accuracy, and trigger business actions with human-in-the-loop validation.",
+    "features": [
+      "Multi-Agent Orchestration (LangGraph / CrewAI)",
+      "Browser Automation & Web Scraping",
+      "Automated Data Extraction & CRM Sync",
+      "Human-in-the-loop Approval System",
+      "Continuous Monitoring & Error Self-Healing"
+    ],
+    "image": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&auto=format&fit=crop&q=80",
+    "rating": 4.96,
+    "active": true
+  },
+  {
+    "id": "srv-6",
+    "slug": "saas-product",
+    "title": "SaaS Product Development",
+    "category": "ai-saas",
+    "badge": "Turnkey",
+    "startingPrice": 780,
+    "deliveryDays": 18,
+    "shortDesc": "From idea to revenue: launch scalable, high-performance web and cloud products with built-in subscription billing.",
+    "fullDesc": "Complete software engineering for innovative startups and enterprises. We deliver production-grade MVP and full-scale SaaS platforms equipped with user dashboards, payment systems, API integrations, and robust cloud infrastructure.",
+    "features": [
+      "Modern Next.js 15 & PostgreSQL Architecture",
+      "Stripe / LemonSqueezy Subscriptions",
+      "Multi-Tenant RBAC & Team Workspaces",
+      "Admin Analytics & User Management",
+      "Scalable Cloud Deployment (AWS / Vercel)"
+    ],
+    "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80",
+    "rating": 4.92,
+    "active": true
+  },
+  {
+    "id": "srv-7",
+    "slug": "web-app-dev",
+    "title": "Web & App Development",
+    "category": "ai-3d",
+    "badge": "Modern Stack",
+    "startingPrice": 490,
+    "deliveryDays": 10,
+    "shortDesc": "High-speed, responsive web platforms and progressive web applications engineered for unmatched user experience.",
+    "fullDesc": "Crafted with clean code, sleek micro-interactions, and blazing-fast performance. From interactive corporate portals to complex web applications, we build digital products that drive conversions and delight users.",
+    "features": [
+      "Lightning-Fast Performance & SEO Optimized",
+      "Mobile-First Responsive UI/UX Design",
+      "API Integration & Real-time WebSockets",
+      "Cross-Browser Compatibility & Security",
+      "Full CI/CD Pipeline & Modern Dev Standards"
+    ],
+    "image": "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80",
+    "rating": 4.89,
+    "active": true
+  },
+  {
+    "id": "srv-8",
+    "slug": "enterprise-software",
+    "title": "Enterprise Software Solutions",
+    "category": "custom-ai",
+    "badge": "Scalable",
+    "startingPrice": 950,
+    "deliveryDays": 25,
+    "shortDesc": "Mission-critical custom enterprise systems, ERPs, and automated pipelines built for scale and high compliance.",
+    "fullDesc": "Tailored enterprise solutions engineered to eliminate operational bottlenecks. We build bespoke ERP, CRM, inventory, and analytics systems designed with microservices, stringent data privacy, and high-availability architecture.",
+    "features": [
+      "Custom ERP, CRM & Business Intelligence",
+      "High-Throughput Microservice Architecture",
+      "Enterprise-grade Security & Compliance",
+      "Automated Data Pipelines & Legacy Migration",
+      "Dedicated 24/7 SLA Support & Maintenance"
+    ],
+    "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&auto=format&fit=crop&q=80",
+    "rating": 4.98,
+    "active": true
+  }
+]

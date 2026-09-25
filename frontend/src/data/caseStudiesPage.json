@@ -1,0 +1,147 @@
+{
+  "hero": {
+    "badge": "Solutions & Capabilities",
+    "title": "What product do you want to",
+    "titleHighlight": "build?",
+    "description": "Delivering value with tailored software solutions. Brain Bari is your trusted software and AI development partner.",
+    "buttonText": "Start Your Solution",
+    "buttonLink": "/order"
+  },
+  "capabilities": [
+    {
+      "id": "cap-1",
+      "title": "Custom software development",
+      "description": "We support you through all stages of custom software development. From strategy to the end-to-end solution development.",
+      "icon": "Code",
+      "category": "Engineering"
+    },
+    {
+      "id": "cap-2",
+      "title": "Mobile development",
+      "description": "Build a successful software product with a user-first approach. We develop native and cross-platform mobile apps.",
+      "icon": "Smartphone",
+      "category": "Mobile"
+    },
+    {
+      "id": "cap-3",
+      "title": "Web application development",
+      "description": "Create scalable, secure, and intuitive web apps engineered to meet your business goals effortlessly.",
+      "icon": "Globe",
+      "category": "Web"
+    },
+    {
+      "id": "cap-4",
+      "title": "Enterprise application development",
+      "description": "Modernize legacy systems and integrate mission-critical software architectures for enterprise efficiency.",
+      "icon": "Building2",
+      "category": "Enterprise"
+    },
+    {
+      "id": "cap-5",
+      "title": "MVP development",
+      "description": "Validate your ideas rapidly with cost-effective, market-ready Minimum Viable Products built in weeks.",
+      "icon": "Rocket",
+      "category": "Startups"
+    },
+    {
+      "id": "cap-6",
+      "title": "CTO as a Service",
+      "description": "Executive technical strategy, technology stack selection, and high-level architectural oversight.",
+      "icon": "UserCheck",
+      "category": "Advisory"
+    },
+    {
+      "id": "cap-7",
+      "title": "IT consulting",
+      "description": "Expert advice on digital transformation, technology audits, system architecture, and cloud infrastructure.",
+      "icon": "HelpCircle",
+      "category": "Advisory"
+    },
+    {
+      "id": "cap-8",
+      "title": "Software as a Service",
+      "description": "End-to-end SaaS architecture design, subscription payment gateways, multi-tenant database scaling.",
+      "icon": "Layers",
+      "category": "Cloud"
+    },
+    {
+      "id": "cap-9",
+      "title": "Conversational AI & Chatbots",
+      "description": "Multi-channel AI chat systems that understand context, qualify leads, and provide 24/7 intelligent customer care.",
+      "icon": "Bot",
+      "category": "AI"
+    },
+    {
+      "id": "cap-10",
+      "title": "Natural Language Processing (NLP)",
+      "description": "Semantic document parsing, sentiment analysis, named entity extraction, and automated categorization.",
+      "icon": "Brain",
+      "category": "AI"
+    },
+    {
+      "id": "cap-11",
+      "title": "Machine Learning Solutions",
+      "description": "Predictive modeling, regression analysis, computer vision, and customized neural network algorithms.",
+      "icon": "Cpu",
+      "category": "AI"
+    },
+    {
+      "id": "cap-12",
+      "title": "Generative AI Integration",
+      "description": "Fine-tune LLMs, integrate enterprise RAG pipelines, and embed autonomous generative agents into workflows.",
+      "icon": "Sparkles",
+      "category": "AI"
+    },
+    {
+      "id": "cap-13",
+      "title": "UI/UX Design & Prototyping",
+      "description": "Human-centered design systems, high-fidelity Figma prototypes, and seamless usability journeys.",
+      "icon": "Palette",
+      "category": "Design"
+    }
+  ],
+  "testimonials": [
+    {
+      "id": "test-1",
+      "name": "Mizanur Rahman",
+      "company": "London Oxford Tax",
+      "text": "Brain Bari delivered our TaxBot system with flawless precision. Response times went from 48 hours to under 2 seconds for client queries.",
+      "rating": 5
+    },
+    {
+      "id": "test-2",
+      "name": "Siam Ahmed",
+      "company": "CCcalculator Platform",
+      "text": "Outstanding engineering and speed. The live crypto profit analyzer handled massive traffic on launch day without a hitch.",
+      "rating": 5
+    },
+    {
+      "id": "test-3",
+      "name": "Dr. Shamim Ara",
+      "company": "Bioethics Society",
+      "text": "Brain Bari built the entire 24th Asian Bioethics Conference portal. Smooth registration, paper submissions, and zero downtime.",
+      "rating": 5
+    },
+    {
+      "id": "test-4",
+      "name": "Masuma Akter",
+      "company": "Tea 'N' Talk Lounge",
+      "text": "The auto-order chatbot completely automated our table and delivery reservations. Very easy to work with!",
+      "rating": 5
+    },
+    {
+      "id": "test-5",
+      "name": "Hiya Chowdhury",
+      "company": "Health Care Network",
+      "text": "Their team understands healthcare privacy and AI logic deeply. The automated wellness assistant is a game changer.",
+      "rating": 5
+    },
+    {
+      "id": "test-6",
+      "name": "Rohat Mia",
+      "company": "Global Logistics",
+      "text": "Professional, dependable, and highly skilled in full-stack Next.js and AI integrations. Highly recommended!",
+      "rating": 5
+    }
+  ]
+}

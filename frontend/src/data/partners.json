@@ -1,0 +1,42 @@
+[
+  {
+    "id": "partner-1",
+    "name": "State University of Bangladesh (SUB)",
+    "type": "Academic & Research",
+    "status": "Active Partner",
+    "website": "https://www.sub.ac.bd",
+    "logoInitials": "SUB",
+    "joinedDate": "2024-01-15",
+    "description": "Collaborative joint initiative on biomedical AI ethical frameworks and student technical internship programs."
+  },
+  {
+    "id": "partner-2",
+    "name": "Asian Bioethics Network",
+    "type": "Healthcare Consortium",
+    "status": "Active Partner",
+    "website": "https://asianbioethics.org",
+    "logoInitials": "ABN",
+    "joinedDate": "2024-05-10",
+    "description": "Official software automation and digital portal partner for international medical research conventions."
+  },
+  {
+    "id": "partner-3",
+    "name": "CloudScale DevOps Labs",
+    "type": "Technology & API Integration",
+    "status": "Active Partner",
+    "website": "https://cloudscale.io",
+    "logoInitials": "CS",
+    "joinedDate": "2024-08-20",
+    "description": "Kubernetes and high-availability cloud infrastructure provider for Brain Bari enterprise client deployments."
+  },
+  {
+    "id": "partner-4",
+    "name": "Apex Agency Solutions",
+    "type": "Agency & Reseller Partner",
+    "status": "Active Partner",
+    "website": "https://apexsolutions.net",
+    "logoInitials": "AAS",
+    "joinedDate": "2025-02-01",
+    "description": "Wholesale white-label implementation partner representing Brain Bari conversational AI solutions in North America."
+  }
+]
