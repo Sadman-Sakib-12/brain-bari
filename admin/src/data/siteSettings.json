@@ -1,0 +1,162 @@
+{
+  "siteName": "Brain Bari",
+  "tagline": "AI & Software Solutions Company in Bangladesh",
+  "navbar": {
+    "announcement": "🚀 Need AI Automation for your Enterprise? Book a 30-min strategy session",
+    "showAnnouncement": true,
+    "ctaText": "Book Consultation",
+    "ctaLink": "/schedule",
+    "secondaryCtaText": "Get a Quote",
+    "secondaryCtaLink": "https://wa.me/8801754958008?text=Hello%20Brain%20Bari%20Team",
+    "logoUrl": "",
+    "logoAlt": "Brain Bari",
+    "navLinks": [
+      {
+        "id": "nl-1",
+        "label": "Home",
+        "href": "/",
+        "type": "link"
+      },
+      {
+        "id": "nl-2",
+        "label": "About",
+        "href": "/about",
+        "type": "link"
+      },
+      {
+        "id": "nl-3",
+        "label": "Services",
+        "href": "/services",
+        "type": "dropdown"
+      },
+      {
+        "id": "nl-4",
+        "label": "Work",
+        "href": "/new-work",
+        "type": "link"
+      },
+      {
+        "id": "nl-5",
+        "label": "Blog",
+        "href": "/blog",
+        "type": "link"
+      },
+      {
+        "id": "nl-6",
+        "label": "Contact",
+        "href": "/contact",
+        "type": "link"
+      },
+      {
+        "id": "nl-7",
+        "label": "Resources",
+        "href": "/resources",
+        "type": "dropdown"
+      },
+      {
+        "id": "nl-8",
+        "label": "Product",
+        "href": "/product",
+        "type": "link"
+      }
+    ]
+  },
+  "hero": {
+    "badge": "",
+    "headline": "Powering Ideas\nwith",
+    "headlineGradient": "AI & Software",
+    "subheadline": "",
+    "searchPlaceholder": "What do you want to build?",
+    "ctaText": "Start Your Project",
+    "filterPills": [
+      "AI Solutions",
+      "Custom Software",
+      "SaaS Development"
+    ],
+    "robotImage": "/images/hero_robot.jpg",
+    "speechBubble1": "Hi! How can I help you?",
+    "speechBubble2": "Hi Skilabot! I need your help."
+  },
+  "coreServices": {
+    "learnMoreText": "Learn More",
+    "orderText": "Order"
+  },
+  "chatbotsConfig": {
+    "orderButtonText": "Order Now"
+  },
+  "whyChooseUs": {
+    "heading": "Why choose us?",
+    "subheading": "Select what is best for your enterprise from numerous proven AI options",
+    "buttonText": "Learn more",
+    "buttonLink": "/about",
+    "items": [
+      {
+        "id": "wc-1",
+        "title": "Creative thinking",
+        "subtitle": "Unique & Original Solutions",
+        "description": "Come up with unique, original and high-performing AI solutions.",
+        "icon": "Sparkles"
+      },
+      {
+        "id": "wc-2",
+        "title": "Career Planning",
+        "subtitle": "Strategic Software Roadmap",
+        "description": "Plan scalable software architecture with our lead AI architects.",
+        "icon": "Compass"
+      },
+      {
+        "id": "wc-3",
+        "title": "Public Speaking",
+        "subtitle": "Multilingual High-Performance AI",
+        "description": "Communicate seamlessly with global clients via smart chatbots.",
+        "icon": "MessageSquare"
+      }
+    ]
+  },
+  "workflow": {
+    "card1Title": "Website Assistant Chatbot",
+    "card1Progress": "50%",
+    "card1Subtitle": "WP Content Write",
+    "card1Desc": "Corporate restructuring and automated workflows that streamline client response.",
+    "card2Title": "Schedule",
+    "card2Subtitle": "AI Chatbot Setup",
+    "card2Desc": "Configure system prompts and integrate custom knowledge base files.",
+    "card3Title": "Generate Unique Content",
+    "card3Desc": "Autonomous content generation tailored to your company documentation, guaranteeing contextual accuracy and instant responses."
+  },
+  "portfolioSection": {
+    "badge": "Portfolio",
+    "heading": "Our",
+    "headingGradient": "Projects",
+    "description": "Explore our hand-crafted web solutions and intelligent AI systems designed to transform concepts into digital powerhouses."
+  },
+  "conversionCta": {
+    "heading": "Ready to transfer your Business",
+    "description": "Developing and maintaining web applications using React.js, Next.js, and other related technologies. Collaborating with cross-functional teams to engineer digital infrastructure that scales effortlessly.",
+    "buttonText": "Schedule A Consultation",
+    "buttonLink": "/schedule"
+  },
+  "contact": {
+    "phone": "+8801754-958008",
+    "phoneFormatted": "+8801754-958008",
+    "whatsapp": "8801754958008",
+    "whatsappUrl": "https://wa.me/8801754958008?text=Hello%20Brain%20Bari%20Team",
+    "email": "contact@brainbari.com",
+    "address": "Mirpur-10, Dhaka 1216, Bangladesh"
+  },
+  "socials": {
+    "linkedin": "https://www.linkedin.com/company/brainbari",
+    "twitter": "https://x.com/brain_bari",
+    "facebook": "https://www.facebook.com/brainbari",
+    "instagram": "https://www.instagram.com/brain_bari/",
+    "youtube": "https://www.youtube.com/channel/brainbari",
+    "github": "https://github.com/brainbari",
+    "upwork": "https://www.upwork.com/ag/brainbari"
+  },
+  "footer": {
+    "aboutText": "Brain Bari is a premier AI & Software Solutions Agency in Bangladesh specializing in conversational AI chatbots, custom AI assistants, scalable SaaS products, and modern high-conversion web apps.",
+    "copyright": "© 2026 Brain Bari. All rights reserved.",
+    "termsText": "All intellectual property rights and code developed by Brain Bari belong to the client upon full payment completion as per project agreement terms.",
+    "privacyText": "Brain Bari values your privacy. We never share customer data, proprietary AI training datasets, or business strategies with any third parties."
+  }
+}

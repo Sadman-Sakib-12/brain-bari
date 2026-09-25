@@ -1,0 +1,46 @@
+[
+  {
+    "id": "usr-01",
+    "name": "Super Administrator",
+    "email": "admin@brainbari.com",
+    "role": "Admin",
+    "phone": "+8801754958008",
+    "company": "Brain Bari Headquarters",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+    "joinedDate": "2025-01-01",
+    "status": "Active"
+  },
+  {
+    "id": "usr-02",
+    "name": "Tanvir Ahmed",
+    "email": "tanvir@techbangla.com",
+    "role": "Client",
+    "phone": "+8801711223344",
+    "company": "TechBangla Logistics Ltd.",
+    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
+    "joinedDate": "2026-09-12",
+    "status": "Active"
+  },
+  {
+    "id": "usr-03",
+    "name": "Farzana Yasmin",
+    "email": "farzana@medicare-bd.org",
+    "role": "Client",
+    "phone": "+8801812345678",
+    "company": "CarePoint Diagnostic",
+    "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80",
+    "joinedDate": "2026-09-10",
+    "status": "Active"
+  },
+  {
+    "id": "usr-04",
+    "name": "Dr. Darryl Macer",
+    "email": "president@asianbioethics.org",
+    "role": "Client",
+    "phone": "+1-415-555-0199",
+    "company": "Asian Bioethics Association",
+    "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80",
+    "joinedDate": "2026-08-18",
+    "status": "Active"
+  }
+]

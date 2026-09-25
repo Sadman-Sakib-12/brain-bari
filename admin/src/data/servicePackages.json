@@ -1,0 +1,130 @@
+{
+  "ai-chatbot": {
+    "image": "/images/service_ai_chatbot.jpg",
+    "heroTitlePrefix": "Intelligent Conversational ",
+    "heroTitleGradient": "AI Chatbots",
+    "heroTitleSuffix": " for Enterprise",
+    "paragraphs": [
+      "We design, build, and deploy domain-trained AI chatbots capable of human-like comprehension, multi-turn reasoning, and instant query resolution across 50+ languages.",
+      "Whether integrated into your customer-facing web portal, WhatsApp Business, or internal Slack channels, our bots connect directly to your knowledge base."
+    ],
+    "packages": [
+      {
+        "id": "pkg-1",
+        "title": "Smart Website Chatbot",
+        "meta": "AI Customer Support & Lead Capture",
+        "price": "Start $259",
+        "description": "Interactive, branded website bot trained on your documentation, FAQs, and product catalogs with automated lead qualification.",
+        "features": [
+          "Instant 24/7 Support",
+          "RAG Pipeline Training",
+          "Human Agent Handoff",
+          "Custom UI Theming"
+        ],
+        "image": "/images/service_ai_chatbot.jpg",
+        "link": "/order?service=Website%20Chatbot",
+        "isConsulting": false
+      },
+      {
+        "id": "pkg-2",
+        "title": "WhatsApp Auto-Order Bot",
+        "meta": "Conversational Commerce & WhatsApp Cloud API",
+        "price": "Start $350",
+        "description": "Automated order booking and customer retention bot directly on WhatsApp Business with real-time payment link dispatch.",
+        "features": [
+          "WhatsApp Cloud API Integration",
+          "Catalog Browsing",
+          "Order Confirmation & Invoicing",
+          "Multi-Admin Dashboard"
+        ],
+        "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
+        "link": "/order?service=WhatsApp%20Bot",
+        "isConsulting": false
+      }
+    ]
+  },
+  "custom-ai": {
+    "image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=80",
+    "heroTitlePrefix": "Bespoke Autonomous ",
+    "heroTitleGradient": "Custom AI Assistants",
+    "heroTitleSuffix": " & Agents",
+    "paragraphs": [
+      "Empower your workforce with custom AI agents equipped with reasoning logic, tool execution, and direct database querying capabilities.",
+      "From legal document synthesis to financial report audits, our assistants execute multi-step operational tasks autonomously."
+    ],
+    "packages": [
+      {
+        "id": "pkg-3",
+        "title": "Enterprise Knowledge Assistant",
+        "meta": "Autonomous Reasoning & Multi-Modal Intelligence",
+        "price": "Start $450",
+        "description": "Secure internal employee copilot that searches millions of enterprise files, PDFs, and database tables in milliseconds.",
+        "features": [
+          "Strict Data Privacy & Encryption",
+          "Vector Search with Milvus/Pinecone",
+          "Role-Based Document Access",
+          "Audit Trail Analytics"
+        ],
+        "image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=80",
+        "link": "/order?service=Enterprise%20AI%20Assistant",
+        "isConsulting": false
+      }
+    ]
+  },
+  "ai-saas": {
+    "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
+    "heroTitlePrefix": "End-to-End Scalable ",
+    "heroTitleGradient": "AI SaaS Solutions",
+    "heroTitleSuffix": " from Scratch",
+    "paragraphs": [
+      "We take your AI startup or enterprise SaaS concept from initial architecture design to production deployment and global scalability.",
+      "Built with modern stacks including Next.js, FastAPI, multi-tenant databases, Stripe billing, and automated CI/CD pipelines."
+    ],
+    "packages": [
+      {
+        "id": "pkg-4",
+        "title": "Full-Stack AI Micro-SaaS MVP",
+        "meta": "Next.js 16 + FastAPI + Multi-Tenant Cloud Scaling",
+        "price": "Start $850",
+        "description": "Production-ready SaaS boilerplate with authentication, subscription tiers, Stripe checkout, AI inference engine, and admin dashboard.",
+        "features": [
+          "Next.js & Tailwind Frontend",
+          "FastAPI / Python AI Backend",
+          "Stripe Subscription Billing",
+          "Multi-Tenant Cloud Hosting"
+        ],
+        "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
+        "link": "/order?service=AI%20SaaS%20MVP",
+        "isConsulting": false
+      }
+    ]
+  },
+  "ai-3d": {
+    "image": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&auto=format&fit=crop&q=80",
+    "heroTitlePrefix": "Immersive Real-Time ",
+    "heroTitleGradient": "AI & 3D Web",
+    "heroTitleSuffix": " Experiences",
+    "paragraphs": [
+      "Combine cutting-edge WebGL, Three.js, and generative AI shaders to create breathtaking interactive web platforms.",
+      "High-performance 3D product configurators, architectural walkthroughs, and spatial web applications that drive unmatched engagement."
+    ],
+    "packages": [
+      {
+        "id": "pkg-5",
+        "title": "Interactive 3D Web App",
+        "meta": "Three.js + Real-Time Shaders + WebGL Performance",
+        "price": "Start $550",
+        "description": "Interactive Three.js visualizer with custom 3D models, smooth camera orbits, real-time materials tweaking, and mobile responsiveness.",
+        "features": [
+          "Three.js / React Three Fiber",
+          "Blender Model Optimization",
+          "Interactive Physics & Lighting",
+          "Zero Plugin In-Browser Running"
+        ],
+        "image": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&auto=format&fit=crop&q=80",
+        "link": "/order?service=3D%20Web%20App",
+        "isConsulting": false
+      }
+    ]
+  }
+}

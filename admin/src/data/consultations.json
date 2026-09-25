@@ -1,0 +1,58 @@
+[
+  {
+    "id": "cns-201",
+    "bookingRef": "CNS-SEP-01",
+    "clientName": "Mahmudur Rahman",
+    "clientEmail": "mahmud@bengalfin.com",
+    "clientPhone": "+8801722334455",
+    "company": "Bengal Financial Systems",
+    "topic": "Custom AI Assistant & Enterprise Automation",
+    "date": "2026-09-18",
+    "timeSlot": "03:00 PM - 03:45 PM",
+    "status": "Confirmed",
+    "notes": "Exploring custom LLM fine-tuning on internal credit policy documents.",
+    "createdAt": "2026-09-16T08:00:00Z"
+  },
+  {
+    "id": "cns-202",
+    "bookingRef": "CNS-SEP-02",
+    "clientName": "Nusrat Jahan",
+    "clientEmail": "nusrat@edulearn-bd.org",
+    "clientPhone": "+8801833445566",
+    "company": "EduLearn Interactive",
+    "topic": "AI SaaS Architecture & Cloud Scaling",
+    "date": "2026-09-19",
+    "timeSlot": "11:30 AM - 12:15 PM",
+    "status": "Pending",
+    "notes": "Wants to integrate Brain Bari EduBari tutoring API into their existing student LMS.",
+    "createdAt": "2026-09-16T12:30:00Z"
+  },
+  {
+    "id": "cns-203",
+    "bookingRef": "CNS-SEP-03",
+    "clientName": "David Chen",
+    "clientEmail": "d.chen@globalfin.sg",
+    "clientPhone": "+65-8123-4567",
+    "company": "Apex Singapore FinTech",
+    "topic": "WebSockets Real-Time Financial Simulator",
+    "date": "2026-09-20",
+    "timeSlot": "04:00 PM - 04:45 PM",
+    "status": "Confirmed",
+    "notes": "Discussing cross-border high-frequency price feed integration similar to CCcalculator.",
+    "createdAt": "2026-09-15T16:00:00Z"
+  },
+  {
+    "id": "cns-204",
+    "bookingRef": "CNS-SEP-04",
+    "clientName": "Anisur Zaman",
+    "clientEmail": "anis@dhakaretail.com",
+    "clientPhone": "+8801755667788",
+    "company": "Dhaka Smart Retail",
+    "topic": "Automated WhatsApp Order & Customer Support Chatbot",
+    "date": "2026-09-15",
+    "timeSlot": "02:00 PM - 02:45 PM",
+    "status": "Completed",
+    "notes": "Session completed. Client submitted order ord-101 based on this meeting.",
+    "createdAt": "2026-09-13T10:00:00Z"
+  }
+]

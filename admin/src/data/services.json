@@ -1,0 +1,87 @@
+[
+  {
+    "id": "srv-1",
+    "slug": "ai-chatbot",
+    "title": "Ai Chatbot",
+    "category": "ai-chatbot",
+    "badge": "Most Popular",
+    "startingPrice": 259,
+    "deliveryDays": 9,
+    "shortDesc": "Automate customer support, lead capture, and instant 24/7 engagement with intelligent conversational AI models.",
+    "fullDesc": "Unlock unprecedented business efficiency with custom AI chatbots trained on your company's proprietary data and documentation. Seamlessly integrates with websites, WhatsApp, Messenger, and CRM systems.",
+    "features": [
+      "Custom Knowledge-Base RAG Training",
+      "Website & WhatsApp Business Integration",
+      "Instant 24/7 Lead Capture & Qualification",
+      "Human Agent Handoff Protocol",
+      "Multilingual Conversation Support (50+ Languages)"
+    ],
+    "image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=80",
+    "rating": 4.9,
+    "active": true
+  },
+  {
+    "id": "srv-2",
+    "slug": "ai-saas",
+    "title": "Ai Saas",
+    "category": "ai-saas",
+    "badge": "High ROI",
+    "startingPrice": 450,
+    "deliveryDays": 14,
+    "shortDesc": "End-to-end multi-tenant SaaS application development powered by generative AI and modern cloud architecture.",
+    "fullDesc": "Turn your vision into a profitable AI-powered software subscription platform. Includes complete user authentication, billing integration with Stripe/LemonSqueezy, dynamic dashboards, and secure LLM API pipelines.",
+    "features": [
+      "Multi-Tenant Architecture & Database",
+      "Subscription Billing & Invoicing (Stripe)",
+      "High-Speed LLM Inference Pipelines (OpenAI/Claude)",
+      "Real-Time Analytics & User Dashboard",
+      "Role-Based Access Control (RBAC)"
+    ],
+    "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
+    "rating": 4.95,
+    "active": true
+  },
+  {
+    "id": "srv-3",
+    "slug": "custom-ai",
+    "title": "Custom Ai Assistant",
+    "category": "custom-ai",
+    "badge": "Enterprise",
+    "startingPrice": 650,
+    "deliveryDays": 21,
+    "shortDesc": "Tailor-made autonomous AI agents designed to automate complex internal enterprise workflows and data analysis.",
+    "fullDesc": "Custom AI assistants engineered for unique business operations—ranging from legal document scrutiny, medical inquiry triage, automated CRM syncing, to financial projection modeling.",
+    "features": [
+      "Proprietary Business Logic & Agentic Workflows",
+      "Deep Enterprise System & API Integrations",
+      "Automated Document Processing & Extraction",
+      "Enterprise Data Privacy & TLS Encryption",
+      "Custom Fine-Tuned Domain Models"
+    ],
+    "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
+    "rating": 5,
+    "active": true
+  },
+  {
+    "id": "srv-4",
+    "slug": "ai-3d",
+    "title": "Ai & 3d website/apps",
+    "category": "ai-3d",
+    "badge": "Immersive",
+    "startingPrice": 450,
+    "deliveryDays": 14,
+    "shortDesc": "Stunning interactive 3D WebGL experiences and high-conversion web applications infused with smart AI features.",
+    "fullDesc": "Captivate your audience with next-generation web design. Combining Three.js, interactive 3D product visualizations, fluid Framer Motion choreography, and responsive full-stack architectures.",
+    "features": [
+      "Interactive 3D Canvas & Spline Integration",
+      "Ultra-Fast Next.js App Router Architecture",
+      "360° E-Commerce Product Visualization",
+      "Fluid Physics & Scroll-Driven Micro-Animations",
+      "100/100 Core Web Vitals Optimization"
+    ],
+    "image": "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=800&auto=format&fit=crop&q=80",
+    "rating": 4.88,
+    "active": true,
+    "isFeatured": false
+  }
+]

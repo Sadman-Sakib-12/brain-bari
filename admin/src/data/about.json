@@ -1,0 +1,82 @@
+{
+  "hero": {
+    "headline": "Precision AI for Smarter, Scalable Business Growth",
+    "intro": "Founded in 2024, Brain Bari specializes in AI-powered software solutions that are secure, scalable, and built to deliver real business results for clients worldwide.",
+    "subHeadline": "Delivering Intelligent Solutions Across Industries",
+    "body": "Brain Bari is an Artificial Intelligence (AI) & software solutions company established in 2024, focused on helping businesses automate operations, improve customer engagement, and scale efficiently through precision-driven technology. We design and develop intelligent AI systems tailored to real business needs, combining strategy, innovation, and security to deliver long-term value.",
+    "workAreasTitle": "Our Work Areas Include:",
+    "workAreas": [
+      "AI Messenger & Chatbots",
+      "Custom AI Chatbot Development",
+      "AI-Powered Software Solutions",
+      "Business Process Automation",
+      "Data Analytics & AI Insights",
+      "Enterprise AI & Integration Solutions",
+      "Others"
+    ],
+    "closingText": "We work with startups, SMEs, and enterprises across multiple industries, delivering AI solutions that are practical, reliable, and aligned with business goals."
+  },
+  "journey": {
+    "heading": "Professional Journey",
+    "subheading": "My journey through achievements, projects and growth",
+    "milestones": [
+      {
+        "id": "m-1",
+        "title": "Brain Bari Founded",
+        "subtitle": "Company Establishment · 2024",
+        "desc": "Brain Bari was founded with a clear vision to build precision-driven AI solutions that help businesses automate smarter and scale efficiently.",
+        "tag": null,
+        "alignRight": false
+      },
+      {
+        "id": "m-2",
+        "title": "AI Product & Solution Development",
+        "subtitle": "AI & Software Engineering",
+        "desc": "Designed and developed AI chatbots, intelligent automation systems, and custom AI software tailored to real-world business needs.",
+        "tag": "Development",
+        "alignRight": true
+      },
+      {
+        "id": "m-3",
+        "title": "Client Projects & Industry Adoption",
+        "subtitle": "Multi-Industry Solutions",
+        "desc": "Successfully delivered AI-powered solutions for startups, SMEs, and enterprises, improving customer engagement and operational efficiency.",
+        "tag": "Execution",
+        "alignRight": false
+      },
+      {
+        "id": "m-4",
+        "title": "Strategic Growth & Partnerships",
+        "subtitle": "Scaling & Collaboration",
+        "desc": "Expanded through strategic partnerships, scalable infrastructure, and a long-term growth strategy focused on global markets.",
+        "tag": "Growth",
+        "alignRight": true
+      },
+      {
+        "id": "m-5",
+        "title": "Future Roadmap",
+        "subtitle": "Innovation & Global Expansion",
+        "desc": "Focused on advanced AI services, enterprise platforms, and global market expansion to build sustainable, long-term value.",
+        "tag": "Roadmap",
+        "alignRight": false
+      }
+    ]
+  },
+  "services": {
+    "heading": "Full Cycle Development Services",
+    "items": [
+      { "id": "s-1", "title": "BUSINESS ANALYSIS", "desc": "We analyze business needs and offer the best solution for our clients." },
+      { "id": "s-2", "title": "UX/UI DEVELOPMENT", "desc": "We create seamless and efficient user flows." },
+      { "id": "s-3", "title": "TESTING AND QA", "desc": "Our goal is to make our products work without fails." },
+      { "id": "s-4", "title": "DEVELOPMENT", "desc": "We hire only highly experienced IT professionals." },
+      { "id": "s-5", "title": "DEPLOYMENT", "desc": "We assist companies in deployment, scaling and maintenance of Applications." },
+      { "id": "s-6", "title": "DATA MANAGEMENT", "desc": "We help to manage all the business data in the system the right way." }
+    ]
+  },
+  "cta": {
+    "heading": "Ready to transfer your Business",
+    "desc": "Developing and maintaining web applications using React.js, Next.js, and other related technologies. Collaborating with cross-functional teams including",
+    "buttonText": "Schedule A Consultation",
+    "buttonLink": "/schedule/"
+  }
+}

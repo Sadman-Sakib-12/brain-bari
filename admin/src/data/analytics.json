@@ -1,0 +1,21 @@
+{
+  "totalRevenue": 42850,
+  "totalOrders": 128,
+  "pendingOrders": 3,
+  "activeConsultations": 4,
+  "totalUsers": 216,
+  "monthlyRevenue": [
+    { "month": "Apr", "revenue": 4200, "orders": 12 },
+    { "month": "May", "revenue": 5800, "orders": 16 },
+    { "month": "Jun", "revenue": 7100, "orders": 19 },
+    { "month": "Jul", "revenue": 8400, "orders": 24 },
+    { "month": "Aug", "revenue": 10150, "orders": 29 },
+    { "month": "Sep", "revenue": 12200, "orders": 34 }
+  ],
+  "categoryDistribution": [
+    { "category": "AI Chatbot", "share": 38, "color": "#f59e0b" },
+    { "category": "Custom AI Assistant", "share": 28, "color": "#8b5cf6" },
+    { "category": "AI SaaS Development", "share": 22, "color": "#ec4899" },
+    { "category": "AI & 3D Web/Apps", "share": 12, "color": "#10b981" }
+  ]
+}

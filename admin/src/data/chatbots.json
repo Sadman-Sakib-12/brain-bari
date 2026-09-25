@@ -1,0 +1,66 @@
+[
+  {
+    "id": "bot-1",
+    "slug": "ai-health-chatbot",
+    "title": "Ai Health Chatbot",
+    "description": "Ai Health Chatbot gives smart, instant health answers, wellness tips, and clinic triage guidance.",
+    "price": "Free",
+    "priceNumeric": 0,
+    "deliveryDays": 5,
+    "tags": [
+      "Healthcare",
+      "Triage",
+      "Bengali & English"
+    ],
+    "image": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80",
+    "status": "Active"
+  },
+  {
+    "id": "bot-2",
+    "slug": "custom-website-chatbot",
+    "title": "Custom Website Chatbot",
+    "description": "Custom Website Chatbot answers users instantly, smartly, 24/7, with human agent handoff.",
+    "price": "$890.00",
+    "priceNumeric": 890,
+    "deliveryDays": 9,
+    "tags": [
+      "Customer Support",
+      "RAG",
+      "Multi-Language"
+    ],
+    "image": "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&auto=format&fit=crop&q=80",
+    "status": "Active"
+  },
+  {
+    "id": "bot-3",
+    "slug": "social-media-chatbot",
+    "title": "Social Media Chatbot",
+    "description": "Social Media Chatbot replies fast across WhatsApp, Messenger, and Instagram to boost sales.",
+    "price": "$450.00",
+    "priceNumeric": 450,
+    "deliveryDays": 7,
+    "tags": [
+      "Social Sales",
+      "WhatsApp",
+      "Auto-DM"
+    ],
+    "image": "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&auto=format&fit=crop&q=80",
+    "status": "Active"
+  },
+  {
+    "id": "bot-4",
+    "slug": "auto-order-chatbot",
+    "title": "Auto Order Chatbot",
+    "description": "Auto Order Chatbot takes orders quickly, error-free, 24/7, with live inventory verification.",
+    "price": "680$",
+    "priceNumeric": 680,
+    "deliveryDays": 10,
+    "tags": [
+      "E-Commerce",
+      "Auto-Billing",
+      "Inventory Sync"
+    ],
+    "image": "https://images.unsplash.com/photo-1556742049-0a67e5572293?w=600&auto=format&fit=crop&q=80",
+    "status": "Active"
+  }
+]
