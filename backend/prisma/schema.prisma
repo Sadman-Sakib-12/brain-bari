@@ -1,0 +1,244 @@
+// Prisma Schema for Botbari (NeonDB PostgreSQL)
+// Modular Enterprise MVC Architecture
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+// -------------------------------------------------------------
+// 1. User Model
+// -------------------------------------------------------------
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      Role     @default(CLIENT)
+  avatar    String?
+  phone     String?
+  company   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders   Order[]
+  payments Payment[]
+  bookings Booking[]
+
+  @@map("users")
+}
+
+// -------------------------------------------------------------
+// 2. Service Catalog Model
+// -------------------------------------------------------------
+model Service {
+  id           String   @id @default(uuid())
+  title        String
+  slug         String   @unique
+  category     String   // "ai-chatbot", "custom-ai", "ai-saas", "ai-3d"
+  shortDesc    String
+  fullDesc     String?
+  price        Float
+  deliveryDays Int      @default(7)
+  features     String[] @default([])
+  badge        String?  // e.g. "Most Popular", "Enterprise"
+  icon         String?
+  image        String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("services")
+}
+
+// -------------------------------------------------------------
+// 3. Specialized Chatbots Model (CMS)
+// -------------------------------------------------------------
+model Chatbot {
+  id           String   @id @default(uuid())
+  name         String
+  category     String
+  price        Float
+  deliveryTime String   @default("3-5 Days")
+  tags         String[] @default([])
+  description  String
+  image        String?
+  liveDemo     String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("chatbots")
+}
+
+// -------------------------------------------------------------
+// 4. Portfolio & Case Studies Model (CMS)
+// -------------------------------------------------------------
+model Portfolio {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  category    String
+  description String
+  client      String?
+  liveUrl     String?
+  thumbnail   String?
+  tags        String[] @default([])
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("portfolios")
+}
+
+// -------------------------------------------------------------
+// 5. Blog & Resources Model (CMS)
+// -------------------------------------------------------------
+model Blog {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  content     String
+  excerpt     String?
+  coverImage  String?
+  author      String   @default("Botbari Team")
+  tags        String[] @default([])
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("blogs")
+}
+
+// -------------------------------------------------------------
+// 6. FAQ Model (CMS)
+// -------------------------------------------------------------
+model Faq {
+  id         String   @id @default(uuid())
+  question   String
+  answer     String
+  category   String   @default("General")
+  orderIndex Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+// -------------------------------------------------------------
+// 7. Order Model
+// -------------------------------------------------------------
+model Order {
+  id            String      @id @default(uuid())
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  clientName    String?
+  clientEmail   String?
+  clientPhone   String?
+  serviceName   String
+  category      String      @default("ai-services")
+  requirements  String
+  budget        String      @default("Custom Quote")
+  quotePrice    Float?
+  status        OrderStatus @default(PENDING)
+  rejectionNote String?
+  deliveryTime  String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  payments Payment[]
+
+  @@map("orders")
+}
+
+// -------------------------------------------------------------
+// 8. Payment Model (Stripe Integration)
+// -------------------------------------------------------------
+model Payment {
+  id            String        @id @default(uuid())
+  orderId       String
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactionId String        @unique
+  amount        Float
+  currency      String        @default("usd")
+  status        PaymentStatus @default(COMPLETED)
+  paymentMethod String        @default("card")
+  createdAt     DateTime      @default(now())
+
+  @@map("payments")
+}
+
+// -------------------------------------------------------------
+// 9. Booking Model (Consultations)
+// -------------------------------------------------------------
+model Booking {
+  id        String        @id @default(uuid())
+  userId    String?
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  date      String
+  timeSlot  String
+  topic     String
+  message   String?
+  status    BookingStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("bookings")
+}
+
+// -------------------------------------------------------------
+// 10. Site Settings Model (CMS Hero & Global Settings)
+// -------------------------------------------------------------
+model SiteSetting {
+  id             String   @id @default("default")
+  heroHeadline   String?
+  heroSubheadline String?
+  heroTags       String[] @default([])
+  phone          String?
+  email          String?
+  whatsapp       String?
+  address        String?
+  socialLinks    Json?
+  updatedAt      DateTime @updatedAt
+
+  @@map("site_settings")
+}
