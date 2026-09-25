@@ -1,0 +1,177 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import portfolioData from "@/data/portfolio.json";
+import ConversionCTA from "@/components/ConversionCTA";
+import ClientLogos from "@/components/ClientLogos";
+
+interface PortfolioItem {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  status: string;
+  statusColor?: string;
+  shortDesc: string;
+  client: string;
+  year: string;
+  techStack: string[];
+  metrics: string;
+  challenge: string;
+  solution: string;
+  results: string;
+  image: string;
+}
+
+const categories = ["All", "Event & Conference", "AI & Taxation", "Crypto & FinTech"];
+
+export default function NewWorkPage() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const filteredWorks = selectedCategory === "All"
+    ? (portfolioData as PortfolioItem[])
+    : (portfolioData as PortfolioItem[]).filter((item) => 
+        item.category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+        selectedCategory.toLowerCase().includes(item.category.toLowerCase())
+      );
+
+  return (
+    <div className="min-h-screen bg-[#ebe8fd] font-sans flex flex-col justify-between relative overflow-hidden pt-36 md:pt-40">
+      {/* Background ambient radial blur orbs */}
+      <div className="absolute top-[5%] left-[-15%] w-[600px] h-[600px] bg-[#b57be4]/20 rounded-full blur-[150px] pointer-events-none z-0"></div>
+      <div className="absolute top-[35%] right-[-15%] w-[700px] h-[700px] bg-[#e464a4]/15 rounded-full blur-[170px] pointer-events-none z-0"></div>
+      <div className="absolute bottom-[20%] left-[-5%] w-[500px] h-[500px] bg-[#ff7e5f]/8 rounded-full blur-[140px] pointer-events-none z-0"></div>
+
+      <section className="flex-grow py-12 md:py-20 px-4 sm:px-6 relative z-10">
+        {/* Header Title Section */}
+        <div className="max-w-[1200px] mx-auto text-center mb-12 space-y-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/60 border border-purple-200/50 text-[#a05fd3] text-[11px] font-bold rounded-full uppercase tracking-widest shadow-sm">
+            <span className="w-2 h-2 bg-gradient-to-r from-[#ff7e5f] to-[#e464a4] rounded-full animate-pulse"></span>
+            Innovative Portfolio
+          </div>
+          <h1 className="text-[40px] sm:text-[54px] md:text-[68px] font-black text-[#1a1a1a] tracking-tight leading-[1.05] max-w-[850px] mx-auto">
+            Powering Ideas <br className="sm:hidden" /> with{" "}
+            <br className="hidden sm:inline" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff7e5f] to-[#e464a4]">
+              AI &amp; Software
+            </span>
+          </h1>
+          <p className="text-gray-600 text-sm sm:text-base max-w-[650px] mx-auto font-semibold leading-relaxed">
+            We build state-of-the-art platforms, bespoke systems, and AI assistants designed to automate workflows and scale operations.
+          </p>
+        </div>
+
+        {/* 3 Metric Stat Cards */}
+        <div className="max-w-[800px] mx-auto grid grid-cols-3 gap-4 md:gap-8 mb-16 px-4">
+          <div className="bg-white/65 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-white/70 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_30px_rgba(181,123,228,0.1)] hover:-translate-y-1 transition-all duration-300">
+            <div className="text-2xl md:text-4xl font-extrabold text-[#b57be4]">30+</div>
+            <div className="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">
+              Projects
+            </div>
+          </div>
+          <div className="bg-white/65 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-white/70 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_30px_rgba(181,123,228,0.1)] hover:-translate-y-1 transition-all duration-300">
+            <div className="text-2xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#ff7e5f] to-[#e464a4]">
+              10+
+            </div>
+            <div className="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">
+              AI Systems
+            </div>
+          </div>
+          <div className="bg-white/65 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-white/70 text-center shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_30px_rgba(181,123,228,0.1)] hover:-translate-y-1 transition-all duration-300">
+            <div className="text-2xl md:text-4xl font-extrabold text-[#a05fd3]">99.9%</div>
+            <div className="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">
+              Satisfaction
+            </div>
+          </div>
+        </div>
+
+        {/* Portfolio Filters & Cards */}
+        <div className="max-w-[1200px] mx-auto pb-24 space-y-12">
+          {/* Category Filter Tabs */}
+          <div className="w-full flex justify-center">
+            <div className="flex items-center overflow-x-auto md:overflow-x-visible md:justify-center md:flex-wrap gap-2.5 max-w-full px-4 py-2 select-none">
+              {categories.map((cat) => {
+                const isActive = selectedCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 cursor-pointer shadow-sm border whitespace-nowrap shrink-0 ${
+                      isActive
+                        ? "bg-gradient-to-r from-[#ff7e5f] to-[#e464a4] text-white border-transparent scale-105 shadow-purple-500/25"
+                        : "bg-white/80 backdrop-blur-md text-gray-600 border-purple-100/50 hover:border-[#b57be4] hover:text-[#b57be4] hover:scale-102"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Cards Grid - Each linking directly to dedicated dynamic page /new-work/[slug] */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 px-4 sm:px-6">
+            {filteredWorks.map((item) => (
+              <Link
+                key={item.id}
+                href={`/new-work/${item.slug}`}
+                className="group flex flex-col bg-white/70 backdrop-blur-lg rounded-3xl overflow-hidden shadow-[0_8px_30px_rgba(181,123,228,0.03)] border border-white/80 hover:border-purple-200 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(181,123,228,0.12)] cursor-pointer relative text-left"
+              >
+                <span className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/95 text-[#e464a4] border border-[#e464a4]/20 shadow-md">
+                  <span className="w-1.5 h-1.5 bg-[#e464a4] rounded-full animate-ping"></span>
+                  Featured
+                </span>
+
+                <div className="relative w-full h-[210px] sm:h-[230px] md:h-[250px] bg-[#fdfcff] overflow-hidden border-b border-purple-50/50">
+                  <div className="absolute inset-0 bg-gradient-to-t from-purple-950/15 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                </div>
+
+                <div className="p-6 sm:p-7 md:p-8 flex flex-col justify-between min-h-[190px] flex-grow bg-white/40 backdrop-blur-sm relative z-10">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="inline-block px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-purple-50 text-[#b57be4] border border-purple-100/40">
+                        {item.category}
+                      </span>
+                      <span className="text-[11px] font-bold text-gray-500">
+                        {item.year}
+                      </span>
+                    </div>
+
+                    <h3 className="text-gray-900 text-[18px] sm:text-[20px] font-black leading-snug group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#ff7e5f] group-hover:to-[#e464a4] transition-all duration-300">
+                      {item.title}
+                    </h3>
+
+                    <p className="text-xs text-gray-600 font-medium line-clamp-2 leading-relaxed">
+                      {item.shortDesc}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-5 mt-6 border-t border-purple-100/30">
+                    <span className="text-[11px] font-black text-[#b57be4] group-hover:text-[#e464a4] transition-colors uppercase tracking-widest flex items-center gap-1.5">
+                      View Case Study
+                    </span>
+                    <span className="text-lg font-bold text-gray-400 group-hover:text-[#e464a4] group-hover:translate-x-2 transition-all duration-500 ease-out">
+                      →
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Client Logos Marquee Strip */}
+      <ClientLogos className="bg-white/60 backdrop-blur-md border-y border-purple-100/60 my-4" />
+
+      {/* Signature Conversion CTA */}
+      <ConversionCTA />
+    </div>
+  );
+}
