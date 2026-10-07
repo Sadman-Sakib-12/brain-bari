@@ -13,7 +13,7 @@ interface IServiceQueryParams {
 
 const getAllServices = async (query: IServiceQueryParams) => {
   const page = Number(query.page) || 1;
-  const limit = Number(query.limit) || 10;
+  const limit = Number(query.limit) || 100;
   const skip = (page - 1) * limit;
 
   const where: any = {};
