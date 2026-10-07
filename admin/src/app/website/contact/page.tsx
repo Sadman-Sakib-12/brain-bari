@@ -5,7 +5,6 @@ import {
   Phone,
   Mail,
   MapPin,
-  Share2,
   Building,
   Save,
   RotateCcw,
@@ -16,71 +15,96 @@ import {
   FileText
 } from "lucide-react";
 import { adminStore } from "@/lib/store";
-import initialSettings from "@/data/siteSettings.json";
+import { adminApi } from "@/lib/adminApi";
 import PageHeader from "@/components/ui/PageHeader";
 import Card from "@/components/ui/Card";
 import FormField from "@/components/ui/FormField";
 import { toast } from "sonner";
 
-type ContactTab = "info" | "social" | "office";
+type ContactTab = "info" | "office";
 
 export default function WebsiteContactPage() {
   const [activeTab, setActiveTab] = useState<ContactTab>("info");
-  const [settings, setSettings] = useState<any>(initialSettings);
+  const [mounted, setMounted] = useState(false);
+  const [settings, setSettings] = useState<any>({});
   const [saved, setSaved] = useState(false);
 
-  const loadData = () => {
+  const loadData = async () => {
     try {
+      const fresh = await adminApi.getSettings();
+      if (fresh) {
+        setSettings(fresh);
+        adminStore.setSettings(fresh);
+        return;
+      }
       const st = adminStore.getSettings();
-      if (st && st.contact) setSettings(st);
+      if (st && Object.keys(st).length > 0) {
+        setSettings(st);
+      }
     } catch {
-      setSettings(initialSettings);
+      const st = adminStore.getSettings();
+      if (st && Object.keys(st).length > 0) {
+        setSettings(st);
+      }
     }
   };
 
   useEffect(() => {
+    setMounted(true);
     loadData();
-    window.addEventListener("admin_store_updated", loadData);
-    return () => window.removeEventListener("admin_store_updated", loadData);
   }, []);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     adminStore.setSettings(settings);
-    setSaved(true);
-    toast.success("Contact information saved successfully!", {
-      description: "Frontend contact channels and footer details updated."
-    });
-    setTimeout(() => setSaved(false), 2000);
-  };
-
-  const handleReset = () => {
-    if (confirm("Reset contact settings back to defaults?")) {
-      setSettings(initialSettings);
-      adminStore.setSettings(initialSettings);
-      toast.info("Reset to default contact details.");
+    try {
+      await adminApi.updateSettings(settings);
+      setSaved(true);
+      toast.success("Contact information saved successfully!", {
+        description: "Frontend contact channels and footer details updated."
+      });
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      toast.error("Failed to save contact settings to database.");
     }
   };
+
+  const handleReset = async () => {
+    if (confirm("Reset contact settings back to database state?")) {
+      try {
+        const fresh = await adminApi.getSettings();
+        if (fresh) {
+          setSettings(fresh);
+          adminStore.setSettings(fresh);
+          toast.info("Refreshed contact details from database.");
+        }
+      } catch {
+        toast.error("Failed to refresh from database.");
+      }
+    }
+  };
+
+  if (!mounted) {
+    return (
+      <div className="space-y-6 animate-pulse p-4">
+        <div className="h-10 bg-slate-100 rounded-xl w-1/3" />
+        <div className="h-48 bg-slate-100 rounded-2xl" />
+        <div className="h-64 bg-slate-100 rounded-2xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
         badge="Website CMS / Contact & Office"
         title="Contact & Office Manager"
-        description="Manage direct communication channels, phone numbers, WhatsApp links, social profiles, and registered office details."
+        description="Manage direct communication channels and company details. Managed Frontend Sections: Global Footer (Contact info, emails, phones, social links) • Contact Page (/contact)."
         actions={
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handleReset}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-white hover:bg-slate-50 border border-slate-200 cursor-pointer"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset</span>
-            </button>
-            <button
-              type="button"
               onClick={handleSave}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#0f172a] hover:bg-slate-800 border border-slate-800 cursor-pointer transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 border border-blue-600 shadow-2xs cursor-pointer transition-colors"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{saved ? "Saved!" : "Save Changes"}</span>
@@ -92,7 +116,6 @@ export default function WebsiteContactPage() {
         <div className="flex items-center gap-2 border-b border-slate-200 mt-2 -mb-2 overflow-x-auto no-scrollbar">
           {[
             { id: "info", label: "Contact Information", icon: Phone },
-            { id: "social", label: "Social Links", icon: Share2 },
             { id: "office", label: "Office & Compliance", icon: Building }
           ].map((tab) => {
             const Icon = tab.icon;
@@ -147,7 +170,7 @@ export default function WebsiteContactPage() {
                     })
                   }
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-                  placeholder="contact@botbari.com"
+                  placeholder="contact@brainbari.com"
                 />
               </FormField>
 
@@ -185,104 +208,7 @@ export default function WebsiteContactPage() {
         </div>
       )}
 
-      {/* TAB 2: SOCIAL LINKS */}
-      {activeTab === "social" && (
-        <Card header={<h3 className="text-sm font-bold text-slate-900">Official Social Media Profiles</h3>}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <FormField label="LinkedIn Company Page">
-              <input
-                type="text"
-                value={settings.socials?.linkedin || ""}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    socials: { ...settings.socials, linkedin: e.target.value }
-                  })
-                }
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-                placeholder="https://www.linkedin.com/company/botbari"
-              />
-            </FormField>
-
-            <FormField label="X / Twitter (New X Logo)">
-              <input
-                type="text"
-                value={settings.socials?.twitter || ""}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    socials: { ...settings.socials, twitter: e.target.value }
-                  })
-                }
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-                placeholder="https://x.com/botbari"
-              />
-            </FormField>
-
-            <FormField label="Upwork Agency Profile">
-              <input
-                type="text"
-                value={settings.socials?.upwork || ""}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    socials: { ...settings.socials, upwork: e.target.value }
-                  })
-                }
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-                placeholder="https://www.upwork.com/ag/botbari"
-              />
-            </FormField>
-
-            <FormField label="Facebook Official Page">
-              <input
-                type="text"
-                value={settings.socials?.facebook || ""}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    socials: { ...settings.socials, facebook: e.target.value }
-                  })
-                }
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-                placeholder="https://www.facebook.com/botbari"
-              />
-            </FormField>
-
-            <FormField label="Instagram Account">
-              <input
-                type="text"
-                value={settings.socials?.instagram || ""}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    socials: { ...settings.socials, instagram: e.target.value }
-                  })
-                }
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-                placeholder="https://www.instagram.com/botbari/"
-              />
-            </FormField>
-
-            <FormField label="YouTube Channel">
-              <input
-                type="text"
-                value={settings.socials?.youtube || ""}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    socials: { ...settings.socials, youtube: e.target.value }
-                  })
-                }
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-                placeholder="https://www.youtube.com/@botbari"
-              />
-            </FormField>
-          </div>
-        </Card>
-      )}
-
-      {/* TAB 3: OFFICE INFORMATION & COMPLIANCE */}
+      {/* TAB 2: OFFICE INFORMATION & COMPLIANCE */}
       {activeTab === "office" && (
         <div className="space-y-6">
           <Card header={<h3 className="text-sm font-bold text-slate-900">Headquarters &amp; Physical Address</h3>}>
@@ -306,19 +232,48 @@ export default function WebsiteContactPage() {
                 <FormField label="Operating Hours">
                   <input
                     type="text"
-                    defaultValue="Sunday – Thursday: 09:00 AM – 07:00 PM (BST)"
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50"
+                    value={settings.contact?.hours || ""}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        contact: { ...settings.contact, hours: e.target.value }
+                      })
+                    }
+                    placeholder="Sunday – Thursday: 09:00 AM – 07:00 PM (BST)"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl"
                   />
                 </FormField>
 
                 <FormField label="Timezone">
                   <input
                     type="text"
-                    defaultValue="Asia/Dhaka (GMT+6)"
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50"
+                    value={settings.contact?.timezone || ""}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        contact: { ...settings.contact, timezone: e.target.value }
+                      })
+                    }
+                    placeholder="Asia/Dhaka (GMT+6)"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl"
                   />
                 </FormField>
               </div>
+
+              <FormField label="Google Maps Embed URL (Iframe src)">
+                <input
+                  type="text"
+                  value={settings.contact?.mapEmbedUrl || ""}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      contact: { ...settings.contact, mapEmbedUrl: e.target.value }
+                    })
+                  }
+                  placeholder="https://maps.google.com/maps?q=Mirpur-10+Dhaka&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-[11px]"
+                />
+              </FormField>
             </div>
           </Card>
 
