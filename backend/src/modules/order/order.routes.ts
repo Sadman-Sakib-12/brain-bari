@@ -6,6 +6,7 @@ const router = Router();
 
 // Client routes (optional auth allows both guests and logged-in users to place orders)
 router.post('/', optionalAuth, OrderController.createOrder);
+router.get('/', optionalAuth, OrderController.getAllOrdersForAdmin);
 router.get('/my-orders', verifyToken, OrderController.getMyOrders);
 router.get('/:id', verifyToken, OrderController.getOrderById);
 router.patch('/:id', verifyToken, OrderController.updateClientOrder);

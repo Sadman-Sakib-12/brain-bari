@@ -1,6 +1,7 @@
 import prisma from '../../config/prisma';
 import { OrderStatus } from '@prisma/client';
 import { ApiError } from '../../middlewares/errorHandler';
+import { MailerService } from '../../utils/mailer';
 
 const createOrder = async (
   userId: string | undefined,
@@ -17,7 +18,7 @@ const createOrder = async (
     phone?: string;
   }
 ) => {
-  return await prisma.order.create({
+  const newOrder = await prisma.order.create({
     data: {
       userId: (userId as any) || undefined,
       clientName: data.clientName || data.name || null,
@@ -35,6 +36,21 @@ const createOrder = async (
       },
     },
   });
+
+  // Asynchronously dispatch notification emails to Admin and Client via Nodemailer SMTP
+  MailerService.sendOrderNotification({
+    id: newOrder.id,
+    serviceName: newOrder.serviceName,
+    category: newOrder.category,
+    requirements: newOrder.requirements,
+    budget: newOrder.budget,
+    clientName: newOrder.clientName || newOrder.user?.name || 'Valued Client',
+    clientEmail: newOrder.clientEmail || newOrder.user?.email || null,
+    clientPhone: newOrder.clientPhone || null,
+    createdAt: newOrder.createdAt,
+  }).catch((err) => console.warn('Order notification email error:', err));
+
+  return newOrder;
 };
 
 const getMyOrders = async (userId: string) => {
@@ -127,8 +143,9 @@ const updateClientOrder = async (
 const setOrderQuoteByAdmin = async (
   id: string,
   data: {
-    status: 'APPROVED' | 'REJECTED';
+    status?: string;
     quotePrice?: number;
+    quotedPrice?: number;
     deliveryTime?: string;
     rejectionNote?: string;
   }
@@ -138,11 +155,24 @@ const setOrderQuoteByAdmin = async (
     throw new ApiError(404, 'Order not found');
   }
 
+  // Gracefully accept either quotePrice or quotedPrice
+  const rawPrice = data.quotePrice !== undefined ? data.quotePrice : data.quotedPrice;
+  const quotePrice = rawPrice !== undefined && rawPrice !== null ? Number(rawPrice) : order.quotePrice;
+
+  // Normalize status (e.g., "Approved" -> "APPROVED", "In Progress" -> "IN_PROGRESS")
+  let normalizedStatus: OrderStatus = order.status;
+  if (data.status) {
+    const candidate = data.status.trim().toUpperCase().replace(/\s+/g, '_') as OrderStatus;
+    if (Object.values(OrderStatus).includes(candidate)) {
+      normalizedStatus = candidate;
+    }
+  }
+
   return await prisma.order.update({
     where: { id },
     data: {
-      status: data.status,
-      quotePrice: data.quotePrice !== undefined ? data.quotePrice : order.quotePrice,
+      status: normalizedStatus,
+      quotePrice,
       deliveryTime: data.deliveryTime || order.deliveryTime,
       rejectionNote: data.rejectionNote || order.rejectionNote,
     },
