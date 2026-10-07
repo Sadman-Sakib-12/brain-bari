@@ -5,45 +5,42 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   FolderGit2,
   Plus,
-  Edit2,
-  Trash2,
-  Eye,
-  Star,
-  ExternalLink,
   Save,
-  RotateCcw,
-  CheckCircle2,
-  Layers,
-  Building,
-  Calendar,
-  Sparkles,
   Tag,
-  Briefcase,
-  Quote
+  BarChart3,
+  ExternalLink,
+  Sparkles,
+  Info,
 } from "lucide-react";
-import { adminStore } from "@/lib/store";
-import initialPortfolio from "@/data/portfolio.json";
-import initialCaseStudies from "@/data/caseStudies.json";
+import { adminApi } from "@/lib/adminApi";
+import { FRONTEND_URL } from "@/lib/axios";
 import PageHeader from "@/components/ui/PageHeader";
-import StatusBadge from "@/components/ui/StatusBadge";
-import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
-import FormField from "@/components/ui/FormField";
 import { toast } from "sonner";
 
-type ProjectsTab = "all" | "categories" | "case-studies";
+import ProjectModal from "./components/ProjectModal";
+import ProjectsGridTab from "./components/ProjectsGridTab";
+import ProjectCategoriesTab from "./components/ProjectCategoriesTab";
+
+type ProjectsTab = "all" | "metrics" | "categories";
 
 function ProjectsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialTab = (searchParams.get("tab") as ProjectsTab) || "all";
-  const initialAction = searchParams.get("action");
 
   const [activeTab, setActiveTab] = useState<ProjectsTab>(initialTab);
-  const [projects, setProjects] = useState<any[]>(initialPortfolio);
-  const [caseStudies, setCaseStudies] = useState<any[]>(initialCaseStudies);
+  const [projects, setProjects] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [saved, setSaved] = useState(false);
+
+  // Top Metrics (for /new-work page top 3 stat cards)
+  const [metricsList, setMetricsList] = useState<any[]>([
+    { number: "30+", label: "PROJECTS", color: "purple" },
+    { number: "10+", label: "AI SYSTEMS", color: "pink" },
+    { number: "99.9%", label: "SATISFACTION", color: "purple" },
+  ]);
+  const [isSavingMetrics, setIsSavingMetrics] = useState(false);
 
   // Edit / Add Modal
   const [editingProject, setEditingProject] = useState<any | null>(null);
@@ -72,48 +69,52 @@ function ProjectsContent() {
   const [techInput, setTechInput] = useState("");
   const [keyFeatures, setKeyFeatures] = useState<string[]>([]);
   const [featureInput, setFeatureInput] = useState("");
-  const [testimonial, setTestimonial] = useState<{ quote: string; author: string; role: string; company?: string }>({
+  const [testimonial, setTestimonial] = useState<{
+    quote: string;
+    author: string;
+    role: string;
+    company?: string;
+  }>({
     quote: "",
     author: "",
     role: "",
-    company: ""
+    company: "",
   });
 
   const loadData = () => {
-    try {
-      const stored = adminStore.getPortfolio();
-      if (stored && stored.length > 0) setProjects(stored);
-      const storedCases = adminStore.getCaseStudies();
-      if (storedCases && storedCases.length > 0) setCaseStudies(storedCases);
-    } catch (e) {
-      console.error(e);
-    }
+    adminApi
+      .getPortfolios()
+      .then((res) => {
+        setProjects(res || []);
+      })
+      .catch(() => {
+        setProjects([]);
+      });
+
+    adminApi
+      .getContent("newWorkMetrics")
+      .then((res) => {
+        if (res && Array.isArray(res.metrics) && res.metrics.length > 0) {
+          setMetricsList(res.metrics);
+        }
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {
     loadData();
-    window.addEventListener("admin_store_updated", loadData);
-    return () => window.removeEventListener("admin_store_updated", loadData);
   }, []);
 
-  useEffect(() => {
-    const tab = searchParams.get("tab") as ProjectsTab;
-    const action = searchParams.get("action");
-    if (action === "add") {
-      openAddProject();
-    } else if (tab && ["all", "categories", "case-studies"].includes(tab)) {
-      setActiveTab(tab);
+  const handleSaveMetrics = async () => {
+    setIsSavingMetrics(true);
+    try {
+      await adminApi.saveContent("newWorkMetrics", { metrics: metricsList });
+      toast.success("Work page top 3 metric cards updated successfully!");
+    } catch {
+      toast.error("Failed to save metrics.");
+    } finally {
+      setIsSavingMetrics(false);
     }
-  }, [searchParams]);
-
-  const handleSaveAll = () => {
-    adminStore.setPortfolio(projects);
-    adminStore.setCaseStudies(caseStudies);
-    setSaved(true);
-    toast.success("Projects and case studies saved!", {
-      description: "Frontend portfolio and showcase updated live."
-    });
-    setTimeout(() => setSaved(false), 2000);
   };
 
   const openAddProject = () => {
@@ -122,33 +123,24 @@ function ProjectsContent() {
     setSlug("");
     setCategory("Enterprise AI");
     setClient("");
-    setYear("2026");
-    setTimeline("3 Weeks");
+    setYear(new Date().getFullYear().toString());
+    setTimeline("");
     setStatus("Live Platform");
     setStatusColor("emerald");
-    setShortDesc("Comprehensive enterprise automation system built with Brain Bari AI technology.");
-    setOverview("Engineered scalable edge-first architecture to automate core business operations.");
-    setMetrics("75% Cost Reduction");
-    setChallenge("Manual client workload and slow triage response times.");
-    setSolution("Engineered domain-tuned AI workflow with automated data pipelines.");
-    setResults("Reduced customer wait times by 75% and automated 10,000+ monthly queries.");
-    setImage("https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80");
-    setIsFeatured(true);
-    setLiveUrl("https://botbari.com");
-    setTechStack(["Next.js", "Tailwind CSS", "TypeScript", "AI Engine"]);
+    setShortDesc("");
+    setOverview("");
+    setMetrics("");
+    setChallenge("");
+    setSolution("");
+    setResults("");
+    setImage("");
+    setIsFeatured(false);
+    setLiveUrl("");
+    setTechStack([]);
     setTechInput("");
-    setKeyFeatures([
-      "Automated Real-Time AI Decision Pipeline",
-      "Interactive Real-Time Telemetry Dashboard",
-      "Bank-Grade Security & Encrypted User Sessions"
-    ]);
+    setKeyFeatures([]);
     setFeatureInput("");
-    setTestimonial({
-      quote: "Brain Bari delivered beyond expectations with exceptional speed and technical precision.",
-      author: "Enterprise Partner",
-      role: "Chief Technology Officer",
-      company: "Global Tech"
-    });
+    setTestimonial({ quote: "", author: "", role: "", company: "" });
     setIsModalOpen(true);
   };
 
@@ -156,137 +148,158 @@ function ProjectsContent() {
     setEditingProject(proj);
     setTitle(proj.title || "");
     setSlug(proj.slug || "");
-    setCategory(proj.category || "Enterprise AI");
+    setCategory(proj.category || "AI & Automation");
     setClient(proj.client || "");
     setYear(proj.year || "2026");
-    setTimeline(proj.timeline || "3 Weeks");
+    setTimeline(proj.timeline || "");
     setStatus(proj.status || "Live Platform");
     setStatusColor(proj.statusColor || "emerald");
-    setShortDesc(proj.shortDesc || "");
-    setOverview(proj.overview || "");
+    setShortDesc(proj.shortDesc || proj.description || "");
+    setOverview(proj.overview || proj.description || "");
     setMetrics(proj.metrics || "");
     setChallenge(proj.challenge || "");
     setSolution(proj.solution || "");
     setResults(proj.results || "");
-    setImage(proj.image || "");
-    setIsFeatured(!!proj.isFeatured);
-    setLiveUrl(proj.liveUrl || "https://");
-    const stack = Array.isArray(proj.techStack)
-      ? proj.techStack
-      : typeof proj.techStack === "string"
-      ? [proj.techStack]
-      : ["Next.js", "AI"];
-    setTechStack(stack);
+    setImage(proj.image || proj.thumbnail || "");
+    setIsFeatured(!!proj.isFeatured || !!proj.featured);
+    setLiveUrl(proj.liveUrl || "");
+    setTechStack(Array.isArray(proj.techStack) ? proj.techStack : proj.tags || []);
     setTechInput("");
     setKeyFeatures(Array.isArray(proj.keyFeatures) ? proj.keyFeatures : []);
     setFeatureInput("");
-    setTestimonial({
-      quote: proj.testimonial?.quote || "",
-      author: proj.testimonial?.author || "",
-      role: proj.testimonial?.role || "",
-      company: proj.testimonial?.company || ""
-    });
+    setTestimonial(
+      proj.testimonial || { quote: "", author: "", role: "", company: "" }
+    );
     setIsModalOpen(true);
   };
 
-  const handleSaveProjectForm = () => {
+  const handleSaveProjectForm = async () => {
     if (!title.trim()) {
-      toast.error("Project title is required");
+      toast.error("Project title is required.");
       return;
     }
 
-    const projectSlug = slug.trim() || title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    const validTechStack = Array.isArray(techStack) && techStack.length > 0 ? techStack : ["Next.js", "AI"];
-    const validKeyFeatures = Array.isArray(keyFeatures) ? keyFeatures.filter(Boolean) : [];
+    const projectSlug =
+      slug.trim() ||
+      title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
+    const validTechStack = techStack.filter((t) => t.trim().length > 0);
+    const validKeyFeatures = keyFeatures.filter((f) => f.trim().length > 0);
     const validTestimonial = testimonial.quote.trim() ? testimonial : undefined;
 
-    if (editingProject) {
-      const updated = projects.map((p) => {
-        if (p.id === editingProject.id || p.slug === editingProject.slug) {
-          return {
-            ...p,
-            title,
-            slug: projectSlug,
-            category,
-            client,
-            year,
-            timeline,
-            status,
-            statusColor,
-            shortDesc,
-            overview,
-            metrics,
-            challenge,
-            solution,
-            results,
-            image,
-            isFeatured,
-            liveUrl,
-            techStack: validTechStack,
-            keyFeatures: validKeyFeatures,
-            ...(validTestimonial ? { testimonial: validTestimonial } : {})
+    const payload = {
+      title,
+      slug: projectSlug,
+      category,
+      client,
+      year,
+      timeline,
+      status,
+      statusColor,
+      shortDesc,
+      overview,
+      metrics,
+      challenge,
+      solution,
+      results,
+      image,
+      isFeatured,
+      liveUrl,
+      techStack: validTechStack,
+      keyFeatures: validKeyFeatures,
+      ...(validTestimonial ? { testimonial: validTestimonial } : {}),
+    };
+
+    try {
+      if (editingProject) {
+        await adminApi.updatePortfolio(editingProject.id, payload);
+        const updated = projects.map((p) => {
+          if (p.id === editingProject.id || p.slug === editingProject.slug) {
+            return { ...p, ...payload };
+          }
+          return p;
+        });
+        setProjects(updated);
+        toast.success(`Project "${title}" updated.`);
+      } else {
+        const created = await adminApi.createPortfolio(payload);
+        if (created) {
+          setProjects((prev) => [created, ...prev.filter((p) => p.id !== created.id)]);
+        } else {
+          const newProj = {
+            id: `proj-${Date.now()}`,
+            ...payload,
           };
+          setProjects((prev) => [newProj, ...prev]);
         }
-        return p;
-      });
-      setProjects(updated);
-      adminStore.setPortfolio(updated);
-      toast.success(`Project "${title}" updated.`);
-    } else {
-      const newProj = {
-        id: `proj-${Date.now()}`,
-        title,
-        slug: projectSlug,
-        category,
-        client,
-        year,
-        timeline,
-        status,
-        statusColor,
-        shortDesc,
-        overview,
-        metrics,
-        challenge,
-        solution,
-        results,
-        image,
-        isFeatured,
-        liveUrl,
-        techStack: validTechStack,
-        keyFeatures: validKeyFeatures,
-        ...(validTestimonial ? { testimonial: validTestimonial } : {})
-      };
-      const updated = [newProj, ...projects];
-      setProjects(updated);
-      adminStore.setPortfolio(updated);
-      toast.success(`Project "${title}" added to portfolio.`);
-    }
-
-    setIsModalOpen(false);
-  };
-
-  const handleDeleteProject = () => {
-    if (!deleteConfirmId) return;
-    const updated = projects.filter((p) => p.id !== deleteConfirmId && p.slug !== deleteConfirmId);
-    setProjects(updated);
-    adminStore.setPortfolio(updated);
-    toast.success("Project deleted from portfolio.");
-    setDeleteConfirmId(null);
-  };
-
-  const toggleFeatured = (projId: string) => {
-    const updated = projects.map((p) => {
-      if (p.id === projId || p.slug === projId) {
-        return { ...p, isFeatured: !p.isFeatured };
+        toast.success(`Project "${title}" added to portfolio.`);
       }
-      return p;
-    });
-    setProjects(updated);
-    adminStore.setPortfolio(updated);
-    toast.info("Featured status updated.");
+      setIsModalOpen(false);
+    } catch {
+      toast.error("Failed to save project. Please check backend connection.");
+    }
   };
 
-  const categories = ["All", "AI & Automation", "SaaS Platform", "Web Applications", "Enterprise Systems"];
+  const handleDeleteProject = async () => {
+    if (!deleteConfirmId) return;
+    try {
+      await adminApi.deletePortfolio(deleteConfirmId);
+      const updated = projects.filter(
+        (p) => p.id !== deleteConfirmId && p.slug !== deleteConfirmId
+      );
+      setProjects(updated);
+      toast.success("Project removed from portfolio.");
+    } catch {
+      toast.error("Failed to delete project.");
+    } finally {
+      setDeleteConfirmId(null);
+    }
+  };
+
+  const toggleFeatured = async (projId: string) => {
+    const target = projects.find((p) => p.id === projId || p.slug === projId);
+    if (!target) return;
+    const nextState = !target.isFeatured;
+    try {
+      await adminApi.updatePortfolio(target.id, { isFeatured: nextState, featured: nextState });
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === projId || p.slug === projId
+            ? { ...p, isFeatured: nextState, featured: nextState }
+            : p
+        )
+      );
+      toast.info(
+        nextState
+          ? `"${target.title}" is now Featured.`
+          : `"${target.title}" is unfeatured.`
+      );
+    } catch {
+      toast.error("Failed to toggle featured status.");
+    }
+  };
+
+  const categories = Array.from(
+    new Set([
+      "All",
+      ...projects.map((p) => p.category).filter(Boolean),
+      "3D Web Development",
+      "Enterprise Bot",
+      "Fintech & SaaS",
+      "Healthcare AI",
+      "3D Web",
+      "E-Commerce",
+      "AI Voice",
+      "AI & Software",
+      "Enterprise AI",
+      "Crypto & FinTech",
+      "AI & Taxation",
+      "Event & Conference",
+    ])
+  );
 
   const filteredProjects = projects.filter((p) => {
     if (selectedCategory === "All") return true;
@@ -294,38 +307,49 @@ function ProjectsContent() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <PageHeader
-        badge="Enterprise CMS / Projects"
-        title="Projects &amp; Case Studies"
-        description="Manage the public portfolio, case studies, verified client metrics, and live project demonstrations."
+        badge="Our Work & Portfolio Management"
+        title="Our Work (Portfolio Projects)"
+        description="Manage client projects, case studies, categories, and top metric cards displayed on the public /work (Our Work) page."
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <a
+              href={`${FRONTEND_URL}/new-work`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+              <span>Preview Live /work Page</span>
+            </a>
+
             <button
               type="button"
               onClick={openAddProject}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-[#0f172a] hover:bg-slate-800 border border-slate-800 cursor-pointer transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 cursor-pointer transition-colors shadow-2xs"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add New Project</span>
             </button>
-            <button
-              type="button"
-              onClick={handleSaveAll}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 cursor-pointer transition-colors"
-            >
-              <Save className="w-3.5 h-3.5 text-slate-400" />
-              <span>{saved ? "Saved!" : "Save All"}</span>
-            </button>
           </div>
         }
       >
-        {/* Sub-Tabs */}
+        {/* SUB-TABS */}
         <div className="flex items-center gap-2 border-b border-slate-200 mt-2 -mb-2 overflow-x-auto no-scrollbar">
           {[
-            { id: "all", label: "All Projects", icon: FolderGit2, count: projects.length },
+            {
+              id: "all",
+              label: "All Projects (Work Showcase)",
+              icon: FolderGit2,
+              count: projects.length,
+            },
+            {
+              id: "metrics",
+              label: "Top Stats & Metrics (3 Cards)",
+              icon: BarChart3,
+            },
             { id: "categories", label: "Categories", icon: Tag },
-            { id: "case-studies", label: "Case Studies", icon: Briefcase, count: caseStudies.length }
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -356,585 +380,162 @@ function ProjectsContent() {
         </div>
       </PageHeader>
 
-      {/* TAB 1: ALL PROJECTS (PROJECT CARDS / GRID PATTERN) */}
+      {/* TAB 1: ALL PROJECTS */}
       {activeTab === "all" && (
-        <div className="space-y-5">
-          {/* Categories Pill Filters */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
-                  selectedCategory === cat
-                    ? "bg-[#0f172a] text-white border-slate-800"
-                    : "bg-white text-slate-600 hover:text-slate-900 border-slate-200"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+        <ProjectsGridTab
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+          filteredProjects={filteredProjects}
+          onToggleFeatured={toggleFeatured}
+          onEdit={openEditProject}
+          onDelete={(id) => setDeleteConfirmId(id)}
+        />
+      )}
+
+      {/* TAB 2: TOP STATS & METRICS (3 CARDS ON /new-work) */}
+      {activeTab === "metrics" && (
+        <div className="space-y-6">
+          <div className="p-4 bg-purple-50/70 border border-purple-200/80 rounded-2xl flex items-start gap-3">
+            <Info className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
+            <div className="text-xs text-purple-950 leading-relaxed">
+              <strong className="font-bold block text-sm mb-0.5">
+                Top 3 Metric Cards on &ldquo;Our Work&rdquo; Page
+              </strong>
+              These 3 numbers are displayed prominently right under the hero title at{" "}
+              <code>/work</code> (e.g. <code>30+ PROJECTS</code>, <code>10+ AI SYSTEMS</code>,{" "}
+              <code>99.9% SATISFACTION</code>). You can edit their numbers and titles below and
+              click Save.
+            </div>
           </div>
 
-          {/* Project Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredProjects.map((proj) => (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {metricsList.map((m: any, idx: number) => (
               <div
-                key={proj.id || proj.slug}
-                className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-slate-300 transition-colors group"
+                key={idx}
+                className="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs space-y-4"
               >
-                {/* Thumbnail Header */}
-                <div className="relative h-44 bg-slate-100 border-b border-slate-100 overflow-hidden">
-                  {proj.image ? (
-                    <img
-                      src={proj.image}
-                      alt={proj.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-400">
-                      <FolderGit2 className="w-8 h-8" />
-                    </div>
-                  )}
-
-                  {/* Badges Over Image */}
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-950/80 text-white backdrop-blur-xs">
-                      {proj.category}
-                    </span>
-                  </div>
-
-                  <div className="absolute top-3 right-3 flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => toggleFeatured(proj.id || proj.slug)}
-                      className={`p-1.5 rounded-lg border cursor-pointer transition-colors backdrop-blur-xs ${
-                        proj.isFeatured
-                          ? "bg-amber-500/90 text-white border-amber-400"
-                          : "bg-slate-950/60 text-slate-300 hover:text-white border-slate-700"
-                      }`}
-                      title={proj.isFeatured ? "Featured" : "Click to feature"}
-                    >
-                      <Star className="w-3.5 h-3.5 fill-current" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Content Body */}
-                <div className="p-5 space-y-3 flex-1">
-                  <div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1 font-medium">
-                      <span>{proj.client || "Enterprise Client"}</span>
-                      <span>{proj.year || "2026"}</span>
-                    </div>
-                    <h3 className="text-base font-bold text-slate-900 tracking-tight line-clamp-1">
-                      {proj.title}
-                    </h3>
-                  </div>
-
-                  {proj.metrics && (
-                    <div className="inline-block px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200">
-                      🎯 {proj.metrics}
-                    </div>
-                  )}
-
-                  <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                    {proj.results || proj.solution || proj.challenge || "No description."}
-                  </p>
-                </div>
-
-                {/* Actions Footer */}
-                <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    {proj.status || "Live"}
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <span className="text-xs font-bold text-slate-800">
+                    Metric Card #{idx + 1}
                   </span>
+                  <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">
+                    Live on /work
+                  </span>
+                </div>
 
-                  <div className="flex items-center gap-1.5">
-                    {proj.liveUrl && (
-                      <a
-                        href={proj.liveUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
-                        title="Open Live URL"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => openEditProject(proj)}
-                      className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
-                      title="Edit Project"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeleteConfirmId(proj.id || proj.slug)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-200 transition-colors"
-                      title="Delete Project"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">
+                      Stat Number / Value
+                    </label>
+                    <input
+                      type="text"
+                      value={m.number || ""}
+                      onChange={(e) => {
+                        const updated = [...metricsList];
+                        updated[idx] = { ...updated[idx], number: e.target.value };
+                        setMetricsList(updated);
+                      }}
+                      placeholder="e.g. 30+"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-sm font-extrabold text-purple-700 outline-none focus:bg-white focus:border-blue-600"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">
+                      Metric Label / Title
+                    </label>
+                    <input
+                      type="text"
+                      value={m.label || ""}
+                      onChange={(e) => {
+                        const updated = [...metricsList];
+                        updated[idx] = { ...updated[idx], label: e.target.value };
+                        setMetricsList(updated);
+                      }}
+                      placeholder="e.g. PROJECTS"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl uppercase font-bold text-xs text-slate-800 outline-none focus:bg-white focus:border-blue-600"
+                    />
                   </div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
 
-      {/* TAB 2: CATEGORIES */}
-      {activeTab === "categories" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[
-            { name: "AI & Automation", count: "4 Projects", desc: "Autonomous bots, RAG assistants, and process workflow engines." },
-            { name: "SaaS Platform", count: "3 Projects", desc: "Multi-tenant cloud architectures, billing systems, and analytics." },
-            { name: "Web Applications", count: "3 Projects", desc: "Modern full-stack web platforms and interactive user portals." },
-            { name: "Enterprise Systems", count: "2 Projects", desc: "Custom internal tooling, security pipelines, and compliance suites." }
-          ].map((cat, i) => (
-            <div key={i} className="p-5 bg-white border border-slate-200 rounded-2xl space-y-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-slate-900">{cat.name}</h3>
-                <span className="text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-200">
-                  {cat.count}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500">{cat.desc}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* TAB 3: CASE STUDIES */}
-      {activeTab === "case-studies" && (
-        <div className="space-y-4">
-          <div className="p-4 bg-white border border-slate-200 rounded-2xl flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-slate-900">In-Depth Case Studies</h3>
-              <p className="text-xs text-slate-500">Detailed technical analysis and client testimonial reports.</p>
-            </div>
+          <div className="flex justify-end pt-2">
             <button
               type="button"
-              onClick={openAddProject}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-[#0f172a] hover:bg-slate-800 cursor-pointer"
+              onClick={handleSaveMetrics}
+              disabled={isSavingMetrics}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 cursor-pointer shadow-xs transition-all disabled:opacity-50"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Create Case Study</span>
+              <Save className="w-4 h-4" />
+              <span>{isSavingMetrics ? "Saving Metrics..." : "Save 3 Metric Cards"}</span>
             </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {caseStudies.map((cs) => (
-              <div key={cs.id || cs.title} className="p-5 bg-white border border-slate-200 rounded-2xl space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
-                    {cs.industry || "Client Case"}
-                  </span>
-                  <span className="text-xs text-slate-400">{cs.year || "2026"}</span>
-                </div>
-
-                <h3 className="text-sm font-bold text-slate-900">{cs.title}</h3>
-                <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed">
-                  {cs.description || cs.summary || cs.results}
-                </p>
-
-                {cs.quote && (
-                  <blockquote className="p-2.5 bg-slate-50 border-l-2 border-indigo-600 rounded-r-lg text-[11px] text-slate-600 italic">
-                    "{cs.quote}"
-                  </blockquote>
-                )}
-              </div>
-            ))}
           </div>
         </div>
       )}
+
+      {/* TAB 3: CATEGORIES */}
+      {activeTab === "categories" && <ProjectCategoriesTab />}
 
       {/* ADD / EDIT PROJECT MODAL */}
-      <Modal
+      <ProjectModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingProject ? "Edit Project Details" : "Add New Project"}
-        subtitle="Manage client name, key performance metrics, and case study narrative."
-        maxWidth="2xl"
-        footer={
-          <>
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSaveProjectForm}
-              className="px-4 py-2 text-xs font-semibold text-white bg-[#0f172a] hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer"
-            >
-              {editingProject ? "Save Changes" : "Create Project"}
-            </button>
-          </>
-        }
-      >
-        <div className="space-y-4 text-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField label="Project Title" required>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. TaxBot AI Platform"
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-              />
-            </FormField>
+        editingProject={editingProject}
+        title={title}
+        setTitle={setTitle}
+        slug={slug}
+        setSlug={setSlug}
+        category={category}
+        setCategory={setCategory}
+        client={client}
+        setClient={setClient}
+        year={year}
+        setYear={setYear}
+        timeline={timeline}
+        setTimeline={setTimeline}
+        statusColor={statusColor}
+        setStatusColor={setStatusColor}
+        shortDesc={shortDesc}
+        setShortDesc={setShortDesc}
+        overview={overview}
+        setOverview={setOverview}
+        metrics={metrics}
+        setMetrics={setMetrics}
+        challenge={challenge}
+        setChallenge={setChallenge}
+        solution={solution}
+        setSolution={setSolution}
+        results={results}
+        setResults={setResults}
+        image={image}
+        setImage={setImage}
+        isFeatured={isFeatured}
+        setIsFeatured={setIsFeatured}
+        liveUrl={liveUrl}
+        setLiveUrl={setLiveUrl}
+        techStack={techStack}
+        setTechStack={setTechStack}
+        techInput={techInput}
+        setTechInput={setTechInput}
+        keyFeatures={keyFeatures}
+        setKeyFeatures={setKeyFeatures}
+        featureInput={featureInput}
+        setFeatureInput={setFeatureInput}
+        testimonial={testimonial}
+        setTestimonial={setTestimonial}
+        onSave={handleSaveProjectForm}
+      />
 
-            <FormField label="Slug (URL identifier)">
-              <input
-                type="text"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="taxbot-ai-platform"
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-[11px]"
-              />
-            </FormField>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <FormField label="Client / Partner">
-              <input
-                type="text"
-                value={client}
-                onChange={(e) => setClient(e.target.value)}
-                placeholder="CarePoint Hospital"
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-              />
-            </FormField>
-
-            <FormField label="Category">
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white"
-              >
-                <option value="AI & Automation">AI &amp; Automation</option>
-                <option value="SaaS Platform">SaaS Platform</option>
-                <option value="Web Applications">Web Applications</option>
-                <option value="Enterprise Systems">Enterprise Systems</option>
-              </select>
-            </FormField>
-
-            <FormField label="Year">
-              <input
-                type="text"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                placeholder="2026"
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-              />
-            </FormField>
-          </div>
-
-          <FormField label="Short Card Summary (shortDesc)" required>
-            <input
-              type="text"
-              value={shortDesc}
-              onChange={(e) => setShortDesc(e.target.value)}
-              placeholder="e.g. Comprehensive enterprise automation system built with Brain Bari AI technology."
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-            />
-          </FormField>
-
-          <FormField label="Detailed Case Study Overview">
-            <textarea
-              rows={3}
-              value={overview}
-              onChange={(e) => setOverview(e.target.value)}
-              placeholder="Detailed description of the problem space, client scale, and technical scope..."
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-            />
-          </FormField>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField label="Project Timeline / Turnaround">
-              <input
-                type="text"
-                value={timeline}
-                onChange={(e) => setTimeline(e.target.value)}
-                placeholder="e.g. 4 Weeks (Concept to Deployment)"
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-              />
-            </FormField>
-
-            <FormField label="Status Badge Color">
-              <select
-                value={statusColor}
-                onChange={(e) => setStatusColor(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white"
-              >
-                <option value="emerald">Emerald (Active / Live Platform)</option>
-                <option value="amber">Amber (AI Agent Active)</option>
-                <option value="cyan">Cyan (Market Sync Live)</option>
-                <option value="purple">Purple (Enterprise Deployment)</option>
-                <option value="blue">Blue (Production Beta)</option>
-              </select>
-            </FormField>
-          </div>
-
-          <FormField label="Key Result / Metric Highlight">
-            <input
-              type="text"
-              value={metrics}
-              onChange={(e) => setMetrics(e.target.value)}
-              placeholder="e.g. 75% Faster Resolution & 10k Monthly Queries"
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl font-semibold text-emerald-700"
-            />
-          </FormField>
-
-          <FormField label="Problem / Challenge">
-            <textarea
-              rows={2}
-              value={challenge}
-              onChange={(e) => setChallenge(e.target.value)}
-              placeholder="What obstacle did the client face?"
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-            />
-          </FormField>
-
-          <FormField label="Brain Bari Engineered Solution">
-            <textarea
-              rows={2}
-              value={solution}
-              onChange={(e) => setSolution(e.target.value)}
-              placeholder="How did our AI team resolve it?"
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-            />
-          </FormField>
-
-          <FormField label="Measurable Proven Results">
-            <textarea
-              rows={2}
-              value={results}
-              onChange={(e) => setResults(e.target.value)}
-              placeholder="Specific quantifiable business outcome..."
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl"
-            />
-          </FormField>
-
-          {/* Tech Stack Repeater */}
-          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
-            <div className="flex items-center justify-between">
-              <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5 text-indigo-600" />
-                <span>Technology Stack ({techStack.length})</span>
-              </h4>
-            </div>
-
-            <div className="flex flex-wrap gap-1.5">
-              {techStack.map((tech, tIdx) => (
-                <span
-                  key={tIdx}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-800"
-                >
-                  <span>{tech}</span>
-                  <button
-                    type="button"
-                    onClick={() => setTechStack(techStack.filter((_, i) => i !== tIdx))}
-                    className="text-slate-400 hover:text-rose-600 cursor-pointer"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-2 pt-1">
-              <input
-                type="text"
-                value={techInput}
-                onChange={(e) => setTechInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && techInput.trim()) {
-                    e.preventDefault();
-                    if (!techStack.includes(techInput.trim())) {
-                      setTechStack([...techStack, techInput.trim()]);
-                    }
-                    setTechInput("");
-                  }
-                }}
-                placeholder="Type technology (e.g. Next.js, Python FastAPI, PostgreSQL) and press Add"
-                className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  if (techInput.trim() && !techStack.includes(techInput.trim())) {
-                    setTechStack([...techStack, techInput.trim()]);
-                    setTechInput("");
-                  }
-                }}
-                className="px-3 py-1.5 bg-slate-900 text-white rounded-lg font-semibold hover:bg-slate-800 cursor-pointer text-xs shrink-0"
-              >
-                Add Tech
-              </button>
-            </div>
-          </div>
-
-          {/* Key Deliverables / Features Repeater */}
-          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
-            <div className="flex items-center justify-between">
-              <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Key Deliverables &amp; Technical Capabilities ({keyFeatures.length})</span>
-              </h4>
-            </div>
-
-            <div className="space-y-1.5">
-              {keyFeatures.map((feat, fIdx) => (
-                <div key={fIdx} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={feat}
-                    onChange={(e) => {
-                      const updated = [...keyFeatures];
-                      updated[fIdx] = e.target.value;
-                      setKeyFeatures(updated);
-                    }}
-                    className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setKeyFeatures(keyFeatures.filter((_, i) => i !== fIdx))}
-                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-2 pt-1">
-              <input
-                type="text"
-                value={featureInput}
-                onChange={(e) => setFeatureInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && featureInput.trim()) {
-                    e.preventDefault();
-                    setKeyFeatures([...keyFeatures, featureInput.trim()]);
-                    setFeatureInput("");
-                  }
-                }}
-                placeholder="e.g. Automated PDF Processing & Abstract Evaluation Engine"
-                className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  if (featureInput.trim()) {
-                    setKeyFeatures([...keyFeatures, featureInput.trim()]);
-                    setFeatureInput("");
-                  }
-                }}
-                className="px-3 py-1.5 bg-slate-900 text-white rounded-lg font-semibold hover:bg-slate-800 cursor-pointer text-xs shrink-0"
-              >
-                Add Feature
-              </button>
-            </div>
-          </div>
-
-          {/* Client Testimonial Card */}
-          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
-            <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-              <Quote className="w-3.5 h-3.5 text-purple-600" />
-              <span>Client Testimonial (Optional)</span>
-            </h4>
-            <FormField label="Client Quote">
-              <textarea
-                rows={2}
-                value={testimonial.quote}
-                onChange={(e) => setTestimonial({ ...testimonial, quote: e.target.value })}
-                placeholder="What did the client say about Brain Bari's delivery?"
-                className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg"
-              />
-            </FormField>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <FormField label="Author Name">
-                <input
-                  type="text"
-                  value={testimonial.author}
-                  onChange={(e) => setTestimonial({ ...testimonial, author: e.target.value })}
-                  placeholder="Dr. Sarah Johnson"
-                  className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg"
-                />
-              </FormField>
-              <FormField label="Author Role">
-                <input
-                  type="text"
-                  value={testimonial.role}
-                  onChange={(e) => setTestimonial({ ...testimonial, role: e.target.value })}
-                  placeholder="Program Director"
-                  className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg"
-                />
-              </FormField>
-              <FormField label="Company Name">
-                <input
-                  type="text"
-                  value={testimonial.company || ""}
-                  onChange={(e) => setTestimonial({ ...testimonial, company: e.target.value })}
-                  placeholder="Global Bioethics Forum"
-                  className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg"
-                />
-              </FormField>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField label="Project Thumbnail Image URL">
-              <input
-                type="text"
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                placeholder="https://..."
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-[11px]"
-              />
-            </FormField>
-
-            <FormField label="Live Production URL">
-              <input
-                type="text"
-                value={liveUrl}
-                onChange={(e) => setLiveUrl(e.target.value)}
-                placeholder="https://..."
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-[11px] font-mono"
-              />
-            </FormField>
-          </div>
-
-          <div className="flex items-center gap-2 pt-1">
-            <input
-              type="checkbox"
-              id="isFeaturedProj"
-              checked={isFeatured}
-              onChange={(e) => setIsFeatured(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-0 cursor-pointer"
-            />
-            <label htmlFor="isFeaturedProj" className="text-xs font-semibold text-slate-700 cursor-pointer">
-              Feature this project on the homepage showcase
-            </label>
-          </div>
-        </div>
-      </Modal>
-
-      {/* DELETE CONFIRM DIALOG */}
       <ConfirmDialog
         isOpen={!!deleteConfirmId}
         onClose={() => setDeleteConfirmId(null)}
         onConfirm={handleDeleteProject}
         title="Delete Portfolio Project"
-        message="Are you sure you want to remove this project from your portfolio? This action cannot be undone."
+        message="Are you sure you want to remove this project? It will no longer appear on your live /work page."
         confirmLabel="Delete Project"
         isDestructive={true}
       />
@@ -944,7 +545,11 @@ function ProjectsContent() {
 
 export default function ProjectsPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading Projects...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-8 text-center text-xs text-slate-400">Loading Portfolio...</div>
+      }
+    >
       <ProjectsContent />
     </Suspense>
   );
