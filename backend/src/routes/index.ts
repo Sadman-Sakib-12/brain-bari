@@ -9,8 +9,10 @@ import { FaqRoutes } from '../modules/faq/faq.routes';
 import { OrderRoutes } from '../modules/order/order.routes';
 import { PaymentRoutes } from '../modules/payment/payment.routes';
 import { BookingRoutes } from '../modules/booking/booking.routes';
+import { ProductRoutes } from '../modules/product/product.routes';
 import { CmsRoutes } from '../modules/cms/cms.routes';
 import { AnalyticsRoutes } from '../modules/analytics/analytics.routes';
+import { UploadRoutes } from '../modules/upload/upload.routes';
 
 const router = Router();
 
@@ -20,6 +22,7 @@ const moduleRoutes = [
   { path: '/services', route: ServiceRoutes },
   { path: '/chatbots', route: ChatbotRoutes },
   { path: '/portfolios', route: PortfolioRoutes },
+  { path: '/products', route: ProductRoutes },
   { path: '/blogs', route: BlogRoutes },
   { path: '/faqs', route: FaqRoutes },
   { path: '/orders', route: OrderRoutes },
@@ -27,6 +30,8 @@ const moduleRoutes = [
   { path: '/bookings', route: BookingRoutes },
   { path: '/cms', route: CmsRoutes },
   { path: '/analytics', route: AnalyticsRoutes },
+  { path: '/upload', route: UploadRoutes },
+  { path: '/media', route: UploadRoutes },
 ];
 
 moduleRoutes.forEach((r) => router.use(r.path, r.route));

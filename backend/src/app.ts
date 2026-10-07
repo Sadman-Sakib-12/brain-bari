@@ -30,7 +30,7 @@ app.use(cookieParser());
 app.get('/', (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
-    message: '🤖 Botbari Enterprise AI Backend Server is live and healthy!',
+    message: '🤖 brain-bari Enterprise AI Backend Server is live and healthy!',
     timestamp: new Date().toISOString(),
     environment: config.env,
     database: 'NeonDB PostgreSQL (Prisma)',
