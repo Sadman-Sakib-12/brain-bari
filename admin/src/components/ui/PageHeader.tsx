@@ -25,7 +25,7 @@ export default function PageHeader({
   children
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-3 pb-5 border-b border-slate-200">
+    <div className="flex flex-col gap-3 pb-6 border-b border-slate-200/80">
       {/* Breadcrumbs / Section Tag */}
       {(breadcrumbs || badge) && (
         <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -34,7 +34,7 @@ export default function PageHeader({
               <React.Fragment key={idx}>
                 {idx > 0 && <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />}
                 {crumb.href ? (
-                  <Link href={crumb.href} className="hover:text-blue-600 transition-colors">
+                  <Link href={crumb.href} className="hover:text-indigo-600 transition-colors">
                     {crumb.label}
                   </Link>
                 ) : (
@@ -43,7 +43,11 @@ export default function PageHeader({
               </React.Fragment>
             ))
           ) : (
-            badge && <span className="text-blue-600 font-semibold">{badge}</span>
+            badge && (
+              <span className="text-indigo-600 font-bold bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full">
+                {badge}
+              </span>
+            )
           )}
         </div>
       )}
@@ -51,11 +55,11 @@ export default function PageHeader({
       {/* Main Title & Action Buttons Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             {title}
           </h1>
           {description && (
-            <p className="text-slate-500 text-xs sm:text-sm mt-0.5 max-w-2xl">
+            <p className="text-slate-500 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
               {description}
             </p>
           )}

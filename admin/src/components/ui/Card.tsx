@@ -5,26 +5,40 @@ interface CardProps {
   className?: string;
   header?: React.ReactNode;
   footer?: React.ReactNode;
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  headerAction?: React.ReactNode;
 }
 
 export default function Card({
   children,
   className = "",
   header,
-  footer
+  footer,
+  title,
+  subtitle,
+  headerAction,
 }: CardProps) {
   return (
     <div
-      className={`bg-white border border-slate-200 text-slate-900 rounded-2xl overflow-hidden shadow-2xs ${className}`}
+      className={`bg-white border border-slate-200/90 text-slate-900 rounded-2xl overflow-hidden shadow-xs hover:border-slate-300 transition-all ${className}`}
     >
-      {header && (
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between text-slate-900 font-semibold">
-          {header}
+      {(header || title) && (
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between text-slate-900 font-bold tracking-tight text-sm">
+          {header ? (
+            header
+          ) : (
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">{title}</h3>
+              {subtitle && <p className="text-xs text-slate-500 font-normal mt-0.5">{subtitle}</p>}
+            </div>
+          )}
+          {headerAction && <div>{headerAction}</div>}
         </div>
       )}
-      <div className="p-5">{children}</div>
+      <div className="p-6">{children}</div>
       {footer && (
-        <div className="px-5 py-3.5 border-t border-slate-200 bg-slate-50/50 flex items-center justify-between text-slate-600">
+        <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between text-slate-600 text-xs">
           {footer}
         </div>
       )}
