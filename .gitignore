@@ -48,3 +48,4 @@ Thumbs.db
 
 # Temporary scripts
 make_commits.ps1
+run_50_commits.js
