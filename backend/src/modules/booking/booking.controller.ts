@@ -38,16 +38,23 @@ const getAllBookingsForAdmin = catchAsync(async (req: Request, res: Response) =>
 
 const updateBookingStatus = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
-  const { status } = req.body;
-  if (!status || !Object.values(BookingStatus).includes(status)) {
-    res.status(400).json({ success: false, message: 'Invalid booking status.' });
+  const rawStatus = req.body.status;
+  const normalizedStatus = typeof rawStatus === 'string'
+    ? (rawStatus.trim().toUpperCase().replace(/\s+/g, '_') as BookingStatus)
+    : rawStatus;
+
+  if (!normalizedStatus || !Object.values(BookingStatus).includes(normalizedStatus)) {
+    res.status(400).json({
+      success: false,
+      message: `Invalid booking status '${rawStatus}'. Allowed statuses: ${Object.values(BookingStatus).join(', ')}`,
+    });
     return;
   }
-  const updatedBooking = await BookingService.updateBookingStatus(id, status as BookingStatus);
+  const updatedBooking = await BookingService.updateBookingStatus(id, normalizedStatus);
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: `Booking status updated to ${status}.`,
+    message: `Booking status updated to ${normalizedStatus}.`,
     data: updatedBooking,
   });
 });

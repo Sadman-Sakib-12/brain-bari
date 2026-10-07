@@ -1,5 +1,6 @@
 import prisma from '../../config/prisma';
 import { BookingStatus } from '@prisma/client';
+import { MailerService } from '../../utils/mailer';
 
 const createBooking = async (
   userId: string | null,
@@ -14,7 +15,7 @@ const createBooking = async (
     message?: string;
   }
 ) => {
-  return await prisma.booking.create({
+  const booking = await prisma.booking.create({
     data: {
       userId: userId || null,
       name: data.name,
@@ -28,6 +29,12 @@ const createBooking = async (
       status: 'PENDING',
     },
   });
+
+  MailerService.sendBookingNotification(booking).catch((err) =>
+    console.warn('Booking notification email error:', err)
+  );
+
+  return booking;
 };
 
 const getMyBookings = async (email: string) => {

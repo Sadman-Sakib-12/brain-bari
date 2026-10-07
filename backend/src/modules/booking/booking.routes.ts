@@ -6,6 +6,7 @@ const router = Router();
 
 // Public / client booking (optional auth token can be attached if logged in)
 router.post('/', BookingController.createBooking);
+router.get('/', BookingController.getAllBookingsForAdmin);
 router.get('/my-bookings', verifyToken, BookingController.getMyBookings);
 
 // Admin routes
