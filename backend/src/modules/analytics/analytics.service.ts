@@ -67,6 +67,74 @@ const getAdminDashboardAnalytics = async () => {
     count: categoryCountMap[cat],
   }));
 
+  // Query real recent database events for the activity log (no mock data)
+  const [recentOrders, recentBookings, recentUsers] = await Promise.all([
+    prisma.order.findMany({
+      take: 6,
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        serviceName: true,
+        clientName: true,
+        status: true,
+        quotePrice: true,
+        updatedAt: true,
+      },
+    }),
+    prisma.booking.findMany({
+      take: 6,
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        topic: true,
+        status: true,
+        timeSlot: true,
+        updatedAt: true,
+      },
+    }),
+    prisma.user.findMany({
+      take: 6,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+      },
+    }),
+  ]);
+
+  const recentActivities = [
+    ...recentOrders.map((o) => ({
+      id: `act-ord-${o.id}`,
+      action: o.status === 'APPROVED' ? `Quote Assigned: $${o.quotePrice || 0}` : `Order ${o.status.charAt(0) + o.status.slice(1).toLowerCase()}`,
+      details: `${o.clientName || 'Client'} requested '${o.serviceName}'`,
+      time: o.updatedAt,
+      type: 'order',
+      user: o.clientName || 'Client',
+    })),
+    ...recentBookings.map((b) => ({
+      id: `act-bkg-${b.id}`,
+      action: `Consultation: ${b.status.charAt(0) + b.status.slice(1).toLowerCase()}`,
+      details: `${b.name} booked '${b.topic}' at ${b.timeSlot}`,
+      time: b.updatedAt,
+      type: 'booking',
+      user: b.name,
+    })),
+    ...recentUsers.map((u) => ({
+      id: `act-usr-${u.id}`,
+      action: `User Registered (${u.role})`,
+      details: `${u.name} (${u.email}) registered on platform`,
+      time: u.createdAt,
+      type: 'user',
+      user: u.name,
+    })),
+  ]
+    .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+    .slice(0, 10);
+
   return {
     overview: {
       totalRevenue,
@@ -79,6 +147,7 @@ const getAdminDashboardAnalytics = async () => {
     },
     monthlyChartData,
     categoryDistribution,
+    recentActivities,
   };
 };
 
