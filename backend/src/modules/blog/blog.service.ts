@@ -70,7 +70,7 @@ const createBlog = async (data: {
   return await prisma.blog.create({
     data: {
       ...data,
-      author: data.author || 'Botbari Team',
+      author: data.author || 'Brain Bari Team',
       tags: data.tags || [],
     },
   });
