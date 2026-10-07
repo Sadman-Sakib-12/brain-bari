@@ -3,42 +3,35 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import coreServicesData from "@/data/coreServices.json";
-import siteSettings from "@/data/siteSettings.json";
-
-// Default local images mapped by slug for high resilience
-const localImageMap: Record<string, string> = {
-  "ai-chatbot": "/images/service_ai_chatbot.jpg",
-  "ai-saas": "/images/service_ai_saas.jpg",
-  "custom-ai": "/images/service_custom_ai.jpg",
-  "ai-3d": "/images/service_ai_3d.jpg",
-  "ai-agents": "/images/service_custom_ai.jpg",
-  "saas-product": "/images/service_ai_saas.jpg",
-  "web-app-dev": "/images/service_ai_3d.jpg",
-  "enterprise-software": "/images/service_custom_ai.jpg",
-  "services": "/images/service_custom_ai.jpg",
-};
+import { useServices, useSiteSettings } from "@/hooks/useApi";
 
 export default function CoreServices() {
+  const { data: liveServices } = useServices();
+  const { data: siteSettings } = useSiteSettings();
   const learnMoreLabel = (siteSettings as any)?.coreServices?.learnMoreText || "Learn More";
   const orderLabel = (siteSettings as any)?.coreServices?.orderText || "Order";
 
-  // Display 8 Core Services (4 on top row, 4 below)
-  const serviceCards = (coreServicesData || []).slice(0, 8).map((srv: any, idx: number) => {
-    const defaultLocalImage = localImageMap[srv.slug] || "/images/service_ai_chatbot.jpg";
+  const dataSource = liveServices || [];
+
+  // Display Core Services directly from database
+  const serviceCards = (dataSource || []).slice(0, 8).map((srv: any, idx: number) => {
     const resolvedLink =
       srv.link ||
       (srv.slug === "services"
         ? "/services"
         : `/services/${srv.slug || srv.category || "ai-chatbot"}`);
 
+    const formattedPrice = typeof srv.price === "number"
+      ? `Start ${srv.price}$`
+      : (srv.price || (srv.startingPrice ? `Start ${srv.startingPrice}$` : ""));
+
     return {
       id: srv.id || `srv-${idx + 1}`,
       title: srv.title,
-      price: srv.price || `Start ${srv.startingPrice || 259}$`,
+      price: formattedPrice,
       badge: srv.badge,
-      image: srv.image || defaultLocalImage,
-      fallbackImage: defaultLocalImage,
+      image: srv.image || "",
+      fallbackImage: srv.image || "",
       link: resolvedLink,
       slug: srv.slug || "ai-chatbot",
     };
@@ -47,7 +40,12 @@ export default function CoreServices() {
   return (
     <section className="py-12 md:py-16 bg-[#fcfbfe] overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+        {serviceCards.length === 0 ? (
+          <div className="text-center py-16 text-gray-500 font-sans">
+            No services currently available.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
           {serviceCards.map((srv, idx) => (
             <motion.div
               key={srv.id || `${srv.slug}-${idx}`}
@@ -103,6 +101,7 @@ export default function CoreServices() {
             </motion.div>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

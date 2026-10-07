@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Send, CheckCircle2 } from "lucide-react";
+import { X, Send, CheckCircle2, Loader2 } from "lucide-react";
+import api from "@/lib/axios";
+import { toast } from "sonner";
 
 interface WishQuoteModalProps {
   isOpen: boolean;
@@ -17,24 +19,47 @@ export default function WishQuoteModal({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() && !phone.trim()) return;
+    if (!email.trim() && !phone.trim()) {
+      toast.error("Please provide your email or phone number.");
+      return;
+    }
     
-    // Simulate submission
-    setSubmitted(true);
-    setTimeout(() => {
-      // Auto close after 2.5 seconds on success
+    setIsSubmitting(true);
+    try {
+      await api.post("/cms/contact", {
+        name: "Wish Quote Requester",
+        email: email.trim(),
+        phone: phone.trim(),
+        message: `Custom Wish Quote Request for: "${wish || "AI Solutions"}"`,
+        selectedServices: [wish || "AI Solutions"],
+      });
+
+      setSubmitted(true);
+      toast.success("Quote request received! We'll contact you soon.");
       setTimeout(() => {
         setSubmitted(false);
         setEmail("");
         setPhone("");
         onClose();
-      }, 2000);
-    }, 500);
+      }, 2500);
+    } catch (err: any) {
+      console.error("Failed to submit wish quote request:", err);
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setEmail("");
+        setPhone("");
+        onClose();
+      }, 2500);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -119,10 +144,20 @@ export default function WishQuoteModal({
 
               <button
                 type="submit"
-                className="w-full mt-6 py-3.5 rounded-xl bg-[#e5a0e0] hover:bg-[#dc8ed7] active:scale-[0.98] text-white font-medium text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                disabled={isSubmitting}
+                className="w-full mt-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-medium text-[15px] flex items-center justify-center gap-2 shadow-md shadow-blue-500/25 transition-all cursor-pointer disabled:opacity-60"
               >
-                <Send className="w-4 h-4 transform rotate-12" />
-                <span>Send</span>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Sending...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 transform rotate-12" />
+                    <span>Send</span>
+                  </>
+                )}
               </button>
             </form>
           </>

@@ -1,19 +1,18 @@
 "use client";
 
 import React from "react";
-
-const clientLogos = [
-  { name: "FAME Delivered", src: "/images/logo-3.jpeg" },
-  { name: "Tea 'N' Talk", src: "/images/logo-4.jpeg" },
-  { name: "London | Oxford Tax Services", src: "/images/logo-5.jpeg" },
-  { name: "Bangladesh Bioethics Society", src: "/images/logo-1.jpeg" },
-  { name: "Asian Bioethics Association", src: "/images/logo-6.jpeg" },
-  { name: "24th Asian Bioethics Conference", src: "/images/logo-2.jpeg" },
-];
+import { useCmsContent } from "@/hooks/useApi";
 
 export default function ClientLogos({ className = "" }: { className?: string }) {
+  const { data: rawLogos, isLoading } = useCmsContent<Array<{ name: string; src: string }>>("clientLogos");
+  const logos = Array.isArray(rawLogos) ? rawLogos : [];
+
+  if (isLoading || logos.length === 0) {
+    return null;
+  }
+
   // Duplicate array for seamless infinite marquee loop
-  const displayLogos = [...clientLogos, ...clientLogos];
+  const displayLogos = [...logos, ...logos];
 
   return (
     <section className={`py-10 md:py-14 bg-white dark:bg-[#090d16] overflow-hidden border-b border-gray-100 dark:border-white/10 transition-colors duration-300 ${className}`}>

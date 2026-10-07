@@ -2,18 +2,14 @@
 
 import React, { useRef } from "react";
 import Link from "next/link";
-import portfolioData from "@/data/portfolio.json";
-import siteSettings from "@/data/siteSettings.json";
+import { usePortfolios, useSiteSettings } from "@/hooks/useApi";
 
 export default function PortfolioSection() {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { data: portfolios = [] } = usePortfolios();
+  const { data: siteSettings } = useSiteSettings();
 
-  const portfolioCfg = (siteSettings as any)?.portfolioSection || {
-    badge: "Portfolio",
-    heading: "Our",
-    headingGradient: "Projects",
-    description: "Explore our hand-crafted web solutions and intelligent AI systems designed to transform concepts into digital powerhouses."
-  };
+  const portfolioCfg = (siteSettings as any)?.portfolioSection || {};
 
   const scrollLeft = () => {
     if (scrollRef.current) {
@@ -27,14 +23,14 @@ export default function PortfolioSection() {
     }
   };
 
-  const projectItems = (portfolioData || []).map((item: any, idx: number) => ({
+  const projectItems = (portfolios || []).map((item: any, idx: number) => ({
     id: String(idx + 1).padStart(2, "0"),
     category: item.category || "AI & Software",
-    statusBadge: item.status || "Live Platform",
-    dotColor: item.statusColor === "amber" ? "bg-purple-500" : (item.statusColor === "cyan" ? "bg-cyan-400" : "bg-green-400"),
+    statusBadge: item.featured ? "Featured" : "Live Platform",
+    dotColor: "bg-purple-500",
     title: item.title,
-    description: item.shortDesc || item.description || item.overview,
-    image: item.image || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=80",
+    description: item.description || item.shortDesc || "",
+    image: item.thumbnail || item.image || "",
     href: item.slug ? `/new-work/${item.slug}` : `/new-work`
   }));
 
@@ -49,15 +45,17 @@ export default function PortfolioSection() {
           
           {/* Left Column */}
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-40">
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-white/60 border border-purple-200/50 text-[#a05fd3] text-[10px] font-bold rounded-full uppercase tracking-wider shadow-sm">
-              <span className="w-1.5 h-1.5 bg-[#b57be4] rounded-full animate-pulse" />
-              {portfolioCfg.badge || "Portfolio"}
-            </div>
+            {portfolioCfg.badge && (
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-white/60 border border-purple-200/50 text-[#a05fd3] text-[10px] font-bold rounded-full uppercase tracking-wider shadow-sm">
+                <span className="w-1.5 h-1.5 bg-[#b57be4] rounded-full animate-pulse" />
+                {portfolioCfg.badge}
+              </div>
+            )}
 
             <h2 className="text-[38px] sm:text-[48px] md:text-[54px] font-black text-gray-900 leading-[1.05] tracking-tight font-sans">
-              {portfolioCfg.heading || "Our"} <br />
+              {portfolioCfg.heading} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff7e5f] to-[#e464a4]">
-                {portfolioCfg.headingGradient || "Projects"}
+                {portfolioCfg.headingGradient}
               </span>
             </h2>
 
@@ -92,12 +90,17 @@ export default function PortfolioSection() {
 
           {/* Right Column: Carousel Track */}
           <div className="lg:col-span-8 space-y-8 relative">
-            <div 
-              ref={scrollRef}
-              className="flex gap-6 sm:gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 px-1 no-scrollbar"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
-              {projectItems.map((item) => (
+            {projectItems.length === 0 ? (
+              <div className="flex items-center justify-center py-20 text-gray-500 font-medium font-sans">
+                No portfolio projects currently available.
+              </div>
+            ) : (
+              <div 
+                ref={scrollRef}
+                className="flex gap-6 sm:gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 px-1 no-scrollbar"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {projectItems.map((item) => (
                 <div 
                   key={item.id} 
                   className="snap-start shrink-0 w-[290px] sm:w-[360px] md:w-[380px]"
@@ -159,6 +162,7 @@ export default function PortfolioSection() {
                 </div>
               ))}
             </div>
+            )}
           </div>
 
         </div>
