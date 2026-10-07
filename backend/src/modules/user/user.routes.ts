@@ -4,6 +4,7 @@ import { verifyAdmin, verifyToken } from '../../middlewares/auth';
 
 const router = Router();
 
+router.post('/', verifyToken, verifyAdmin, UserController.createUser);
 router.get('/', verifyToken, verifyAdmin, UserController.getAllUsers);
 router.get('/:id', verifyToken, UserController.getUserById);
 router.patch('/:id/role', verifyToken, verifyAdmin, UserController.updateUserRole);

@@ -74,7 +74,23 @@ const deleteUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const createUser = catchAsync(async (req: Request, res: Response) => {
+  const { name, email, role, phone, company, avatar } = req.body;
+  if (!name || !email) {
+    res.status(400).json({ success: false, message: 'Name and email are required.' });
+    return;
+  }
+  const newUser = await UserService.createUser({ name, email, role, phone, company, avatar });
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: 'User account created successfully.',
+    data: newUser,
+  });
+});
+
 export const UserController = {
+  createUser,
   getAllUsers,
   getUserById,
   updateUserRole,
