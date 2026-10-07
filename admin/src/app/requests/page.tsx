@@ -2,37 +2,27 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import {
-  Inbox,
   MessageSquare,
   DollarSign,
   CalendarCheck,
-  Mail,
-  Search,
-  Filter,
-  CheckCircle2,
-  XCircle,
-  Eye,
-  Trash2,
-  Phone,
-  Building,
-  User,
-  Clock,
-  Send,
-  AlertCircle
+  Mail
 } from "lucide-react";
-import { adminStore } from "@/lib/store";
-import initialRequests from "@/data/requests.json";
-import initialOrders from "@/data/orders.json";
-import initialConsultations from "@/data/consultations.json";
+import { adminApi } from "@/lib/adminApi";
 import PageHeader from "@/components/ui/PageHeader";
-import StatusBadge from "@/components/ui/StatusBadge";
 import SearchBar from "@/components/ui/SearchBar";
-import Pagination from "@/components/ui/Pagination";
-import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { toast } from "sonner";
+
+import ContactMessagesTab from "./components/ContactMessagesTab";
+import QuotesOrdersTab from "./components/QuotesOrdersTab";
+import ConsultationsTab from "./components/ConsultationsTab";
+import SubscribersTab from "./components/SubscribersTab";
+import RequestDetailModal from "./components/RequestDetailModal";
+import RequestsHeaderNav from "./components/RequestsHeaderNav";
+import CreateOrderModal from "./components/CreateOrderModal";
+import CreateConsultationModal from "./components/CreateConsultationModal";
+import AddSubscriberModal from "./components/AddSubscriberModal";
 
 type RequestTab = "contact" | "quotes" | "consultations" | "subscribers";
 
@@ -42,9 +32,10 @@ function RequestsContent() {
   const initialTab = (searchParams.get("tab") as RequestTab) || "contact";
 
   const [activeTab, setActiveTab] = useState<RequestTab>(initialTab);
-  const [requests, setRequests] = useState<any>(initialRequests);
-  const [orders, setOrders] = useState<any[]>(initialOrders);
-  const [consultations, setConsultations] = useState<any[]>(initialConsultations);
+  const [mounted, setMounted] = useState(false);
+  const [requests, setRequests] = useState<any>({ contactMessages: [], newsletterSubscribers: [] });
+  const [orders, setOrders] = useState<any[]>([]);
+  const [consultations, setConsultations] = useState<any[]>([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -56,55 +47,99 @@ function RequestsContent() {
   const [detailModalType, setDetailModalType] = useState<RequestTab | null>(null);
   const [deleteConfirmInfo, setDeleteConfirmInfo] = useState<{ id: string; type: RequestTab } | null>(null);
 
+  // Manual Creation Modals
+  const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
+  const [isCreateBookingOpen, setIsCreateBookingOpen] = useState(false);
+  const [isAddSubscriberOpen, setIsAddSubscriberOpen] = useState(false);
+
   // Quote editing
   const [editingQuotePrice, setEditingQuotePrice] = useState<number>(0);
   const [editingQuoteStatus, setEditingQuoteStatus] = useState<string>("Pending");
 
   const loadData = () => {
     try {
-      const req = adminStore.getRequests();
-      if (req && req.contactMessages) setRequests(req);
-      const ord = adminStore.getOrders();
-      if (ord && ord.length > 0) setOrders(ord);
-      const con = adminStore.getConsultations();
-      if (con && con.length > 0) setConsultations(con);
+      // Fetch fresh live orders directly from Express/PostgreSQL database
+      adminApi.getAllOrders().then((backendOrders) => {
+        if (backendOrders && Array.isArray(backendOrders)) {
+          setOrders(
+            backendOrders.map((bo: any) => ({
+              id: bo.id,
+              orderNumber: `BB-${bo.id.slice(0, 6).toUpperCase()}`,
+              clientName: bo.clientName || bo.user?.name || "Client",
+              clientEmail: bo.clientEmail || bo.user?.email || "N/A",
+              clientPhone: bo.clientPhone || "N/A",
+              serviceTitle: bo.serviceName || "AI Solutions",
+              serviceCategory: bo.category || "ai-services",
+              budget: bo.budget || "Custom Quote",
+              timeline: bo.deliveryTime || "Standard",
+              requirements: bo.requirements || "Inquiry from website",
+              status: bo.status ? bo.status.charAt(0).toUpperCase() + bo.status.slice(1).toLowerCase() : "Pending",
+              quotedPrice: bo.quotePrice || 0,
+              paidAmount: 0,
+              submissionDate: bo.createdAt || new Date().toISOString(),
+            }))
+          );
+        }
+      }).catch(() => {});
 
-      // Also fetch fresh from API to capture newly placed orders from Frontend
-      fetch("/api/save-content?key=orders")
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data?.data && Array.isArray(data.data)) {
-            setOrders(data.data);
-          }
-        })
-        .catch(() => {});
+      // Fetch fresh live bookings directly from Express/PostgreSQL database
+      adminApi.getAllBookings().then((backendBookings) => {
+        if (backendBookings && Array.isArray(backendBookings)) {
+          setConsultations(
+            backendBookings.map((bb: any) => ({
+              id: bb.id,
+              bookingRef: `CNS-${bb.id.slice(0, 6).toUpperCase()}`,
+              clientName: bb.name || bb.clientName || "Client",
+              clientEmail: bb.email || bb.clientEmail || "N/A",
+              clientPhone: bb.phone || bb.clientPhone || "+880 1700-000000",
+              company: bb.company || "Independent Inquiry",
+              topic: bb.topic || "AI Strategy",
+              date: bb.date || new Date().toISOString().split("T")[0],
+              timeSlot: bb.timeSlot || "03:00 PM - 03:45 PM",
+              status: bb.status ? bb.status.charAt(0).toUpperCase() + bb.status.slice(1).toLowerCase() : "Pending",
+              notes: bb.message || bb.notes || "Booked from website",
+              createdAt: bb.createdAt || new Date().toISOString(),
+            }))
+          );
+        }
+      }).catch(() => {});
 
-      fetch("/api/save-content?key=consultations")
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data?.data && Array.isArray(data.data)) {
-            setConsultations(data.data);
-          }
-        })
-        .catch(() => {});
+      // Fetch fresh live contact messages directly from Express/PostgreSQL database
+      adminApi.getAllContactMessages().then((msgs) => {
+        if (msgs && Array.isArray(msgs)) {
+          setRequests((prev: any) => ({
+            ...prev,
+            contactMessages: msgs.map((m: any) => ({
+              id: m.id,
+              name: m.name,
+              email: m.email,
+              phone: m.phone || "N/A",
+              service: m.subject || "General Inquiry",
+              budget: "Flexible",
+              message: m.message,
+              date: m.createdAt || new Date().toISOString(),
+              status: m.status ? m.status.charAt(0).toUpperCase() + m.status.slice(1).toLowerCase() : "New",
+            })),
+          }));
+        }
+      }).catch(() => {});
 
-      fetch("/api/save-content?key=requests")
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data?.data?.contactMessages) {
-            setRequests(data.data);
-          }
-        })
-        .catch(() => {});
+      adminApi.getContent("newsletterSubscribers").then((subs) => {
+        if (subs && Array.isArray(subs)) {
+          setRequests((prev: any) => ({
+            ...prev,
+            newsletterSubscribers: subs,
+          }));
+        }
+      }).catch(() => {});
     } catch (e) {
       console.error(e);
     }
   };
 
   useEffect(() => {
+    setMounted(true);
     loadData();
-    window.addEventListener("admin_store_updated", loadData);
-    return () => window.removeEventListener("admin_store_updated", loadData);
   }, []);
 
   useEffect(() => {
@@ -132,7 +167,7 @@ function RequestsContent() {
     );
     const updated = { ...requests, contactMessages: updatedMsgs };
     setRequests(updated);
-    adminStore.setRequests(updated);
+    adminApi.updateContactMessageStatus(id, newStatus).catch(() => {});
     toast.success(`Contact status changed to "${newStatus}".`);
     if (selectedItem?.id === id) {
       setSelectedItem({ ...selectedItem, status: newStatus });
@@ -151,7 +186,11 @@ function RequestsContent() {
       return o;
     });
     setOrders(updated);
-    adminStore.setOrders(updated);
+    adminApi.updateOrderQuote(orderId, {
+      quotedPrice: quotePrice,
+      quotePrice: quotePrice,
+      status: newStatus,
+    }).catch((err) => console.warn("Failed to update quote in backend:", err));
     toast.success(`Quote status updated to "${newStatus}".`);
     if (selectedItem?.id === orderId) {
       setSelectedItem({
@@ -167,7 +206,7 @@ function RequestsContent() {
       c.id === cnsId ? { ...c, status: newStatus } : c
     );
     setConsultations(updated);
-    adminStore.setConsultations(updated);
+    adminApi.updateBookingStatus(cnsId, newStatus).catch(() => {});
     toast.success(`Booking status changed to "${newStatus}".`);
     if (selectedItem?.id === cnsId) {
       setSelectedItem({ ...selectedItem, status: newStatus });
@@ -185,25 +224,25 @@ function RequestsContent() {
         contactMessages: requests.contactMessages.filter((m: any) => m.id !== id)
       };
       setRequests(updated);
-      adminStore.setRequests(updated);
+      adminApi.deleteContactMessage(id).catch(() => {});
       toast.success("Contact message deleted.");
     } else if (type === "quotes") {
       const updated = orders.filter((o: any) => o.id !== id);
       setOrders(updated);
-      adminStore.setOrders(updated);
-      toast.success("Order quote request deleted.");
+      adminApi.deleteOrder(id).catch((err) => console.warn("Failed to delete order in DB:", err));
+      toast.success("Order quote request deleted from database.");
     } else if (type === "consultations") {
       const updated = consultations.filter((c: any) => c.id !== id);
       setConsultations(updated);
-      adminStore.setConsultations(updated);
-      toast.success("Consultation booking deleted.");
+      adminApi.deleteBooking(id).catch((err) => console.warn("Failed to delete booking in DB:", err));
+      toast.success("Consultation booking deleted from database.");
     } else if (type === "subscribers") {
       const updated = {
         ...requests,
         newsletterSubscribers: requests.newsletterSubscribers.filter((s: any) => s.id !== id)
       };
       setRequests(updated);
-      adminStore.setRequests(updated);
+      adminApi.saveContent("newsletterSubscribers", updated.newsletterSubscribers).catch(() => {});
       toast.success("Subscriber removed.");
     }
 
@@ -271,641 +310,135 @@ function RequestsContent() {
     currentDataset = filteredSubscribers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   }
 
+  if (!mounted) {
+    return (
+      <div className="space-y-6 animate-pulse p-4">
+        <div className="h-10 bg-slate-100 rounded-xl w-1/3" />
+        <div className="h-48 bg-slate-100 rounded-2xl" />
+        <div className="h-64 bg-slate-100 rounded-2xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        badge="Enterprise CMS / Requests & Inquiries"
-        title="Requests &amp; Communications"
-        description="Review inbound client messages, assign project quotations, confirm consultation bookings, and manage newsletter subscribers."
-      >
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-slate-200 mt-2 -mb-2 overflow-x-auto no-scrollbar">
-          {[
-            { id: "contact", label: "Contact Messages", icon: MessageSquare, count: contactList.length },
-            { id: "quotes", label: "Quote Requests", icon: DollarSign, count: quoteList.length },
-            { id: "consultations", label: "Consultation Bookings", icon: CalendarCheck, count: consultationList.length },
-            { id: "subscribers", label: "Newsletter Subscribers", icon: Mail, count: subscriberList.length }
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => handleTabChange(tab.id as RequestTab)}
-                className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 cursor-pointer transition-colors whitespace-nowrap ${
-                  isActive
-                    ? "border-slate-900 text-slate-900"
-                    : "border-transparent text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
-                {tab.count !== undefined && (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-slate-100 text-slate-600">
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </PageHeader>
-
-      {/* SEARCH AND STATUS FILTER CONTROLS */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <SearchBar
-          value={searchQuery}
-          onChange={(val) => {
-            setSearchQuery(val);
-            setCurrentPage(1);
-          }}
-          placeholder="Search by name, email, or company..."
-          className="w-full sm:w-80"
-        />
-
-        <div className="flex items-center gap-2">
-          <select
-            value={selectedStatus}
-            onChange={(e) => {
-              setSelectedStatus(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white text-slate-700 font-medium"
-          >
-            <option value="All">All Statuses</option>
-            {activeTab === "contact" && (
-              <>
-                <option value="New">New</option>
-                <option value="Read">Read</option>
-                <option value="Responded">Responded</option>
-              </>
-            )}
-            {activeTab === "quotes" && (
-              <>
-                <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
-              </>
-            )}
-            {activeTab === "consultations" && (
-              <>
-                <option value="Pending">Pending</option>
-                <option value="Confirmed">Confirmed</option>
-                <option value="Completed">Completed</option>
-              </>
-            )}
-            {activeTab === "subscribers" && (
-              <>
-                <option value="Active">Active</option>
-                <option value="Unsubscribed">Unsubscribed</option>
-              </>
-            )}
-          </select>
-        </div>
-      </div>
+      <RequestsHeaderNav
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        contactCount={contactList.length}
+        quotesCount={quoteList.length}
+        consultationsCount={consultationList.length}
+        subscribersCount={subscriberList.length}
+        searchQuery={searchQuery}
+        onSearchChange={(val) => {
+          setSearchQuery(val);
+          setCurrentPage(1);
+        }}
+        selectedStatus={selectedStatus}
+        onStatusChange={(val) => {
+          setSelectedStatus(val);
+          setCurrentPage(1);
+        }}
+      />
 
       {/* TAB 1: CONTACT MESSAGES TABLE */}
       {activeTab === "contact" && (
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200/80">
-                  <th className="py-3 px-5">Sender</th>
-                  <th className="py-3 px-5">Subject / Inquiry</th>
-                  <th className="py-3 px-5">Service Category</th>
-                  <th className="py-3 px-5">Date</th>
-                  <th className="py-3 px-5">Status</th>
-                  <th className="py-3 px-5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-xs">
-                {currentDataset.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400">
-                      No contact inquiries match your filters.
-                    </td>
-                  </tr>
-                ) : (
-                  currentDataset.map((msg: any) => (
-                    <tr key={msg.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3.5 px-5">
-                        <div className="font-semibold text-slate-900">{msg.name}</div>
-                        <div className="text-[11px] text-slate-400 flex items-center gap-1">
-                          <span>{msg.email}</span>
-                          {msg.phone && <span>· {msg.phone}</span>}
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-5 max-w-xs">
-                        <div className="font-semibold text-slate-800 line-clamp-1">{msg.subject}</div>
-                        <div className="text-[11px] text-slate-400 line-clamp-1">{msg.message}</div>
-                      </td>
-                      <td className="py-3.5 px-5 whitespace-nowrap">
-                        <span className="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 text-[11px] font-medium border border-slate-200">
-                          {msg.serviceType || "AI Inquiry"}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-5 text-slate-500 font-mono whitespace-nowrap">
-                        {msg.date?.split("T")[0] || "2026-09-18"}
-                      </td>
-                      <td className="py-3.5 px-5 whitespace-nowrap">
-                        <StatusBadge status={msg.status} size="sm" />
-                      </td>
-                      <td className="py-3.5 px-5 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedItem(msg);
-                              setDetailModalType("contact");
-                            }}
-                            className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors"
-                            title="View Full Message"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDeleteConfirmInfo({ id: msg.id, type: "contact" })}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-200 transition-colors"
-                            title="Delete Message"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <Pagination
-            currentPage={currentPage}
-            totalItems={totalCount}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+        <ContactMessagesTab
+          currentDataset={currentDataset}
+          totalCount={totalCount}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onView={(msg) => {
+            setSelectedItem(msg);
+            setDetailModalType("contact");
+          }}
+          onDelete={(id) => setDeleteConfirmInfo({ id, type: "contact" })}
+        />
       )}
 
       {/* TAB 2: QUOTE REQUESTS TABLE */}
       {activeTab === "quotes" && (
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200/80">
-                  <th className="py-3 px-5">Ref / Client</th>
-                  <th className="py-3 px-5">Requested Service</th>
-                  <th className="py-3 px-5">Budget Range</th>
-                  <th className="py-3 px-5">Quoted Price</th>
-                  <th className="py-3 px-5">Status</th>
-                  <th className="py-3 px-5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-xs">
-                {currentDataset.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400">
-                      No project quotes found.
-                    </td>
-                  </tr>
-                ) : (
-                  currentDataset.map((order: any) => (
-                    <tr key={order.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3.5 px-5">
-                        <div className="font-mono font-semibold text-slate-800">{order.orderNumber}</div>
-                        <div className="font-semibold text-slate-900">{order.clientName}</div>
-                        <div className="text-[11px] text-slate-400">{order.company}</div>
-                      </td>
-                      <td className="py-3.5 px-5">
-                        <div className="font-medium text-slate-900">{order.serviceTitle}</div>
-                        <div className="text-[11px] text-slate-400">{order.timeline || "2 Weeks"}</div>
-                      </td>
-                      <td className="py-3.5 px-5 font-mono text-slate-600">
-                        {order.budget}
-                      </td>
-                      <td className="py-3.5 px-5 font-mono font-bold text-slate-900">
-                        ${order.quotedPrice || 0}
-                      </td>
-                      <td className="py-3.5 px-5 whitespace-nowrap">
-                        <StatusBadge status={order.status} size="sm" />
-                      </td>
-                      <td className="py-3.5 px-5 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedItem(order);
-                              setEditingQuotePrice(order.quotedPrice || 0);
-                              setEditingQuoteStatus(order.status || "Pending");
-                              setDetailModalType("quotes");
-                            }}
-                            className="px-2.5 py-1 text-xs font-semibold text-indigo-600 hover:bg-indigo-50 rounded-lg border border-indigo-200 transition-colors cursor-pointer"
-                          >
-                            Review &amp; Quote
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDeleteConfirmInfo({ id: order.id, type: "quotes" })}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-200 transition-colors"
-                            title="Delete Quote"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <Pagination
-            currentPage={currentPage}
-            totalItems={totalCount}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+        <QuotesOrdersTab
+          currentDataset={currentDataset}
+          totalCount={totalCount}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onAddOrder={() => setIsCreateOrderOpen(true)}
+          onReview={(order) => {
+            setSelectedItem(order);
+            setEditingQuotePrice(order.quotedPrice || 0);
+            setEditingQuoteStatus(order.status || "Pending");
+            setDetailModalType("quotes");
+          }}
+          onDelete={(id) => setDeleteConfirmInfo({ id, type: "quotes" })}
+        />
       )}
 
       {/* TAB 3: CONSULTATION REQUESTS TABLE */}
       {activeTab === "consultations" && (
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200/80">
-                  <th className="py-3 px-5">Ref / Client</th>
-                  <th className="py-3 px-5">Consultation Topic</th>
-                  <th className="py-3 px-5">Date &amp; Time Slot</th>
-                  <th className="py-3 px-5">Status</th>
-                  <th className="py-3 px-5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-xs">
-                {currentDataset.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-slate-400">
-                      No consultation bookings found.
-                    </td>
-                  </tr>
-                ) : (
-                  currentDataset.map((cns: any) => (
-                    <tr key={cns.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3.5 px-5">
-                        <div className="font-mono font-semibold text-slate-700">{cns.bookingRef}</div>
-                        <div className="font-semibold text-slate-900">{cns.clientName}</div>
-                        <div className="text-[11px] text-slate-400">{cns.company || cns.clientEmail}</div>
-                      </td>
-                      <td className="py-3.5 px-5 max-w-xs">
-                        <div className="font-medium text-slate-900 line-clamp-1">{cns.topic}</div>
-                        {cns.notes && <div className="text-[11px] text-slate-400 line-clamp-1">{cns.notes}</div>}
-                      </td>
-                      <td className="py-3.5 px-5 whitespace-nowrap">
-                        <div className="font-mono text-slate-700 font-semibold">{cns.date}</div>
-                        <div className="text-[11px] text-slate-400">{cns.timeSlot}</div>
-                      </td>
-                      <td className="py-3.5 px-5 whitespace-nowrap">
-                        <StatusBadge status={cns.status} size="sm" />
-                      </td>
-                      <td className="py-3.5 px-5 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedItem(cns);
-                              setDetailModalType("consultations");
-                            }}
-                            className="px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors cursor-pointer"
-                          >
-                            Details
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDeleteConfirmInfo({ id: cns.id, type: "consultations" })}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-200 transition-colors"
-                            title="Delete Booking"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <Pagination
-            currentPage={currentPage}
-            totalItems={totalCount}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+        <ConsultationsTab
+          currentDataset={currentDataset}
+          totalCount={totalCount}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onAddConsultation={() => setIsCreateBookingOpen(true)}
+          onView={(cns) => {
+            setSelectedItem(cns);
+            setDetailModalType("consultations");
+          }}
+          onDelete={(id) => setDeleteConfirmInfo({ id, type: "consultations" })}
+        />
       )}
 
       {/* TAB 4: NEWSLETTER SUBSCRIBERS TABLE */}
       {activeTab === "subscribers" && (
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200/80">
-                  <th className="py-3 px-5">Subscriber Email</th>
-                  <th className="py-3 px-5">Subscription Source</th>
-                  <th className="py-3 px-5">Joined Date</th>
-                  <th className="py-3 px-5">Status</th>
-                  <th className="py-3 px-5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-xs">
-                {currentDataset.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-slate-400">
-                      No subscribers found.
-                    </td>
-                  </tr>
-                ) : (
-                  currentDataset.map((sub: any) => (
-                    <tr key={sub.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3.5 px-5 font-semibold text-slate-900 font-mono">
-                        {sub.email}
-                      </td>
-                      <td className="py-3.5 px-5 text-slate-600">
-                        {sub.source || "Homepage Footer"}
-                      </td>
-                      <td className="py-3.5 px-5 text-slate-500 font-mono">
-                        {sub.subscribedDate || "2026-09-18"}
-                      </td>
-                      <td className="py-3.5 px-5 whitespace-nowrap">
-                        <StatusBadge status={sub.status} size="sm" />
-                      </td>
-                      <td className="py-3.5 px-5 text-right whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => setDeleteConfirmInfo({ id: sub.id, type: "subscribers" })}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-200 transition-colors"
-                          title="Unsubscribe / Remove"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <Pagination
-            currentPage={currentPage}
-            totalItems={totalCount}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+        <SubscribersTab
+          currentDataset={currentDataset}
+          totalCount={totalCount}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onAddSubscriber={() => setIsAddSubscriberOpen(true)}
+          onDelete={(id) => setDeleteConfirmInfo({ id, type: "subscribers" })}
+        />
       )}
 
-      {/* DETAIL MODAL: CONTACT MESSAGE */}
-      {detailModalType === "contact" && selectedItem && (
-        <Modal
-          isOpen={true}
-          onClose={() => setDetailModalType(null)}
-          title="Contact Message Details"
-          subtitle={`Received on ${selectedItem.date?.split("T")[0] || "2026-09-18"}`}
-          maxWidth="lg"
-          footer={
-            <div className="flex items-center gap-2">
-              {selectedItem.status !== "Responded" && (
-                <button
-                  type="button"
-                  onClick={() => updateContactStatus(selectedItem.id, "Responded")}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl cursor-pointer"
-                >
-                  Mark as Responded
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setDetailModalType(null)}
-                className="px-4 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          }
-        >
-          <div className="space-y-3 text-xs">
-            <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Sender Name</span>
-                <p className="font-semibold text-slate-900">{selectedItem.name}</p>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Email</span>
-                <p className="font-semibold text-slate-900 font-mono">{selectedItem.email}</p>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Phone</span>
-                <p className="text-slate-700">{selectedItem.phone || "Not provided"}</p>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Category</span>
-                <p className="text-slate-700">{selectedItem.serviceType}</p>
-              </div>
-            </div>
+      {/* MODAL */}
+      <RequestDetailModal
+        detailModalType={detailModalType}
+        selectedItem={selectedItem}
+        onClose={() => setDetailModalType(null)}
+        updateContactStatus={updateContactStatus}
+        updateQuoteStatus={updateQuoteStatus}
+        updateConsultationStatus={updateConsultationStatus}
+        editingQuotePrice={editingQuotePrice}
+        setEditingQuotePrice={setEditingQuotePrice}
+        editingQuoteStatus={editingQuoteStatus}
+        setEditingQuoteStatus={setEditingQuoteStatus}
+      />
 
-            <div>
-              <span className="text-[11px] font-bold text-slate-500 uppercase">Subject</span>
-              <h4 className="text-sm font-bold text-slate-900 mt-0.5">{selectedItem.subject}</h4>
-            </div>
-
-            <div>
-              <span className="text-[11px] font-bold text-slate-500 uppercase">Message</span>
-              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 whitespace-pre-line mt-1 leading-relaxed">
-                {selectedItem.message}
-              </div>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {/* DETAIL MODAL: QUOTE REQUEST & APPROVAL */}
-      {detailModalType === "quotes" && selectedItem && (
-        <Modal
-          isOpen={true}
-          onClose={() => setDetailModalType(null)}
-          title={`Order Quote Review – ${selectedItem.orderNumber}`}
-          subtitle={`Submitted by ${selectedItem.clientName} (${selectedItem.company})`}
-          maxWidth="2xl"
-          footer={
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setDetailModalType(null)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  updateQuoteStatus(selectedItem.id, editingQuoteStatus, editingQuotePrice);
-                  setDetailModalType(null);
-                }}
-                className="px-4 py-2 text-xs font-semibold text-white bg-[#0f172a] hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer"
-              >
-                Save Quote &amp; Status
-              </button>
-            </div>
-          }
-        >
-          <div className="space-y-4 text-xs">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Service</span>
-                <p className="font-semibold text-slate-900">{selectedItem.serviceTitle}</p>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Client Budget</span>
-                <p className="font-semibold text-slate-900 font-mono">{selectedItem.budget}</p>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Timeline</span>
-                <p className="font-semibold text-slate-900">{selectedItem.timeline}</p>
-              </div>
-            </div>
-
-            <div>
-              <span className="text-[11px] font-bold text-slate-500 uppercase">Client Requirements</span>
-              <p className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 mt-1 leading-relaxed">
-                {selectedItem.requirements}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Assign Quoted Contract Price ($ USD)
-                </label>
-                <input
-                  type="number"
-                  value={editingQuotePrice}
-                  onChange={(e) => setEditingQuotePrice(Number(e.target.value))}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-sm font-bold text-slate-900"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Update Order Status
-                </label>
-                <select
-                  value={editingQuoteStatus}
-                  onChange={(e) => setEditingQuoteStatus(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white font-semibold text-slate-800"
-                >
-                  <option value="Pending">Pending Review</option>
-                  <option value="Approved">Approved (Quote Ready)</option>
-                  <option value="In Progress">In Progress (Paid)</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Rejected">Rejected</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {/* DETAIL MODAL: CONSULTATION BOOKING */}
-      {detailModalType === "consultations" && selectedItem && (
-        <Modal
-          isOpen={true}
-          onClose={() => setDetailModalType(null)}
-          title={`Consultation Session – ${selectedItem.bookingRef}`}
-          subtitle={`Client: ${selectedItem.clientName}`}
-          maxWidth="lg"
-          footer={
-            <div className="flex items-center gap-2">
-              {selectedItem.status !== "Confirmed" && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    updateConsultationStatus(selectedItem.id, "Confirmed");
-                    setDetailModalType(null);
-                  }}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl cursor-pointer"
-                >
-                  Confirm Meeting
-                </button>
-              )}
-              {selectedItem.status !== "Completed" && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    updateConsultationStatus(selectedItem.id, "Completed");
-                    setDetailModalType(null);
-                  }}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl cursor-pointer"
-                >
-                  Mark Completed
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setDetailModalType(null)}
-                className="px-4 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          }
-        >
-          <div className="space-y-3 text-xs">
-            <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Date</span>
-                <p className="font-semibold text-slate-900 font-mono">{selectedItem.date}</p>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Time Slot</span>
-                <p className="font-semibold text-slate-900">{selectedItem.timeSlot}</p>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Client Email</span>
-                <p className="text-slate-700 font-mono">{selectedItem.clientEmail}</p>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Company</span>
-                <p className="text-slate-700">{selectedItem.company || "Independent"}</p>
-              </div>
-            </div>
-
-            <div>
-              <span className="text-[11px] font-bold text-slate-500 uppercase">Discussion Topic</span>
-              <p className="font-bold text-slate-900 mt-0.5">{selectedItem.topic}</p>
-            </div>
-
-            {selectedItem.notes && (
-              <div>
-                <span className="text-[11px] font-bold text-slate-500 uppercase">Client Notes</span>
-                <p className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 mt-0.5 leading-relaxed">
-                  {selectedItem.notes}
-                </p>
-              </div>
-            )}
-          </div>
-        </Modal>
-      )}
+      {/* MANUAL CREATION MODALS */}
+      <CreateOrderModal
+        isOpen={isCreateOrderOpen}
+        onClose={() => setIsCreateOrderOpen(false)}
+        onSuccess={loadData}
+      />
+      <CreateConsultationModal
+        isOpen={isCreateBookingOpen}
+        onClose={() => setIsCreateBookingOpen(false)}
+        onSuccess={loadData}
+      />
+      <AddSubscriberModal
+        isOpen={isAddSubscriberOpen}
+        onClose={() => setIsAddSubscriberOpen(false)}
+        subscribers={requests.newsletterSubscribers || []}
+        onSuccess={(updated) => {
+          setRequests((prev: any) => ({ ...prev, newsletterSubscribers: updated }));
+        }}
+      />
 
       {/* DELETE CONFIRM */}
       <ConfirmDialog
