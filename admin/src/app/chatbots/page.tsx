@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { Bot, Plus, Edit2, Trash2, Tag, DollarSign, Clock, CheckCircle2, Sparkles } from "lucide-react";
-import { adminStore } from "@/lib/store";
+import { adminApi } from "@/lib/adminApi";
 import PageHeader from "@/components/ui/PageHeader";
 import StatusBadge from "@/components/ui/StatusBadge";
 import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import FormField from "@/components/ui/FormField";
 import EmptyState from "@/components/ui/EmptyState";
+import ImageUpload from "@/components/ui/ImageUpload";
 import { toast } from "sonner";
 
 function ChatbotsContent() {
@@ -27,45 +28,78 @@ function ChatbotsContent() {
   const [status, setStatus] = useState("Active");
 
   const loadChatbots = () => {
-    setChatbots(adminStore.getChatbots());
+    adminApi.getChatbots().then((res) => {
+      if (Array.isArray(res)) {
+        setChatbots(
+          res.map((c: any) => ({
+            ...c,
+            title: c.title || c.name || "Specialized AI Bot",
+            name: c.name || c.title || "Specialized AI Bot",
+            price: typeof c.price === "number" ? `$${c.price}` : c.price || "$499",
+            deliveryDays: c.deliveryTime ? parseInt(c.deliveryTime) || 5 : c.deliveryDays || 5,
+            tags: Array.isArray(c.tags) ? c.tags : [],
+            status: c.isActive === false ? "Draft" : c.status || "Active",
+          }))
+        );
+      } else {
+        setChatbots([]);
+      }
+    }).catch(() => {
+      setChatbots([]);
+    });
   };
 
   useEffect(() => {
     loadChatbots();
-    window.addEventListener("admin_store_updated", loadChatbots);
-    return () => window.removeEventListener("admin_store_updated", loadChatbots);
   }, []);
 
   const openAddModal = () => {
     setEditingBot(null);
     setTitle("");
-    setPrice("$550.00");
+    setPrice("");
     setDescription("");
-    setDeliveryDays(7);
-    setImage("https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&auto=format&fit=crop&q=80");
-    setTags("AI Bot, Customer Care");
+    setDeliveryDays(5);
+    setImage("");
+    setTags("");
     setStatus("Active");
     setIsModalOpen(true);
   };
 
   const openEditModal = (bot: any) => {
     setEditingBot(bot);
-    setTitle(bot.title);
-    setPrice(bot.price);
-    setDescription(bot.description);
-    setDeliveryDays(bot.deliveryDays || 7);
-    setImage(bot.image);
+    setTitle(bot.title || bot.name || "");
+    setPrice(String(bot.price || 499));
+    setDescription(bot.description || "");
+    setDeliveryDays(bot.deliveryDays || (bot.deliveryTime ? parseInt(bot.deliveryTime) || 5 : 5));
+    setImage(bot.image || "");
     setTags(bot.tags ? bot.tags.join(", ") : "");
-    setStatus(bot.status || "Active");
+    setStatus(bot.status || (bot.isActive === false ? "Draft" : "Active"));
     setIsModalOpen(true);
   };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     const tagArray = tags.split(",").map((t) => t.trim()).filter(Boolean);
+    const numPrice = parseFloat(price.replace(/[^0-9.]/g, "")) || 499;
+
     let updated: any[];
 
     if (!editingBot) {
+      adminApi.createChatbot({
+        name: title,
+        category: "AI Chatbot",
+        price: numPrice,
+        deliveryTime: `${deliveryDays} Days`,
+        tags: tagArray,
+        description,
+        image,
+        isActive: status === "Active",
+      }).then((created) => {
+        if (created) {
+          setChatbots((prev) => [created, ...prev.filter((b) => b.id !== created.id)]);
+        }
+      }).catch((err) => console.warn(err));
+
       const newBot = {
         id: `bot-${Date.now()}`,
         slug: title.toLowerCase().replace(/\s+/g, "-"),
@@ -75,11 +109,21 @@ function ChatbotsContent() {
         deliveryDays: Number(deliveryDays),
         image,
         tags: tagArray,
-        status
+        status,
       };
       updated = [...chatbots, newBot];
       toast.success("New specialized chatbot added!");
     } else {
+      adminApi.updateChatbot(editingBot.id, {
+        name: title,
+        price: numPrice,
+        deliveryTime: `${deliveryDays} Days`,
+        tags: tagArray,
+        description,
+        image,
+        isActive: status === "Active",
+      }).catch((err) => console.warn(err));
+
       updated = chatbots.map((b) => {
         if (b.id === editingBot.id) {
           return {
@@ -90,7 +134,7 @@ function ChatbotsContent() {
             deliveryDays: Number(deliveryDays),
             image,
             tags: tagArray,
-            status
+            status,
           };
         }
         return b;
@@ -98,15 +142,14 @@ function ChatbotsContent() {
       toast.success("Chatbot card updated successfully!");
     }
 
-    adminStore.setChatbots(updated);
     setChatbots(updated);
     setIsModalOpen(false);
   };
 
   const handleDeleteConfirm = () => {
     if (!deleteConfirmId) return;
+    adminApi.deleteChatbot(deleteConfirmId).catch((err) => console.warn(err));
     const updated = chatbots.filter((b) => b.id !== deleteConfirmId);
-    adminStore.setChatbots(updated);
     setChatbots(updated);
     setDeleteConfirmId(null);
     toast.success("Chatbot removed from catalog");
@@ -118,12 +161,12 @@ function ChatbotsContent() {
       <PageHeader
         badge="Specialized Solutions"
         title="Specialized AI Chatbots"
-        description="Manage the pre-built, domain-specific AI chatbot products showcased on the homepage catalog."
+        description="Manage domain-specific AI chatbot products. Managed Frontend Sections: Homepage → Specialized AI Chatbots • Order Page (/order) Chatbot Selection."
         actions={
           <button
             type="button"
             onClick={openAddModal}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-[#0f172a] hover:bg-slate-800 border border-slate-800 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 border border-blue-600 shadow-2xs transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Chatbot</span>
@@ -141,7 +184,7 @@ function ChatbotsContent() {
             <button
               type="button"
               onClick={openAddModal}
-              className="px-3.5 py-1.5 bg-[#0f172a] text-white rounded-xl text-xs font-semibold cursor-pointer"
+              className="px-3.5 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-semibold cursor-pointer"
             >
               Add First Chatbot
             </button>
@@ -169,7 +212,7 @@ function ChatbotsContent() {
                 <div className="p-5 space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-sm font-bold text-slate-900 leading-tight">
-                      {bot.title}
+                      {bot.title || bot.name}
                     </h3>
                     <div className="flex items-center gap-1 shrink-0">
                       <button
@@ -286,15 +329,13 @@ function ChatbotsContent() {
             />
           </FormField>
 
-          <FormField label="Image URL">
-            <input
-              type="url"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              placeholder="https://images.unsplash.com/..."
-              className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-slate-900 bg-slate-50/50 font-mono"
-            />
-          </FormField>
+          <ImageUpload
+            label="Chatbot Graphic (Cloudinary CDN)"
+            category="Services"
+            value={image}
+            onChange={setImage}
+            helpText="Directly uploaded to Cloudinary CDN for instant rendering."
+          />
 
           <FormField label="Catalog Status">
             <select
@@ -317,7 +358,7 @@ function ChatbotsContent() {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#0f172a] hover:bg-slate-800 border border-slate-800 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 border border-blue-600 shadow-2xs transition-colors cursor-pointer"
             >
               {editingBot ? "Save Changes" : "Create Chatbot"}
             </button>
