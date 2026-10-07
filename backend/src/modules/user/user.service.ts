@@ -77,7 +77,35 @@ const deleteUser = async (id: string) => {
   });
 };
 
+const createUser = async (data: {
+  name: string;
+  email: string;
+  role?: string;
+  phone?: string;
+  company?: string;
+  avatar?: string;
+}) => {
+  const existing = await prisma.user.findUnique({
+    where: { email: data.email },
+  });
+  if (existing) {
+    throw new Error('User with this email already exists');
+  }
+
+  return await prisma.user.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      role: data.role?.toUpperCase() === 'ADMIN' ? 'ADMIN' : 'CLIENT',
+      phone: data.phone || null,
+      company: data.company || null,
+      avatar: data.avatar || null,
+    },
+  });
+};
+
 export const UserService = {
+  createUser,
   getAllUsers,
   getUserById,
   updateUserRole,
