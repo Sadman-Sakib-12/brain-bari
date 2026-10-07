@@ -1,4 +1,4 @@
-// Prisma Schema for Botbari (NeonDB PostgreSQL)
+// Prisma Schema for barin-bari (NeonDB PostgreSQL)
 // Modular Enterprise MVC Architecture
 
 generator client {
@@ -46,7 +46,9 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String
+  password  String?
   role      Role     @default(CLIENT)
+  status    String   @default("Active")
   avatar    String?
   phone     String?
   company   String?
@@ -241,4 +243,52 @@ model SiteSetting {
   updatedAt      DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+// -------------------------------------------------------------
+// 11. Product Model (SaaS & AI Platforms)
+// -------------------------------------------------------------
+model Product {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  tagline     String?
+  category    String   @default("AI SaaS")
+  description String
+  features    String[] @default([])
+  status      String   @default("Production Ready")
+  demoUrl     String?
+  logo        Json?
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("products")
+}
+
+// -------------------------------------------------------------
+// 12. Contact Messages Model (Client Inquiries)
+// -------------------------------------------------------------
+model ContactMessage {
+  id               String   @id @default(uuid())
+  name             String
+  email            String
+  phone            String?
+  message          String
+  selectedServices String[] @default([])
+  status           String   @default("UNREAD")
+  createdAt        DateTime @default(now())
+
+  @@map("contact_messages")
+}
+
+// -------------------------------------------------------------
+// 13. Dynamic CMS Content Store (Sections & Settings)
+// -------------------------------------------------------------
+model CmsContent {
+  key       String   @id
+  data      Json
+  updatedAt DateTime @updatedAt
+
+  @@map("cms_contents")
 }
