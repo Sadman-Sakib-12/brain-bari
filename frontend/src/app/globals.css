@@ -178,6 +178,16 @@ html.dark .glass-card {
   animation-play-state: paused;
 }
 
+.animate-marquee-smooth {
+  display: flex;
+  width: max-content;
+  animation: scroll 60s linear infinite;
+}
+
+.animate-marquee-smooth:hover {
+  animation-play-state: paused;
+}
+
 /* Hero Section Smooth Auto Idle Sway & Movement Animation */
 @keyframes robotIdleSway {
   0%, 100% {
@@ -206,17 +216,17 @@ html.dark .glass-card {
 }
 
 .animate-robot-idle {
-  animation: robotIdleSway 6.5s ease-in-out infinite;
+  animation: robotIdleSway 9s ease-in-out infinite;
   will-change: transform;
   transform-origin: center bottom;
 }
 
 .animate-glow-pulse {
-  animation: glowPulse 6s ease-in-out infinite;
+  animation: glowPulse 8s ease-in-out infinite;
   will-change: opacity, transform;
 }
 
-/* Vokals.ai Floating / Bobbing Animations - Balanced, Smooth & Noticeable Float */
+/* Vokals.ai Floating / Bobbing Animations - Balanced, Smooth & Slow Float */
 @keyframes vokalsBob {
   0%, 100% {
     transform: translateY(0px);
@@ -254,22 +264,22 @@ html.dark .glass-card {
 }
 
 .animate-vokals-bob {
-  animation: vokalsBob 4s ease-in-out infinite;
+  animation: vokalsBob 7s ease-in-out infinite;
   will-change: transform;
 }
 
 .animate-vokals-float-1 {
-  animation: vokalsFloat1 3.8s ease-in-out infinite;
+  animation: vokalsFloat1 6.5s ease-in-out infinite;
   will-change: transform;
 }
 
 .animate-vokals-float-2 {
-  animation: vokalsFloat2 4.5s ease-in-out 0.8s infinite;
+  animation: vokalsFloat2 7.5s ease-in-out 1s infinite;
   will-change: transform;
 }
 
 .animate-vokals-float-3 {
-  animation: vokalsFloat3 4.2s ease-in-out 0.4s infinite;
+  animation: vokalsFloat3 7s ease-in-out 0.6s infinite;
   will-change: transform;
 }
 
@@ -286,4 +296,39 @@ html.dark .glass-card {
 .animate-shine {
   animation: shine 5s linear infinite;
 }
+
+/* Google Translate Seamless Integration */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+  position: static !important;
+}
+#google_translate_element {
+  display: none !important;
+}
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+}
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+.skiptranslate:not(.allow-skiptranslate) {
+  display: none !important;
+}
+iframe.skiptranslate {
+  display: none !important;
+}
+#goog-gt-tt {
+  display: none !important;
+}
+.goog-te-spinner-pos {
+  display: none !important;
+}
+
 

@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AppErrorBoundary from "@/components/ErrorBoundary";
 import Providers from "@/components/Providers";
+import GoogleTranslate from "@/components/GoogleTranslate";
 
 export const metadata: Metadata = {
   title: "Brain Bari – AI & Software Solutions Company in Bangladesh",
@@ -50,6 +51,7 @@ export default function RootLayout({
             </AppErrorBoundary>
           </main>
           <Footer />
+          <GoogleTranslate />
         </Providers>
       </body>
     </html>
