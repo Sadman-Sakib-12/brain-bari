@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import siteSettings from "@/data/siteSettings.json";
+import { useSiteSettings } from "@/hooks/useApi";
 import { Badge } from "@/components/ui/badge";
 import ShinyText from "@/components/reactbits/ShinyText";
 
@@ -39,10 +39,10 @@ function TypingDots({
             scale: [0.85, 1.15, 0.85]
           }}
           transition={{
-            duration: 1.3,
+            duration: 2.2,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: delayOffset + i * 0.2,
+            delay: delayOffset + i * 0.35,
           }}
         />
       ))}
@@ -52,28 +52,55 @@ function TypingDots({
 
 export default function HeroSection() {
   const router = useRouter();
-  const heroData = (siteSettings as any)?.hero || {};
+  const { data: liveSettings, isLoading } = useSiteSettings();
+  const heroData = (liveSettings as any)?.hero || null;
 
-  const rawHeadline = heroData.headline || "Powering Ideas\nwith";
-  const headline = rawHeadline === "Powering Ideas with" ? "Powering Ideas\nwith" : rawHeadline;
+  const rawHeadline = heroData?.headline || "";
+  const headline = rawHeadline;
 
   // Gradient headline
-  const headlineGradient = heroData.headlineGradient || "AI, Software &\nCyber Security";
+  const headlineGradient = heroData?.headlineGradient || "";
 
-  const searchPlaceholder = heroData.searchPlaceholder || "What do you want to build?";
-  const ctaText = heroData.ctaText || "Start Your Project";
-  const robotImage = heroData.robotImage || "/images/hero_robot.jpg";
-  const speechBubble1 = heroData.speechBubble1 || "Hi! How can I help you?";
-  const speechBubble2 = heroData.speechBubble2 || "Hi Skilabot! I need your help.";
+  const searchPlaceholder = heroData?.searchPlaceholder || "";
+  const ctaText = heroData?.ctaText || "";
+  const robotImage = heroData?.robotImage || "";
+  const speechBubble1 = heroData?.speechBubble1 || "";
+  const speechBubble2 = heroData?.speechBubble2 || "";
+  const heroBadge = heroData?.badge || heroData?.topBadge || "✨ Next-Gen AI Automation Platform";
 
-  const rawPills: string[] = heroData.filterPills && heroData.filterPills.length > 0
+  const rawPills: string[] = Array.isArray(heroData?.filterPills) && heroData.filterPills.length > 0
     ? heroData.filterPills
     : ["AI Solutions", "Custom Software", "SaaS Development"];
-  const filterPills = rawPills;
+
+
+  // Seamless marquee repeating sequence
+  const displayPills = React.useMemo(() => {
+      if (rawPills.length === 0) return [];
+      let base = [...rawPills];
+      while (base.length < 12) {
+        base = [...base, ...rawPills];
+      }
+      // Duplicate 2x for seamless -50% infinite translateX marquee
+      return [...base, ...base];
+    }, [rawPills]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [wishModalOpen, setWishModalOpen] = useState(false);
-  const [selectedWish, setSelectedWish] = useState("AI Solutions");
+  const [selectedWish, setSelectedWish] = useState("");
+
+  if (isLoading) {
+    return (
+      <section className="relative w-full bg-[#ebe8fd] dark:bg-[#0f1523] pt-36 pb-16 md:pt-36 md:pb-24 overflow-hidden transition-colors duration-300">
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 flex justify-center items-center min-h-[400px]">
+          <div className="animate-pulse text-gray-400">Loading...</div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!heroData) {
+    return null;
+  }
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,7 +124,7 @@ export default function HeroSection() {
             {/* Top Badge using shadcn Badge + React Bits ShinyText */}
             <Badge variant="brand" className="mb-4 px-3.5 py-1 text-xs gap-1.5 shadow-xs border-[#c8c2eb] bg-white/80">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <ShinyText text="✨ Next-Gen AI Automation Platform" speed={3} className="font-semibold" />
+              <ShinyText text={heroBadge} speed={3} className="font-semibold" />
             </Badge>
 
             {/* Headline H1 with Exact Gradient */}
@@ -131,35 +158,42 @@ export default function HeroSection() {
 
               <button
                 type="submit"
-                className="px-6 sm:px-7 py-3 bg-[#9d62db] hover:bg-[#8b4ec9] active:scale-95 text-white font-medium text-xs sm:text-sm rounded-full transition-all duration-200 shadow-sm cursor-pointer whitespace-nowrap shrink-0"
+                className="px-6 sm:px-7 py-3 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-medium text-xs sm:text-sm rounded-full transition-all duration-200 shadow-md shadow-blue-500/25 cursor-pointer whitespace-nowrap shrink-0"
               >
                 {ctaText}
               </button>
             </form>
 
-            {/* Category Filter Pills with Colored Indicator Dots */}
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-              {filterPills.map((pill, idx) => {
-                const dotColor = defaultPillColors[pill] || fallbackColors[idx % fallbackColors.length];
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handlePillClick(pill)}
-                    className="group bg-white dark:bg-slate-900 text-gray-800 dark:text-gray-200 text-xs sm:text-[13px] font-medium px-4 py-2 rounded-full border border-purple-100/90 dark:border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-purple-300 dark:hover:border-purple-500 transition-all duration-200 flex items-center cursor-pointer transform hover:-translate-y-0.5 active:scale-95"
-                  >
-                    <span
-                      className="w-2 h-2 rounded-full mr-2 shrink-0 transition-transform duration-200 group-hover:scale-125"
-                      style={{ backgroundColor: dotColor }}
-                    />
-                    <span>{pill}</span>
-                  </button>
-                );
-              })}
+            {/* Category Filter Pills Infinite Marquee Slider */}
+            <div className="relative w-full max-w-[500px] overflow-hidden select-none py-1.5">
+              {/* Left & Right gradient fade masks for smooth entrance/exit */}
+              <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-r from-[#ebe8fd] dark:from-[#0f1523] to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-l from-[#ebe8fd] dark:from-[#0f1523] to-transparent z-10 pointer-events-none" />
+
+              {/* Marquee Track */}
+              <div className="animate-marquee-smooth flex items-center gap-2.5 sm:gap-3 py-1">
+                {displayPills.map((pill, idx) => {
+                  const dotColor = defaultPillColors[pill] || fallbackColors[idx % fallbackColors.length];
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handlePillClick(pill)}
+                      className="group bg-white dark:bg-slate-900 text-gray-800 dark:text-gray-200 text-xs sm:text-[13px] font-medium px-4 py-2 rounded-full border border-purple-100/90 dark:border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-purple-300 dark:hover:border-purple-500 transition-all duration-200 flex items-center cursor-pointer shrink-0 whitespace-nowrap transform hover:-translate-y-0.5 active:scale-95"
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full mr-2 shrink-0 transition-transform duration-200 group-hover:scale-125"
+                        style={{ backgroundColor: dotColor }}
+                      />
+                      <span>{pill}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Robot Showcase with Layered Floating Chat Bubbles (Vokals.ai Floating & Bobbing Style) */}
+          {/* RIGHT COLUMN: Robot Showcase with Layered Floating Chat Bubbles */}
           <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
             {/* Relative Frame containing Robot Card and 3D Overlaid Floating Bubbles */}
             <div className="relative w-full max-w-[480px] sm:max-w-[520px] lg:max-w-[560px] flex justify-center animate-vokals-bob">
@@ -181,22 +215,22 @@ export default function HeroSection() {
                 </div>
               </div>
 
-              {/* BUBBLE 1: Top Bot Message */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.88 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-                className="absolute top-[14%] sm:top-[15%] -left-3 sm:-left-16 z-20"
-              >
-                <div className="animate-vokals-float-1">
-                  <div className="bg-white text-gray-900 text-xs sm:text-[13px] font-medium px-4 py-2.5 rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.12)] border border-gray-100/80 flex items-center whitespace-nowrap cursor-pointer hover:scale-105 transition-transform relative">
+              {/* BUBBLE 1: Top Bot Message (Text has NO separate floating/jitter animation) */}
+              {speechBubble1 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, ease: "easeOut", delay: 0.2 }}
+                  className="absolute top-[14%] sm:top-[15%] -left-3 sm:-left-16 z-20"
+                >
+                  <div className="bg-white text-gray-900 text-xs sm:text-[13px] font-medium px-4 py-2.5 rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.12)] border border-gray-100/80 flex items-center whitespace-nowrap relative select-none">
                     <span>{speechBubble1}</span>
                     <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-l-[7px] border-l-white" />
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              )}
 
-              {/* BUBBLE 2: Three dots small pill */}
+              {/* BUBBLE 2: Three dots small pill (Floating animation intact) */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.88 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -210,26 +244,26 @@ export default function HeroSection() {
                 </div>
               </motion.div>
 
-              {/* BUBBLE 3: Purple User Message */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.88 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, ease: "easeOut", delay: 0.5 }}
-                className="absolute top-[38%] sm:top-[39%] -left-8 sm:-left-24 z-20"
-              >
-                <div className="animate-vokals-float-2">
-                  <div className="bg-[#9d62db] text-white text-xs sm:text-[13px] font-medium px-4 py-2.5 rounded-2xl shadow-[0_14px_32px_rgba(157,98,219,0.38)] flex items-center whitespace-nowrap cursor-pointer hover:scale-105 transition-transform relative">
+              {/* BUBBLE 3: Purple User Message (Text has NO separate floating/jitter animation) */}
+              {speechBubble2 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, ease: "easeOut", delay: 0.45 }}
+                  className="absolute top-[38%] sm:top-[39%] -left-8 sm:-left-24 z-20"
+                >
+                  <div className="bg-[#9d62db] text-white text-xs sm:text-[13px] font-medium px-4 py-2.5 rounded-2xl shadow-[0_14px_32px_rgba(157,98,219,0.38)] flex items-center whitespace-nowrap relative select-none">
                     <span>{speechBubble2}</span>
                     <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-l-[7px] border-l-[#9d62db]" />
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              )}
 
-              {/* BUBBLE 4: Silver/Gray dots card */}
+              {/* BUBBLE 4: Silver/Gray dots card (Floating animation intact) */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.88 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, ease: "easeOut", delay: 0.65 }}
+                transition={{ duration: 0.7, ease: "easeOut", delay: 0.6 }}
                 className="absolute top-[51%] sm:top-[52%] left-5 sm:left-2 z-20"
               >
                 <div className="animate-vokals-float-1">
@@ -239,11 +273,11 @@ export default function HeroSection() {
                 </div>
               </motion.div>
 
-              {/* BUBBLE 5: Bottom small white dots pill */}
+              {/* BUBBLE 5: Bottom small white dots pill (Floating animation intact) */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.88 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, ease: "easeOut", delay: 0.8 }}
+                transition={{ duration: 0.7, ease: "easeOut", delay: 0.75 }}
                 className="absolute top-[62%] sm:top-[63%] -left-4 sm:-left-12 z-20"
               >
                 <div className="animate-vokals-float-3">
