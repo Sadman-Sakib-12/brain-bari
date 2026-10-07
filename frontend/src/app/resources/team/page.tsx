@@ -12,12 +12,23 @@ import {
   MessageSquare,
   Sparkles
 } from "lucide-react";
-import industryCards from "@/data/industryExpertises.json";
-import teamMembers from "@/data/team.json";
+import { useCmsContent } from "@/hooks/useApi";
 import ConversionCTA from "@/components/ConversionCTA";
 
 export default function TeamPage() {
   const [selectedMember, setSelectedMember] = useState<any | null>(null);
+  const { data: rawTeam = [] } = useCmsContent<any[]>("team");
+  const { data: rawExpertises = [] } = useCmsContent<any[]>("industryExpertises");
+  const { data: pageCms } = useCmsContent<any>("teamPage");
+  const teamMembers = Array.isArray(rawTeam) ? rawTeam : [];
+  const industryCards = Array.isArray(rawExpertises) ? rawExpertises : [];
+
+  const expertisesTitle = pageCms?.expertisesSection?.title || "Our Industry Expertises";
+  const expertisesDesc = pageCms?.expertisesSection?.description || "Our deep understanding of diverse industries empowers us to design customized software solutions. Let our expertise be the Catalyst for your next triumph.";
+  const teamTitle = pageCms?.teamSection?.title || "Meet Our";
+  const teamHighlight = pageCms?.teamSection?.titleHighlight || "Team";
+  const teamSubtitle = pageCms?.teamSection?.subtitle || "Click on any team member to view their complete profile and expertise.";
+  const teamBadge = pageCms?.teamSection?.badge || "Interactive Profiles";
 
   // Divide team members into executives and specialists
   const executives = teamMembers.slice(0, 3).map((m, idx) => ({
@@ -38,9 +49,7 @@ export default function TeamPage() {
               Home
             </Link>
             <span className="text-gray-400">/</span>
-            <Link href="/resources" className="hover:text-black font-medium transition-colors">
-              Resources
-            </Link>
+            <span className="font-medium text-gray-700">Resources</span>
             <span className="text-gray-400">/</span>
             <span className="text-gray-900 font-semibold">Team</span>
           </div>
@@ -54,10 +63,10 @@ export default function TeamPage() {
       <section className="w-full pt-16 pb-20 bg-white flex flex-col items-center justify-center">
         <div className="max-w-[1200px] w-full mx-auto px-6 text-center space-y-6 flex flex-col items-center">
           <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
-            Our Industry Expertises
+            {expertisesTitle}
           </h1>
           <p className="text-gray-500 text-sm md:text-base leading-relaxed max-w-4xl mx-auto">
-            Our deep understanding of diverse industries empowers us to design customized software solutions. Let our expertise be the Catalyst for your next triumph.
+            {expertisesDesc}
           </p>
 
           {/* 20 Asymmetrical Pastel Cards Grid */}
@@ -94,14 +103,14 @@ export default function TeamPage() {
           <div className="text-center md:text-left flex flex-col sm:flex-row sm:items-end justify-between gap-2">
             <div>
               <h2 className="text-3xl md:text-4xl font-light text-gray-900 leading-tight">
-                Meet Our <span className="font-extrabold text-[#7c2d12]">Team</span>
+                {teamTitle} <span className="font-extrabold text-[#7c2d12]">{teamHighlight}</span>
               </h2>
               <p className="text-gray-500 text-xs sm:text-sm mt-1">
-                Click on any team member to view their complete profile and expertise.
+                {teamSubtitle}
               </p>
             </div>
             <span className="text-xs text-[#7c2d12] font-semibold bg-amber-50 px-3 py-1 rounded-full w-max border border-amber-200/50">
-              Interactive Profiles
+              {teamBadge}
             </span>
           </div>
 
@@ -263,7 +272,7 @@ export default function TeamPage() {
               <Link
                 href="/schedule"
                 onClick={() => setSelectedMember(null)}
-                className="flex-1 py-3 bg-[#602b0c] hover:bg-[#4a2008] text-white text-center font-bold text-xs sm:text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white text-center font-bold text-xs sm:text-sm rounded-xl transition-all shadow-md shadow-blue-500/25 flex items-center justify-center gap-2"
               >
                 <Calendar className="w-4 h-4" />
                 <span>Book Consultation with Team</span>

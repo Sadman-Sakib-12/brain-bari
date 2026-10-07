@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import blogsData from "@/data/blogs.json";
+import { useBlogs, useCmsContent } from "@/hooks/useApi";
 
 interface BlogPost {
   id: string;
@@ -20,14 +20,40 @@ interface BlogPost {
   [key: string]: any;
 }
 
-const blogsList = blogsData as BlogPost[];
-const categories = ["All", "News", "AI Trends", "Web Development", "Case Studies", "Tutorials"];
-
 export default function BlogPage() {
+  const { data: blogs = [] } = useBlogs();
+  const { data: pageCms } = useCmsContent<any>("blogPage");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredBlogs = blogsList.filter((post) => {
+  const categories = React.useMemo(() => {
+    const set = new Set<string>();
+    (blogs || []).forEach((b: any) => {
+      if (Array.isArray(b.tags)) {
+        b.tags.forEach((t: string) => {
+          if (t && t.trim()) set.add(t.trim());
+        });
+      }
+      if (b.category && b.category.trim()) {
+        set.add(b.category.trim());
+      }
+    });
+    const list = Array.from(set);
+    return list.length > 0 ? ["All", ...list] : ["All", "AI Trends", "Web Development", "Case Studies"];
+  }, [blogs]);
+
+  const blogItems: BlogPost[] = (blogs || []).map((b: any) => ({
+    id: b.id,
+    slug: b.slug,
+    title: b.title,
+    category: Array.isArray(b.tags) && b.tags.length > 0 ? b.tags[0] : (b.category || "AI Trends"),
+    date: new Date(b.createdAt || Date.now()).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    author: b.author || "Brain Bari Team",
+    excerpt: b.excerpt || (b.content ? b.content.slice(0, 160) + "..." : ""),
+    image: b.coverImage || b.thumbnail || b.image || "",
+  }));
+
+  const filteredBlogs = blogItems.filter((post) => {
     const matchesCategory =
       selectedCategory === "All" ||
       post.category.toLowerCase().includes(selectedCategory.toLowerCase());
@@ -37,12 +63,16 @@ export default function BlogPage() {
     return matchesCategory && matchesSearch;
   });
 
+  const headingText = pageCms?.heading || "Innovation meets expertise in our range of service";
+  const bannerImg = pageCms?.bannerImage || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1400&auto=format&fit=crop&q=80";
+  const placeholderText = pageCms?.searchPlaceholder || "Type to start searching...";
+
   return (
     <div className="min-h-screen bg-white font-sans flex flex-col overflow-x-hidden pt-40 md:pt-36">
       {/* 1. Header Title */}
       <section className="text-center px-6 mb-8">
         <h1 className="text-[34px] md:text-[40px] font-medium text-black tracking-tight leading-snug max-w-[600px] mx-auto font-sans">
-          Innovation meets expertise in our range of service
+          {headingText}
         </h1>
       </section>
 
@@ -50,7 +80,7 @@ export default function BlogPage() {
       <section className="px-6 mb-12">
         <div className="max-w-[1300px] mx-auto relative rounded-3xl overflow-hidden shadow-sm h-[200px] md:h-[260px] bg-gradient-to-r from-purple-900 via-indigo-950 to-blue-900">
           <img
-            src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1400&auto=format&fit=crop&q=80"
+            src={bannerImg}
             alt="AI Service Banner"
             className="w-full h-full object-cover object-center opacity-40 mix-blend-overlay"
           />
@@ -62,7 +92,7 @@ export default function BlogPage() {
             >
               <input
                 type="text"
-                placeholder="Type to start searching..."
+                placeholder={placeholderText}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-grow bg-transparent text-[13px] sm:text-[14px] px-3 sm:px-6 py-2 border-none outline-none text-gray-800 min-w-0"
@@ -105,50 +135,57 @@ export default function BlogPage() {
       {/* 4. Blog Posts List Cards */}
       <section className="px-6 pb-24">
         <div className="max-w-[1300px] mx-auto flex flex-col gap-8">
-          {filteredBlogs.map((post) => (
-            <div
-              key={post.id}
-              className="flex flex-col md:flex-row bg-[#ebe8fd] rounded-[20px] overflow-hidden shadow-[0_2px_15px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_25px_rgba(0,0,0,0.06)] transition-all duration-300"
-            >
-              <div className="relative w-full md:w-[32%] h-[240px] md:h-auto shrink-0">
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="w-full h-full object-cover md:object-center"
-                />
-              </div>
+          {filteredBlogs.length > 0 ? (
+            filteredBlogs.map((post) => (
+              <div
+                key={post.id}
+                className="flex flex-col md:flex-row bg-[#ebe8fd] rounded-[20px] overflow-hidden shadow-[0_2px_15px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_25px_rgba(0,0,0,0.06)] transition-all duration-300"
+              >
+                <div className="relative w-full md:w-[32%] h-[240px] md:h-auto shrink-0">
+                  <img
+                    src={post.image}
+                    alt={post.title}
+                    className="w-full h-full object-cover md:object-center"
+                  />
+                </div>
 
-              <div className="w-full md:w-[68%] p-6 md:py-8 md:px-10 flex flex-col justify-between">
-                <div>
-                  <h2 className="text-[18px] md:text-[20px] font-medium text-black mb-2 leading-snug font-sans">
-                    {post.title}
-                  </h2>
-                  <div className="text-[13px] text-gray-800 leading-relaxed font-light space-y-3">
-                    {post.previewHeading && (
-                      <p className="font-semibold text-gray-900">{post.previewHeading}</p>
-                    )}
-                    <p className="text-gray-700">{post.excerpt}</p>
-                    {post.points && (
-                      <ul className="list-disc pl-5 space-y-0.5 text-gray-700 text-xs">
-                        {post.points.map((pt, pIdx) => (
-                          <li key={pIdx}>{pt}</li>
-                        ))}
-                      </ul>
-                    )}
+                <div className="w-full md:w-[68%] p-6 md:py-8 md:px-10 flex flex-col justify-between">
+                  <div>
+                    <h2 className="text-[18px] md:text-[20px] font-medium text-black mb-2 leading-snug font-sans">
+                      {post.title}
+                    </h2>
+                    <div className="text-[13px] text-gray-800 leading-relaxed font-light space-y-3">
+                      {post.previewHeading && (
+                        <p className="font-semibold text-gray-900">{post.previewHeading}</p>
+                      )}
+                      <p className="text-gray-700">{post.excerpt}</p>
+                      {post.points && (
+                        <ul className="list-disc pl-5 space-y-0.5 text-gray-700 text-xs">
+                          {post.points.map((pt, pIdx) => (
+                            <li key={pIdx}>{pt}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex justify-end">
+                    <Link
+                      href={`/contact?subject=Inquiry regarding: ${encodeURIComponent(post.title)}`}
+                      className="inline-block bg-[#752a02] text-white text-[13px] font-medium px-6 py-2 rounded-full hover:bg-[#571e00] transition-colors shadow-sm"
+                    >
+                      Read more
+                    </Link>
                   </div>
                 </div>
-
-                <div className="mt-6 flex justify-end">
-                  <Link
-                    href={`/contact?subject=Inquiry regarding: ${encodeURIComponent(post.title)}`}
-                    className="inline-block bg-[#752a02] text-white text-[13px] font-medium px-6 py-2 rounded-full hover:bg-[#571e00] transition-colors shadow-sm"
-                  >
-                    Read more
-                  </Link>
-                </div>
               </div>
+            ))
+          ) : (
+            <div className="text-center py-16 bg-[#ebe8fd] rounded-[20px] p-8 max-w-[600px] mx-auto">
+              <h3 className="text-lg font-bold text-gray-900">No blog posts found</h3>
+              <p className="text-sm text-gray-600 mt-2">Articles and insights will be published here shortly.</p>
             </div>
-          ))}
+          )}
         </div>
       </section>
     </div>

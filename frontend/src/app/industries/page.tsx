@@ -36,10 +36,11 @@ import {
   Globe,
   Flame,
   Sprout,
-  Package
+  Package,
 } from "lucide-react";
-import industriesData from "@/data/industries.json";
+import { useCmsContent } from "@/hooks/useApi";
 import ConversionCTA from "@/components/ConversionCTA";
+import IndustryFaqSection from "./components/IndustryFaqSection";
 
 const iconMap: Record<string, any> = {
   HeartPulse,
@@ -49,161 +50,37 @@ const iconMap: Record<string, any> = {
   Scale,
   GraduationCap,
   Truck,
-  Layers
+  Layers,
+  ShoppingCart,
+  Smartphone,
+  Home,
+  Monitor,
+  Heart,
+  Camera,
+  Infinity,
+  Users,
+  Building2,
+  Fingerprint,
+  Gamepad2,
+  Globe,
+  Flame,
+  Sprout,
+  Package,
+  Zap,
 };
 
-const industryBadges = [
-  // Row 1
-  {
-    id: "finance",
-    name: "Finance & Banking",
-    icon: Landmark,
-    bg: "#fdf5eb",
-    targetId: "fintech",
-  },
-  {
-    id: "ecommerce",
-    name: "E-commerce",
-    icon: ShoppingCart,
-    bg: "#eaf4fd",
-    targetId: "ecommerce",
-  },
-  {
-    id: "telecom",
-    name: "Telecom",
-    icon: Smartphone,
-    bg: "#fdfae5",
-    searchQuery: "telecom",
-  },
-  {
-    id: "realestate",
-    name: "Real Estate",
-    icon: Home,
-    bg: "#faede8",
-    targetId: "real-estate",
-  },
-  {
-    id: "software",
-    name: "Software",
-    icon: Monitor,
-    bg: "#f1eefa",
-    targetId: "enterprise-saas",
-  },
-  {
-    id: "automotive",
-    name: "Automotive",
-    icon: Truck,
-    bg: "#faf8e4",
-    searchQuery: "automotive",
-  },
-  {
-    id: "health",
-    name: "Health & Fitness",
-    icon: Heart,
-    bg: "#eaf7ec",
-    targetId: "healthcare",
-  },
-  // Row 2
-  {
-    id: "photo",
-    name: "Photo & Video",
-    icon: Camera,
-    bg: "#fdf4e8",
-    searchQuery: "video",
-  },
-  {
-    id: "business",
-    name: "Business",
-    icon: ShoppingBag,
-    bg: "#f2eff9",
-    searchQuery: "business",
-  },
-  {
-    id: "startup",
-    name: "Startup",
-    icon: Zap,
-    bg: "#e6f8fa",
-    searchQuery: "saas",
-  },
-  {
-    id: "arvr",
-    name: "AR/VR",
-    icon: Infinity,
-    bg: "#fdf9e3",
-    searchQuery: "3d",
-  },
-  {
-    id: "nonprofit",
-    name: "Non-profit",
-    icon: Users,
-    bg: "#eaf4fb",
-    searchQuery: "non-profit",
-  },
-  {
-    id: "legal",
-    name: "Legal Services",
-    icon: Scale,
-    bg: "#faf7e4",
-    targetId: "legal-civic",
-  },
-  {
-    id: "govt",
-    name: "Govt. & Public Sector",
-    icon: Building2,
-    bg: "#f6eff1",
-    targetId: "legal-civic",
-  },
-  // Row 3
-  {
-    id: "sports",
-    name: "Sports & Fitness",
-    icon: Fingerprint,
-    bg: "#e6f4fc",
-    searchQuery: "fitness",
-  },
-  {
-    id: "gaming",
-    name: "Gaming",
-    icon: Gamepad2,
-    bg: "#fef8ce",
-    searchQuery: "gaming",
-  },
-  {
-    id: "fashion",
-    name: "Fashion & Apparel",
-    icon: Globe,
-    bg: "#faeae7",
-    searchQuery: "retail",
-  },
-  {
-    id: "energy",
-    name: "Energy & Utilities",
-    icon: Flame,
-    bg: "#eef3f7",
-    searchQuery: "energy",
-  },
-  {
-    id: "agriculture",
-    name: "Agriculture",
-    icon: Sprout,
-    bg: "#f8fae5",
-    searchQuery: "agriculture",
-  },
-  {
-    id: "logistics",
-    name: "Logistics",
-    icon: Package,
-    bg: "#e2f7f3",
-    targetId: "logistics",
-  },
-];
-
 export default function IndustriesPage() {
+  const { data: cmsIndustries = [] } = useCmsContent<any[]>("industries");
+  const { data: rawBadges = [] } = useCmsContent<any[]>("industryBadges");
+  const { data: pageCms } = useCmsContent<any>("industriesPage");
+  const industriesData = Array.isArray(cmsIndustries) ? cmsIndustries : [];
+  const industryBadges = Array.isArray(rawBadges) ? rawBadges : [];
+
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeBadge, setActiveBadge] = useState<string | null>(null);
 
-  const handleBadgeClick = (badge: (typeof industryBadges)[0]) => {
+  const handleBadgeClick = (badge: any) => {
     if (activeBadge === badge.id) {
       setActiveBadge(null);
       setSelectedCategory("all");
@@ -232,6 +109,12 @@ export default function IndustriesPage() {
       item.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const roiCardStyles = [
+    { bg: "bg-orange-100", text: "text-orange-700", defaultIcon: Cpu },
+    { bg: "bg-emerald-100", text: "text-emerald-700", defaultIcon: ShieldCheck },
+    { bg: "bg-blue-100", text: "text-blue-700", defaultIcon: TrendingUp },
+  ];
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-800 pt-20">
@@ -264,16 +147,16 @@ export default function IndustriesPage() {
         <div className="max-w-[1240px] mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-[#c8c2eb] text-[#8a421a] text-xs font-bold uppercase tracking-wider mb-6 shadow-xs">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Domain-Specific AI Architecture</span>
+            <span>{pageCms?.hero?.badge || "Domain-Specific AI Architecture"}</span>
           </div>
           <h1 className="text-[34px] sm:text-[44px] md:text-[52px] font-black text-gray-950 tracking-tight leading-[1.15] max-w-4xl mx-auto mb-6">
-            Engineering AI &amp; Software Across{" "}
+            {pageCms?.hero?.title || "Engineering AI & Software Across"}{" "}
             <span className="bg-gradient-to-r from-[#8a421a] via-[#602b0c] to-indigo-800 bg-clip-text text-transparent">
-              High-Impact Industries
+              {pageCms?.hero?.titleHighlight || "High-Impact Industries"}
             </span>
           </h1>
           <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-10 font-normal">
-            We don&apos;t build one-size-fits-all software. We architect specialized conversational chatbots, intelligent automation pipelines, and enterprise web solutions tailored directly to your industry&apos;s regulatory and customer realities.
+            {pageCms?.hero?.description || "We don't build one-size-fits-all software. We architect specialized conversational chatbots, intelligent automation pipelines, and enterprise web solutions tailored directly to your industry's regulatory and customer realities."}
           </p>
 
           {/* Quick Search & Filter Tabs */}
@@ -290,55 +173,57 @@ export default function IndustriesPage() {
             </div>
           </div>
 
-          {/* 20 Organic Leaf/Petal Industry Badges Showcase */}
-          <div className="max-w-[1180px] mx-auto mt-6 mb-4">
-            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-4.5">
-              {industryBadges.map((badge) => {
-                const Icon = badge.icon;
-                const isActive =
-                  activeBadge === badge.id ||
-                  (badge.targetId && selectedCategory === badge.targetId);
+          {/* Organic Leaf/Petal Industry Badges Showcase */}
+          {industryBadges.length > 0 && (
+            <div className="max-w-[1180px] mx-auto mt-6 mb-4">
+              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-4.5">
+                {industryBadges.map((badge) => {
+                  const Icon = (typeof badge.icon === "string" ? iconMap[badge.icon] : badge.icon) || Sparkles;
+                  const isActive =
+                    activeBadge === badge.id ||
+                    (badge.targetId && selectedCategory === badge.targetId);
 
-                return (
-                  <button
-                    key={badge.id}
-                    type="button"
-                    onClick={() => handleBadgeClick(badge)}
-                    style={{
-                      backgroundColor: badge.bg,
-                      borderRadius: "38px 12px 38px 12px",
-                    }}
-                    className={`w-[124px] sm:w-[136px] md:w-[144px] h-[92px] sm:h-[100px] flex flex-col items-center justify-center p-2.5 transition-all duration-200 cursor-pointer select-none group border border-black/[0.04] shadow-[0_2px_8px_rgba(0,0,0,0.02)] ${
-                      isActive
-                        ? "ring-2 ring-[#8a421a] shadow-md scale-105"
-                        : "hover:-translate-y-1 hover:shadow-md"
-                    }`}
-                  >
-                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800 stroke-[1.6] group-hover:scale-110 transition-transform duration-200" />
-                    <span className="text-[11px] sm:text-[12px] font-medium text-gray-800 text-center leading-tight mt-1.5 px-1 line-clamp-2">
-                      {badge.name}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {activeBadge && (
-              <div className="text-center mt-5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveBadge(null);
-                    setSelectedCategory("all");
-                    setSearchQuery("");
-                  }}
-                  className="px-4 py-1.5 rounded-full text-xs font-semibold bg-white border border-[#c8c2eb] text-[#8a421a] hover:bg-[#8a421a] hover:text-white transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
-                >
-                  <span>✕ Clear Selection &amp; View All Industries</span>
-                </button>
+                  return (
+                    <button
+                      key={badge.id}
+                      type="button"
+                      onClick={() => handleBadgeClick(badge)}
+                      style={{
+                        backgroundColor: badge.bg,
+                        borderRadius: "38px 12px 38px 12px",
+                      }}
+                      className={`w-[124px] sm:w-[136px] md:w-[144px] h-[92px] sm:h-[100px] flex flex-col items-center justify-center p-2.5 transition-all duration-200 cursor-pointer select-none group border border-black/[0.04] shadow-[0_2px_8px_rgba(0,0,0,0.02)] ${
+                        isActive
+                          ? "ring-2 ring-[#8a421a] shadow-md scale-105"
+                          : "hover:-translate-y-1 hover:shadow-md"
+                      }`}
+                    >
+                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800 stroke-[1.6] group-hover:scale-110 transition-transform duration-200" />
+                      <span className="text-[11px] sm:text-[12px] font-medium text-gray-800 text-center leading-tight mt-1.5 px-1 line-clamp-2">
+                        {badge.name}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-            )}
-          </div>
+
+              {activeBadge && (
+                <div className="text-center mt-5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveBadge(null);
+                      setSelectedCategory("all");
+                      setSearchQuery("");
+                    }}
+                    className="px-4 py-1.5 rounded-full text-xs font-semibold bg-white border border-[#c8c2eb] text-[#8a421a] hover:bg-[#8a421a] hover:text-white transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+                  >
+                    <span>✕ Clear Selection &amp; View All Industries</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
         </div>
       </section>
@@ -348,61 +233,35 @@ export default function IndustriesPage() {
         <div className="max-w-[1240px] mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-950 tracking-tight mb-3">
-              Why Domain Expertise Drives Superior AI ROI
+              {pageCms?.roiSection?.heading || "Why Domain Expertise Drives Superior AI ROI"}
             </h2>
             <p className="text-gray-500 text-sm leading-relaxed">
-              Generic LLM wrappers fail when confronted with real-world jargon, strict compliance protocols, and nuanced customer inquiries. Here is how Brain Bari designs for measurable outcomes:
+              {pageCms?.roiSection?.subheading || "Generic LLM wrappers fail when confronted with real-world jargon, strict compliance protocols, and nuanced customer inquiries. Here is how Brain Bari designs for measurable outcomes:"}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-[#fbfaff] border border-[#c8c2eb]/60 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center mb-4">
-                  <Cpu className="w-5 h-5" />
+            {(Array.isArray(pageCms?.roiCards) ? pageCms.roiCards : []).map((card: any, idx: number) => {
+              const style = roiCardStyles[idx % roiCardStyles.length];
+              const IconComp = (card.icon && iconMap[card.icon]) || (card.icon === "ShieldCheck" ? ShieldCheck : card.icon === "TrendingUp" ? TrendingUp : Cpu);
+              return (
+                <div key={card.id || idx} className="p-6 rounded-2xl bg-[#fbfaff] border border-[#c8c2eb]/60 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className={`w-10 h-10 rounded-xl ${style.bg} ${style.text} flex items-center justify-center mb-4`}>
+                      <IconComp className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-base font-bold text-gray-950 mb-2">{card.title}</h3>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      {card.description}
+                    </p>
+                  </div>
+                  <div className="mt-6 pt-4 border-t border-purple-100 text-xs font-semibold text-[#8a421a] flex items-center gap-1">
+                    <span>{card.badge}</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </div>
                 </div>
-                <h3 className="text-base font-bold text-gray-950 mb-2">Deep Knowledge Base Fine-Tuning</h3>
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  We ingest and structure your proprietary catalogues, documentation, and historic client interactions into private RAG vectors with zero data leakage.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-purple-100 text-xs font-semibold text-[#8a421a] flex items-center gap-1">
-                <span>Tailored Embeddings</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-[#fbfaff] border border-[#c8c2eb]/60 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-bold text-gray-950 mb-2">Security &amp; Regulatory Compliance</h3>
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  Whether adhering to healthcare privacy or banking confidentiality, our systems incorporate strict permission guards and audit logs.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-purple-100 text-xs font-semibold text-[#8a421a] flex items-center gap-1">
-                <span>Enterprise Grade Security</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-[#fbfaff] border border-[#c8c2eb]/60 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
-                  <TrendingUp className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-bold text-gray-950 mb-2">Quantifiable Business Results</h3>
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  Every solution is engineered around core KPIs: cut response times from hours to seconds, automate up to 85% of repeat tasks, and lift conversions.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-purple-100 text-xs font-semibold text-[#8a421a] flex items-center gap-1">
-                <span>Measurable Efficiency</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -485,7 +344,7 @@ export default function IndustriesPage() {
                     <div className="pt-4 flex flex-wrap items-center gap-3">
                       <Link
                         href="/schedule"
-                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#602b0c] hover:bg-[#4a2008] text-white text-xs font-bold shadow-sm transition-all"
+                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/25 transition-all"
                       >
                         <span>Consult for {ind.shortTitle}</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -572,47 +431,7 @@ export default function IndustriesPage() {
       </section>
 
       {/* Industry Solutions FAQ */}
-      <section className="py-16 sm:py-20 px-6 bg-white border-t border-gray-100">
-        <div className="max-w-[900px] mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-950 tracking-tight mb-3">
-              Frequently Asked Questions About Industry AI
-            </h2>
-            <p className="text-gray-500 text-xs sm:text-sm">
-              Answers to common questions regarding deployment, integration, and security for industry-specific AI solutions.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            <div className="p-5 rounded-2xl bg-[#fbfaff] border border-[#c8c2eb]/60">
-              <h3 className="text-sm font-bold text-gray-950 mb-1.5">
-                Can our AI chatbot connect directly to our proprietary CRM or ERP?
-              </h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Yes. We build custom API connectors for Salesforce, HubSpot, SAP, custom SQL databases, Shopify, and local ERP systems to ensure bidirectional real-time data sync.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-[#fbfaff] border border-[#c8c2eb]/60">
-              <h3 className="text-sm font-bold text-gray-950 mb-1.5">
-                Is our confidential industry data used to train public AI models?
-              </h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Never. We deploy private virtual private cloud (VPC) embeddings and enterprise agreements that legally guarantee your company data and customer chats are never used for public LLM training.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-[#fbfaff] border border-[#c8c2eb]/60">
-              <h3 className="text-sm font-bold text-gray-950 mb-1.5">
-                How long does an industry-specific deployment take?
-              </h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Standard conversational AI chatbots and RAG assistants are typically deployed in 1 to 2 weeks. Custom enterprise software platforms or multi-tenant SaaS MVPs take between 6 to 8 weeks from design to production.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <IndustryFaqSection faqs={pageCms?.faqs} />
 
       {/* Conversion CTA */}
       <ConversionCTA />

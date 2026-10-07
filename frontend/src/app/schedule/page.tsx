@@ -3,23 +3,73 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useCreateBooking, useCmsContent } from "@/hooks/useApi";
+
+const DEFAULT_TIME_SLOTS = [
+  "09:00 AM",
+  "10:30 AM",
+  "01:00 PM",
+  "02:30 PM",
+  "04:00 PM",
+  "05:30 PM",
+];
 
 export default function SchedulePage() {
-  const [selectedDay, setSelectedDay] = useState<number>(18);
-  const [selectedTime, setSelectedTime] = useState<string>("03:00 PM");
+  const { data: rawTimeSlots } = useCmsContent<string[]>("bookingSlots");
+  const timeSlots =
+    Array.isArray(rawTimeSlots) && rawTimeSlots.length > 0
+      ? rawTimeSlots
+      : DEFAULT_TIME_SLOTS;
+  const { data: bookingSettings } = useCmsContent<any>("bookingSettings");
+
+  const now = new Date();
+  const [viewYear, setViewYear] = useState<number>(now.getFullYear());
+  const [viewMonth, setViewMonth] = useState<number>(now.getMonth());
+  const [selectedDay, setSelectedDay] = useState<number>(now.getDate());
+  const [selectedTime, setSelectedTime] = useState<string>("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [booked, setBooked] = useState(false);
-  const [isBooking, setIsBooking] = useState(false);
 
-  const timeSlots = [
-    "10:00 AM",
-    "11:30 AM",
-    "02:00 PM",
-    "03:00 PM",
-    "04:30 PM",
-    "06:00 PM",
-  ];
+  const createBookingMutation = useCreateBooking();
+  const isBooking = createBookingMutation.isPending;
+
+  const currentViewDate = new Date(viewYear, viewMonth, 1);
+  const currentMonthName = currentViewDate.toLocaleString("default", { month: "long" });
+  const totalDaysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+  // Convert JS Sunday-first day (0=Sun..6=Sat) to Monday-first (0=Mon..6=Sun)
+  const firstDayOfWeek = (currentViewDate.getDay() + 6) % 7;
+
+  React.useEffect(() => {
+    if (!selectedTime && timeSlots.length > 0) {
+      setSelectedTime(timeSlots[0]);
+    }
+  }, [timeSlots, selectedTime]);
+
+  const handlePrevMonth = () => {
+    const isCurrentOrPastMonth =
+      viewYear < now.getFullYear() ||
+      (viewYear === now.getFullYear() && viewMonth <= now.getMonth());
+
+    if (isCurrentOrPastMonth) return;
+
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear((prev) => prev - 1);
+    } else {
+      setViewMonth((prev) => prev - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear((prev) => prev + 1);
+    } else {
+      setViewMonth((prev) => prev + 1);
+    }
+  };
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,35 +78,33 @@ export default function SchedulePage() {
       return;
     }
 
-    setIsBooking(true);
-    try {
-      const res = await fetch("/api/consultations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          date: `2026-09-${selectedDay}`,
-          timeSlot: selectedTime,
-          topic: "60 Minute Strategy & AI Consultation",
-          company: "Direct Booking",
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to book consultation");
+    createBookingMutation.mutate(
+      {
+        name,
+        email,
+        date: `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`,
+        timeSlot: selectedTime,
+        topic: bookingSettings?.consultationTitle || "60 Minute Strategy & AI Consultation",
+        company: "Direct Booking",
+      },
+      {
+        onSuccess: () => {
+          setBooked(true);
+          toast.success("Consultation booked successfully! Invitation sent to your email.");
+        },
+        onError: (err: any) => {
+          console.error("Booking error:", err);
+          toast.error(err.message || "Failed to book consultation. Please try again.");
+        },
       }
-
-      setBooked(true);
-      toast.success("Consultation booked successfully! Invitation sent to your email.");
-    } catch (err: any) {
-      console.error("Booking error:", err);
-      toast.error(err.message || "Failed to book consultation. Please try again.");
-    } finally {
-      setIsBooking(false);
-    }
+    );
   };
+
+  const isMonthPast =
+    viewYear < now.getFullYear() ||
+    (viewYear === now.getFullYear() && viewMonth < now.getMonth());
+  const isCurrentMonth =
+    viewYear === now.getFullYear() && viewMonth === now.getMonth();
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pt-20">
@@ -103,10 +151,10 @@ export default function SchedulePage() {
           <div className="w-full md:w-[40%] p-8 md:p-10 border-r border-gray-100 flex flex-col bg-[#faf9fe]">
             <div className="space-y-4">
               <h3 className="text-gray-500 font-bold text-xs uppercase tracking-wider">
-                Brain Bari Technologies
+                {bookingSettings?.companyName || "Brain Bari Technologies"}
               </h3>
               <h1 className="text-gray-900 text-3xl font-extrabold font-sans leading-tight">
-                60 Minute Consultation
+                {bookingSettings?.consultationTitle || "60 Minute Consultation"}
               </h1>
               <div className="space-y-4 pt-6 text-gray-600 font-medium text-sm">
                 <div className="flex items-center gap-3">
@@ -115,7 +163,7 @@ export default function SchedulePage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <span>1 Hour Duration</span>
+                  <span>{bookingSettings?.duration || "1 Hour Duration"}</span>
                 </div>
 
                 <div className="flex items-start gap-3">
@@ -126,14 +174,14 @@ export default function SchedulePage() {
                     </svg>
                   </div>
                   <span className="leading-tight">
-                    Web conferencing details provided upon booking confirmation.
+                    {bookingSettings?.detailsNote || "Web conferencing details provided upon booking confirmation."}
                   </span>
                 </div>
               </div>
             </div>
 
             <div className="mt-auto pt-8 flex items-center gap-4 text-gray-400 text-xs font-semibold">
-              <span>© Brain Bari 2026</span>
+              <span>{bookingSettings?.copyrightText || `© Brain Bari ${viewYear}`}</span>
             </div>
           </div>
 
@@ -148,12 +196,12 @@ export default function SchedulePage() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900">Consultation Scheduled!</h3>
                 <p className="text-gray-600 text-sm max-w-sm mx-auto">
-                  We look forward to meeting with you on <strong>September {selectedDay}, 2026</strong> at <strong>{selectedTime}</strong>.
+                  We look forward to meeting with you on <strong>{currentMonthName} {selectedDay}, {viewYear}</strong> at <strong>{selectedTime}</strong>.
                 </p>
                 <div className="pt-4">
                   <button
                     onClick={() => setBooked(false)}
-                    className="px-6 py-2.5 bg-[#602b0c] text-white rounded-lg text-sm font-semibold hover:bg-[#8a421a]"
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-md shadow-blue-500/25 transition-all"
                   >
                     Book Another Call
                   </button>
@@ -167,14 +215,27 @@ export default function SchedulePage() {
                   </h2>
                   <div className="border border-gray-100 rounded-xl p-4 shadow-sm bg-gray-50/30">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-gray-900 font-bold text-sm">September 2026</span>
+                      <span className="text-gray-900 font-bold text-sm">
+                        {currentMonthName} {viewYear}
+                      </span>
                       <div className="flex gap-1">
-                        <button className="p-1.5 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors">
+                        <button
+                          type="button"
+                          onClick={handlePrevMonth}
+                          disabled={isCurrentMonth || isMonthPast}
+                          className="p-1.5 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg text-gray-600 transition-colors"
+                          aria-label="Previous month"
+                        >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                           </svg>
                         </button>
-                        <button className="p-1.5 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors">
+                        <button
+                          type="button"
+                          onClick={handleNextMonth}
+                          className="p-1.5 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors"
+                          aria-label="Next month"
+                        >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                           </svg>
@@ -191,10 +252,16 @@ export default function SchedulePage() {
                     </div>
 
                     <div className="grid grid-cols-7 gap-1 text-center">
-                      <div className="aspect-square"></div>
-                      <div className="aspect-square"></div>
-                      {Array.from({ length: 30 }, (_, i) => i + 1).map((day) => {
-                        const isPast = day < 17;
+                      {/* Blank offset cells for start of month */}
+                      {Array.from({ length: firstDayOfWeek }).map((_, idx) => (
+                        <div key={`blank-${idx}`} className="aspect-square"></div>
+                      ))}
+
+                      {/* Real days of current view month */}
+                      {Array.from({ length: totalDaysInMonth }, (_, i) => i + 1).map((day) => {
+                        const isPast =
+                          isMonthPast ||
+                          (isCurrentMonth && day < now.getDate());
                         const isSelected = selectedDay === day;
                         return (
                           <button
@@ -205,7 +272,7 @@ export default function SchedulePage() {
                               isPast
                                 ? "text-gray-300 cursor-not-allowed"
                                 : isSelected
-                                ? "bg-[#602b0c] text-white shadow-sm scale-105"
+                                ? "bg-blue-600 text-white shadow-md shadow-blue-500/25 scale-105"
                                 : "text-gray-800 hover:bg-gray-200 cursor-pointer"
                             }`}
                           >
@@ -220,24 +287,30 @@ export default function SchedulePage() {
                 {/* Available Times */}
                 <div className="space-y-3">
                   <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    Available Time Slots (September {selectedDay})
+                    Available Time Slots ({currentMonthName} {selectedDay})
                   </h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    {timeSlots.map((time) => (
-                      <button
-                        key={time}
-                        type="button"
-                        onClick={() => setSelectedTime(time)}
-                        className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                          selectedTime === time
-                            ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                            : "border-gray-200 hover:border-blue-500 text-gray-700 bg-white"
-                        }`}
-                      >
-                        {time}
-                      </button>
-                    ))}
-                  </div>
+                  {timeSlots.length === 0 ? (
+                    <div className="py-4 text-center text-xs text-gray-500 bg-gray-50 rounded-lg border border-gray-100">
+                      No consultation slots available.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2">
+                      {timeSlots.map((time) => (
+                        <button
+                          key={time}
+                          type="button"
+                          onClick={() => setSelectedTime(time)}
+                          className={`py-2 px-3 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                            selectedTime === time
+                              ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                              : "border-gray-200 hover:border-blue-500 text-gray-700 bg-white"
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Quick Info & Submit Form */}
@@ -264,7 +337,7 @@ export default function SchedulePage() {
                   <button
                     type="submit"
                     disabled={isBooking}
-                    className="w-full py-3 bg-[#602b0c] hover:bg-[#8a421a] disabled:opacity-75 disabled:cursor-not-allowed text-white font-bold rounded-xl text-sm transition-all duration-300 shadow-sm cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-75 disabled:cursor-not-allowed text-white font-bold rounded-xl text-sm transition-all duration-300 shadow-md shadow-blue-500/25 hover:shadow-blue-500/35 cursor-pointer flex items-center justify-center gap-2"
                   >
                     {isBooking ? (
                       <>

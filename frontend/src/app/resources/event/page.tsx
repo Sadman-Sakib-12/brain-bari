@@ -14,12 +14,17 @@ import {
 } from "lucide-react";
 import ConversionCTA from "@/components/ConversionCTA";
 import { toast } from "sonner";
-import eventsData from "@/data/events.json";
-
-const eventsList = (eventsData && eventsData.length > 0) ? (eventsData as any[]) : [];
+import { useCmsContent } from "@/hooks/useApi";
 
 export default function EventPage() {
   const [filter, setFilter] = useState("all");
+  const { data: rawEvents = [] } = useCmsContent<any[]>("events");
+  const { data: pageCms } = useCmsContent<any>("eventsPage");
+  const eventsList = Array.isArray(rawEvents) ? rawEvents : [];
+
+  const heroTitle = pageCms?.hero?.title || "Grow Your Network & Skills";
+  const heroHighlight = pageCms?.hero?.titleHighlight || "with Our Events";
+  const heroDesc = pageCms?.hero?.description || "Discover community gatherings, hackathons, executive roadmaps, and industry symposiums organized by Brain Bari.";
 
   const filteredEvents = eventsList.filter((e) => {
     if (filter === "all") return true;
@@ -36,9 +41,7 @@ export default function EventPage() {
               Home
             </Link>
             <span className="text-gray-400">/</span>
-            <Link href="/resources" className="hover:text-black font-medium transition-colors">
-              Resources
-            </Link>
+            <span className="font-medium text-gray-700">Resources</span>
             <span className="text-gray-400">/</span>
             <span className="text-gray-900 font-semibold">Events</span>
           </div>
@@ -52,13 +55,13 @@ export default function EventPage() {
       <section className="bg-[#ebe8fd] py-16 px-6 text-center border-b border-gray-200">
         <div className="max-w-3xl mx-auto space-y-4">
           <h1 className="text-3xl sm:text-5xl font-black text-gray-950 tracking-tight leading-tight">
-            Grow Your Network &amp; Skills <br />
+            {heroTitle} <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff7e5f] to-[#e464a4]">
-              with Our Events
+              {heroHighlight}
             </span>
           </h1>
           <p className="text-gray-700 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-            Discover community gatherings, hackathons, executive roadmaps, and industry symposiums organized by Brain Bari.
+            {heroDesc}
           </p>
 
           {/* Filter Tabs */}
@@ -67,7 +70,7 @@ export default function EventPage() {
               onClick={() => setFilter("all")}
               className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 filter === "all"
-                  ? "bg-[#602b0c] text-white shadow-sm"
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/25"
                   : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
               }`}
             >
@@ -77,7 +80,7 @@ export default function EventPage() {
               onClick={() => setFilter("nearest")}
               className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 filter === "nearest"
-                  ? "bg-[#602b0c] text-white shadow-sm"
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/25"
                   : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
               }`}
             >
@@ -87,7 +90,7 @@ export default function EventPage() {
               onClick={() => setFilter("latest")}
               className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 filter === "latest"
-                  ? "bg-[#602b0c] text-white shadow-sm"
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/25"
                   : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
               }`}
             >
@@ -161,7 +164,7 @@ export default function EventPage() {
                 <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
                   <Link
                     href="/contact"
-                    className="px-6 py-3 bg-[#602b0c] hover:bg-[#4a2008] text-white rounded-xl font-bold text-xs sm:text-sm transition-colors"
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/25"
                   >
                     Join or Inquire
                   </Link>

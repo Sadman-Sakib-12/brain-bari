@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,76 +12,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const orderId = `ord-${Date.now()}`;
-    const orderNumber = `BB-2026-${Math.floor(100 + Math.random() * 900)}`;
     const serviceList = Array.isArray(selectedServices) && selectedServices.length > 0
       ? selectedServices.join(", ")
       : "Custom AI Consultation";
 
-    const newOrder = {
-      id: orderId,
-      orderNumber,
-      clientName: name.trim(),
-      clientEmail: email.trim(),
-      clientPhone: phone.trim(),
-      serviceTitle: serviceList,
-      serviceCategory: "ai-services",
-      budget: "Custom Quote",
-      timeline: "Standard (2-3 Weeks)",
-      requirements: message?.trim() || `Inquiry for ${serviceList}`,
-      status: "Pending",
-      quotedPrice: 0,
-      paidAmount: 0,
-      submissionDate: new Date().toISOString(),
-    };
+    // Forward directly to Backend REST API (PostgreSQL database)
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const backendRes = await fetch(`${API_BASE}/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clientName: name.trim(),
+        clientEmail: email.trim(),
+        clientPhone: phone.trim(),
+        serviceName: serviceList,
+        serviceTitle: serviceList,
+        requirements: message?.trim() || `Inquiry for ${serviceList}`,
+        budget: "Custom Quote",
+      }),
+    });
 
-    // 1. Sync to Admin data (admin/src/data/orders.json)
-    const adminOrdersPath = path.join(process.cwd(), "..", "admin", "src", "data", "orders.json");
-    const frontendOrdersPath = path.join(process.cwd(), "src", "data", "orders.json");
-
-    let savedToAdmin = false;
-    try {
-      let orders = [];
-      if (fs.existsSync(adminOrdersPath)) {
-        const raw = fs.readFileSync(adminOrdersPath, "utf8");
-        orders = JSON.parse(raw);
-      }
-      orders.unshift(newOrder);
-      fs.writeFileSync(adminOrdersPath, JSON.stringify(orders, null, 2), "utf8");
-      savedToAdmin = true;
-    } catch (adminErr) {
-      console.warn("Could not save to admin/orders.json:", adminErr);
-    }
-
-    // 2. Also keep in frontend/src/data/orders.json
-    try {
-      let orders = [];
-      if (fs.existsSync(frontendOrdersPath)) {
-        const raw = fs.readFileSync(frontendOrdersPath, "utf8");
-        orders = JSON.parse(raw);
-      }
-      orders.unshift(newOrder);
-      fs.writeFileSync(frontendOrdersPath, JSON.stringify(orders, null, 2), "utf8");
-    } catch (feErr) {
-      console.warn("Could not save to frontend/orders.json:", feErr);
-    }
-
-    // 3. Optional: Forward to backend REST API if running
-    try {
-      fetch("http://localhost:5000/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newOrder),
-      }).catch(() => {
-        // Standalone mode is fine
-      });
-    } catch (_) {}
-
+    const backendData = await backendRes.json();
     return NextResponse.json({
       success: true,
       message: "Order placed successfully! We will contact you within 24 hours.",
-      order: newOrder,
-      savedToAdmin,
+      order: backendData.data || backendData,
     });
   } catch (error: any) {
     console.error("Error processing order submission:", error);
@@ -96,16 +49,10 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const adminOrdersPath = path.join(process.cwd(), "..", "admin", "src", "data", "orders.json");
-    const frontendOrdersPath = path.join(process.cwd(), "src", "data", "orders.json");
-
-    let orders = [];
-    if (fs.existsSync(adminOrdersPath)) {
-      orders = JSON.parse(fs.readFileSync(adminOrdersPath, "utf8"));
-    } else if (fs.existsSync(frontendOrdersPath)) {
-      orders = JSON.parse(fs.readFileSync(frontendOrdersPath, "utf8"));
-    }
-
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const res = await fetch(`${API_BASE}/orders`);
+    const data = await res.json();
+    const orders = data.data || [];
     return NextResponse.json({ success: true, count: orders.length, orders });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

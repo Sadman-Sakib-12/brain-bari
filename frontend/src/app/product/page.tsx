@@ -8,7 +8,8 @@ import {
   Check, 
   Bot, 
   Layers, 
-  Cpu, 
+  Cpu,
+  Cpu as CpuIcon, 
   Heart, 
   Eye, 
   MessageSquare, 
@@ -16,11 +17,10 @@ import {
   Settings, 
   TrendingUp, 
   ShieldCheck, 
-  CpuIcon,
   X,
-  ExternalLink
+  ExternalLink,
 } from "lucide-react";
-import productsData from "@/data/products.json";
+import { useProducts, useServices, useCmsContent } from "@/hooks/useApi";
 import ConversionCTA from "@/components/ConversionCTA";
 
 interface ProductLogo {
@@ -30,48 +30,18 @@ interface ProductLogo {
   subtitle: string;
 }
 
-const getProductLogo = (prod: any): ProductLogo => {
-  if (prod?.logo && prod.logo.color) {
-    return prod.logo;
+const getCategoryColor = (category?: string): string => {
+  const cat = (category || "").toLowerCase();
+  if (cat.includes("health") || cat.includes("medical")) {
+    return "bg-rose-500";
   }
-
-  switch (prod?.id) {
-    case "health-info":
-      return {
-        icon: "heart",
-        color: "bg-rose-500",
-        badge: "HealthBari",
-        subtitle: "AI Health Platform"
-      };
-    case "ballot-eye":
-      return {
-        icon: "eye",
-        color: "bg-blue-600",
-        badge: "BallotEye",
-        subtitle: "Civic Voting Tech"
-      };
-    case "law-assistant":
-      return {
-        icon: "message",
-        color: "bg-indigo-600",
-        badge: "LawBari",
-        subtitle: "Legal Intelligence"
-      };
-    case "edubari":
-      return {
-        icon: "book",
-        color: "bg-emerald-600",
-        badge: "EduBari",
-        subtitle: "Adaptive Learning"
-      };
-    default:
-      return {
-        icon: "bot",
-        color: "bg-blue-600",
-        badge: prod?.title ? String(prod.title).split(" ")[0] : "Brain Bari",
-        subtitle: prod?.category || "AI Platform"
-      };
+  if (cat.includes("law") || cat.includes("legal")) {
+    return "bg-indigo-600";
   }
+  if (cat.includes("education") || cat.includes("learn")) {
+    return "bg-emerald-600";
+  }
+  return "bg-blue-600";
 };
 
 const renderLogoIcon = (iconName: string, className = "w-5 h-5") => {
@@ -90,7 +60,34 @@ const renderLogoIcon = (iconName: string, className = "w-5 h-5") => {
 };
 
 export default function ProductPage() {
+  const { data: products = [] } = useProducts();
+  const { data: services = [] } = useServices();
+  const { data: heroData } = useCmsContent<any>("productHeroSolutions");
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+
+  const whyChooseIconMap: Record<string, any> = {
+    Settings,
+    TrendingUp,
+    ShieldCheck,
+    Cpu: CpuIcon,
+  };
+
+  const dynamicServicesAsCards = (services || []).slice(0, 3).map((s: any) => ({
+    id: s.id || s.slug,
+    title: s.title,
+    description: s.shortDesc || s.description || "",
+    image: s.thumbnail || s.coverImage || s.image || "",
+    features: Array.isArray(s.features) ? s.features.slice(0, 3) : [],
+    link: `/services/${s.slug || s.id}`
+  }));
+
+  const solutionCards = Array.isArray(heroData?.cards) && heroData.cards.length > 0
+    ? heroData.cards
+    : dynamicServicesAsCards;
+
+  const whyChooseTitle = heroData?.whyChooseTitle || "Why Choose";
+  const whyChooseHighlight = heroData?.whyChooseHighlight || "Brain Bari?";
+  const whyChooseFeatures = Array.isArray(heroData?.whyChooseFeatures) ? heroData.whyChooseFeatures : [];
 
   const scrollToSolutions = () => {
     const el = document.getElementById("ai-products-section");
@@ -152,125 +149,43 @@ export default function ProductPage() {
 
           {/* 3 Solution Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            {/* Card 1: AI Chatbots */}
-            <div className="bg-white rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-hidden flex flex-col hover:-translate-y-1 transition-transform duration-300 group">
-              <div className="p-4">
-                <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden bg-[#f4f7fe]">
-                  <img
-                    src="/images/service_ai_chatbot.jpg"
-                    alt="AI Chatbots"
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-              </div>
-              <div className="px-8 pb-8 pt-4 flex flex-col flex-grow text-center">
-                <h3 className="text-[20px] font-bold text-gray-900 mb-2">AI Chatbots</h3>
-                <p className="text-[14px] text-gray-500 mb-4 leading-relaxed flex-grow">
-                  Automate customer interactions and enhance support efficiency.
-                </p>
-                <div className="space-y-3 mb-6 text-left max-w-fit mx-auto">
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span className="text-[13.5px] font-medium text-gray-700">24/7 Availability</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span className="text-[13.5px] font-medium text-gray-700">Multi-Language Support</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span className="text-[13.5px] font-medium text-gray-700">Omnichannel Integration</span>
+            {solutionCards.map((card: any, idx: number) => (
+              <div
+                key={card.id || card.title || idx}
+                className="bg-white rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-hidden flex flex-col hover:-translate-y-1 transition-transform duration-300 group"
+              >
+                <div className="p-4">
+                  <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden bg-[#f4f7fe]">
+                    <img
+                      src={card.image || ""}
+                      alt={card.title || "Solution"}
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
                 </div>
-                <Link
-                  href="/services/ai-chatbot"
-                  className="text-[#4b51f0] text-[14.5px] font-semibold hover:text-[#3f45d1] flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  <span>Learn More</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Card 2: AI SaaS Platforms */}
-            <div className="bg-white rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-hidden flex flex-col hover:-translate-y-1 transition-transform duration-300 group">
-              <div className="p-4">
-                <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden bg-[#f4f7fe]">
-                  <img
-                    src="/images/service_ai_saas.jpg"
-                    alt="AI SaaS Platforms"
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                  />
+                <div className="px-8 pb-8 pt-4 flex flex-col flex-grow text-center">
+                  <h3 className="text-[20px] font-bold text-gray-900 mb-2">{card.title}</h3>
+                  <p className="text-[14px] text-gray-500 mb-4 leading-relaxed flex-grow">
+                    {card.description}
+                  </p>
+                  <div className="space-y-3 mb-6 text-left max-w-fit mx-auto">
+                    {(card.features || []).map((feat: string, fIdx: number) => (
+                      <div key={fIdx} className="flex items-center gap-3">
+                        <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                        <span className="text-[13.5px] font-medium text-gray-700">{feat}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Link
+                    href={card.link || "/services"}
+                    className="text-[#4b51f0] text-[14.5px] font-semibold hover:text-[#3f45d1] flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <span>Learn More</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </div>
-              <div className="px-8 pb-8 pt-4 flex flex-col flex-grow text-center">
-                <h3 className="text-[20px] font-bold text-gray-900 mb-2">AI SaaS Platforms</h3>
-                <p className="text-[14px] text-gray-500 mb-4 leading-relaxed flex-grow">
-                  Build scalable and intelligent SaaS solutions for various industries.
-                </p>
-                <div className="space-y-3 mb-6 text-left max-w-fit mx-auto">
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span className="text-[13.5px] font-medium text-gray-700">Cloud-Based Architecture</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span className="text-[13.5px] font-medium text-gray-700">CRM Integration</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span className="text-[13.5px] font-medium text-gray-700">AI-Powered Analytics</span>
-                  </div>
-                </div>
-                <Link
-                  href="/services/ai-saas"
-                  className="text-[#4b51f0] text-[14.5px] font-semibold hover:text-[#3f45d1] flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  <span>Learn More</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Card 3: Custom AI Development */}
-            <div className="bg-white rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-hidden flex flex-col hover:-translate-y-1 transition-transform duration-300 group">
-              <div className="p-4">
-                <div className="relative w-full aspect-[4/3] rounded-[16px] overflow-hidden bg-[#f4f7fe]">
-                  <img
-                    src="/images/service_custom_ai.jpg"
-                    alt="Custom AI Development"
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-              </div>
-              <div className="px-8 pb-8 pt-4 flex flex-col flex-grow text-center">
-                <h3 className="text-[20px] font-bold text-gray-900 mb-2">Custom AI Development</h3>
-                <p className="text-[14px] text-gray-500 mb-4 leading-relaxed flex-grow">
-                  Develop tailored AI solutions to meet your unique business needs.
-                </p>
-                <div className="space-y-3 mb-6 text-left max-w-fit mx-auto">
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span className="text-[13.5px] font-medium text-gray-700">Custom AI Models</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span className="text-[13.5px] font-medium text-gray-700">Predictive Analytics</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span className="text-[13.5px] font-medium text-gray-700">Scalable Solutions</span>
-                  </div>
-                </div>
-                <Link
-                  href="/services/custom-ai"
-                  className="text-[#4b51f0] text-[14.5px] font-semibold hover:text-[#3f45d1] flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  <span>Learn More</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -290,133 +205,135 @@ export default function ProductPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {productsData.map((prod) => {
-              const logo = getProductLogo(prod);
-              return (
-                <div
-                  key={prod.id}
-                  className="bg-white rounded-[24px] shadow-[0_12px_40px_-10px_rgba(0,0,0,0.08)] border border-gray-100 p-3 pb-6 flex flex-col items-center text-center hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.12)] hover:-translate-y-2 transition-all duration-300 relative group overflow-hidden"
-                >
-                  {/* Top glow line */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[1px] bg-gradient-to-r from-transparent via-blue-200 to-transparent opacity-80 pointer-events-none" />
+          {products.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+              {products.map((prod: any) => {
+                // Use product's own logo data, with category-based fallback color
+                const logo = prod?.logo
+                  ? {
+                      icon: prod?.logo.icon || "bot",
+                      color: prod?.logo.color || getCategoryColor(prod?.category),
+                      badge: prod?.title ? String(prod.title).split(" ")[0] : "Brain Bari",
+                      subtitle: prod?.subtitle || prod?.tagline || "AI Platform"
+                    }
+                  : {
+                      icon: "bot",
+                      color: getCategoryColor(prod?.category),
+                      badge: prod?.title ? String(prod.title).split(" ")[0] : "Brain Bari",
+                      subtitle: prod?.tagline || prod?.category || "AI Platform"
+                    };
+                return (
+                  <div
+                    key={prod.id}
+                    className="bg-white rounded-[24px] shadow-[0_12px_40px_-10px_rgba(0,0,0,0.08)] border border-gray-100 p-3 pb-6 flex flex-col items-center text-center hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.12)] hover:-translate-y-2 transition-all duration-300 relative group overflow-hidden"
+                  >
+                    {/* Top glow line */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[1px] bg-gradient-to-r from-transparent via-blue-200 to-transparent opacity-80 pointer-events-none" />
 
-                  {/* Badge/Logo Pill Container */}
-                  <div className="mb-8 flex items-center justify-center z-10 transition-transform group-hover:scale-105 duration-300 w-full h-[72px]">
-                    <div className="flex items-center justify-center gap-3 w-[190px] h-[64px] bg-white border border-gray-100/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)] rounded-2xl px-3">
-                      {/* Circle Icon */}
-                      <div className={`w-10 h-10 rounded-full ${logo.color} text-white flex items-center justify-center shrink-0 shadow-sm`}>
-                        {renderLogoIcon(logo.icon, "w-5 h-5")}
-                      </div>
+                    {/* Badge/Logo Pill Container */}
+                    <div className="mb-8 flex items-center justify-center z-10 transition-transform group-hover:scale-105 duration-300 w-full h-[72px]">
+                      <div className="flex items-center justify-center gap-3 w-[190px] h-[64px] bg-white border border-gray-100/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)] rounded-2xl px-3">
+                        {/* Circle Icon */}
+                        <div className={`w-10 h-10 rounded-full ${logo.color} text-white flex items-center justify-center shrink-0 shadow-sm`}>
+                          {renderLogoIcon(logo.icon, "w-5 h-5")}
+                        </div>
 
-                      {/* Text in Badge */}
-                      <div className="flex flex-col items-start text-left leading-tight">
-                        <span className="text-gray-900 font-extrabold text-[14px] leading-[1.15] tracking-tight">
-                          {logo.badge}
-                        </span>
-                        <span className="text-gray-400 text-[9px] mt-0.5 font-medium leading-[1.2]">
-                          {logo.subtitle}
-                        </span>
+                        {/* Text in Badge */}
+                        <div className="flex flex-col items-start text-left leading-tight">
+                          <span className="text-gray-900 font-extrabold text-[14px] leading-[1.15] tracking-tight">
+                            {logo.badge}
+                          </span>
+                          <span className="text-gray-400 text-[9px] mt-0.5 font-medium leading-[1.2]">
+                            {logo.subtitle}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Title & Tagline */}
-                  <div className="flex-grow flex flex-col justify-start w-full z-10 mt-2 px-2">
-                    <h3 className="font-extrabold text-[17px] text-[#1f2937] mb-2 leading-snug">
-                      {prod.title}
-                    </h3>
-                    <p className="text-[13px] text-[#8c96a3] mb-4 leading-relaxed font-medium">
-                      {prod.tagline}
-                    </p>
-                  </div>
+                    {/* Title & Tagline */}
+                    <div className="flex-grow flex flex-col justify-start w-full z-10 mt-2 px-2">
+                      <h3 className="font-extrabold text-[17px] text-[#1f2937] mb-2 leading-snug">
+                        {prod.title}
+                      </h3>
+                      <p className="text-[13px] text-[#8c96a3] mb-4 leading-relaxed font-medium">
+                        {prod.tagline || prod.description}
+                      </p>
+                    </div>
 
-                  {/* View Product CTA */}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedProduct(prod)}
-                    className="bg-white text-[#4b51f0] border border-[#4b51f0]/30 px-6 py-2.5 rounded-full text-[14px] font-bold w-[160px] text-center hover:bg-[#4b51f0] hover:text-white hover:border-[#4b51f0] transition-all duration-300 mt-auto z-10 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_16px_rgba(75,81,240,0.3)] cursor-pointer"
-                  >
-                    View Product
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                    {/* View Product CTA */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedProduct(prod)}
+                      className="bg-white text-[#4b51f0] border border-[#4b51f0]/30 px-6 py-2.5 rounded-full text-[14px] font-bold w-[160px] text-center hover:bg-[#4b51f0] hover:text-white hover:border-[#4b51f0] transition-all duration-300 mt-auto z-10 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_16px_rgba(75,81,240,0.3)] cursor-pointer"
+                    >
+                      View Product
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-white rounded-[24px] border border-gray-100 p-8 max-w-[600px] mx-auto">
+              <h3 className="text-lg font-bold text-gray-900">No products available currently</h3>
+              <p className="text-sm text-gray-500 mt-2">New SaaS products and AI platforms will be listed here soon.</p>
+            </div>
+          )}
         </div>
       </section>
 
       {/* SECTION 3: Why Choose Brain Bari? */}
-      <section className="py-20 px-6 bg-white border-t border-gray-100">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="flex flex-col mb-16 items-center text-center">
-            <h2 className="text-[32px] md:text-[40px] font-bold text-gray-900 tracking-tight">
-              Why Choose <span className="text-blue-600">Brain Bari?</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Feature 1 */}
-            <div className="flex flex-col gap-4 items-center text-center bg-white p-8 rounded-[24px] border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 transition-all duration-300">
-              <div className="w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-[0_6px_20px_rgba(37,99,235,0.35)] mb-2">
-                <Settings className="w-7 h-7" />
-              </div>
-              <div>
-                <h3 className="text-[18px] font-bold text-gray-900 mb-2">Tailored AI Solutions</h3>
-                <p className="text-[14px] text-gray-500 leading-relaxed px-2">
-                  Solutions customized to fit your business requirements
-                </p>
-              </div>
+      {whyChooseFeatures.length > 0 && (
+        <section className="py-20 px-6 bg-white border-t border-gray-100">
+          <div className="max-w-[1200px] mx-auto">
+            <div className="flex flex-col mb-16 items-center text-center">
+              <h2 className="text-[32px] md:text-[40px] font-bold text-gray-900 tracking-tight">
+                {whyChooseTitle} <span className="text-blue-600">{whyChooseHighlight}</span>
+              </h2>
             </div>
 
-            {/* Feature 2 */}
-            <div className="flex flex-col gap-4 items-center text-center bg-white p-8 rounded-[24px] border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 transition-all duration-300">
-              <div className="w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-[0_6px_20px_rgba(37,99,235,0.35)] mb-2">
-                <TrendingUp className="w-7 h-7" />
-              </div>
-              <div>
-                <h3 className="text-[18px] font-bold text-gray-900 mb-2">Scalability &amp; Growth</h3>
-                <p className="text-[14px] text-gray-500 leading-relaxed px-2">
-                  AI solutions that scale with your business
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="flex flex-col gap-4 items-center text-center bg-white p-8 rounded-[24px] border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 transition-all duration-300">
-              <div className="w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-[0_6px_20px_rgba(37,99,235,0.35)] mb-2">
-                <ShieldCheck className="w-7 h-7" />
-              </div>
-              <div>
-                <h3 className="text-[18px] font-bold text-gray-900 mb-2">Ongoing Support</h3>
-                <p className="text-[14px] text-gray-500 leading-relaxed px-2">
-                  Dedicated support and continuous optimization
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="flex flex-col gap-4 items-center text-center bg-white p-8 rounded-[24px] border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 transition-all duration-300">
-              <div className="w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-[0_6px_20px_rgba(37,99,235,0.35)] mb-2">
-                <CpuIcon className="w-7 h-7" />
-              </div>
-              <div>
-                <h3 className="text-[18px] font-bold text-gray-900 mb-2">Advanced Technology</h3>
-                <p className="text-[14px] text-gray-500 leading-relaxed px-2">
-                  Cutting-edge AI frameworks and tools
-                </p>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {whyChooseFeatures.map((feat: any, fIdx: number) => {
+                const IconComp = whyChooseIconMap[feat.icon] || Settings;
+                return (
+                  <div
+                    key={fIdx}
+                    className="flex flex-col gap-4 items-center text-center bg-white p-8 rounded-[24px] border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 transition-all duration-300"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-[0_6px_20px_rgba(37,99,235,0.35)] mb-2">
+                      <IconComp className="w-7 h-7" />
+                    </div>
+                    <div>
+                      <h3 className="text-[18px] font-bold text-gray-900 mb-2">{feat.title}</h3>
+                      <p className="text-[14px] text-gray-500 leading-relaxed px-2">
+                        {feat.description}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* SECTION 4: Signature Conversion CTA */}
       <ConversionCTA />
 
       {/* Interactive Product Details Modal */}
       {selectedProduct && (() => {
-        const modalLogo = getProductLogo(selectedProduct);
+        const modalLogo = selectedProduct?.logo
+          ? {
+              icon: selectedProduct?.logo.icon || "bot",
+              color: selectedProduct?.logo.color || getCategoryColor(selectedProduct?.category),
+              badge: selectedProduct?.title ? String(selectedProduct.title).split(" ")[0] : "Brain Bari",
+              subtitle: selectedProduct?.subtitle || selectedProduct?.tagline || "AI Platform"
+            }
+          : {
+              icon: "bot",
+              color: getCategoryColor(selectedProduct?.category),
+              badge: selectedProduct?.title ? String(selectedProduct.title).split(" ")[0] : "Brain Bari",
+              subtitle: selectedProduct?.tagline || selectedProduct?.category || "AI Platform"
+            };
         return (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative border border-gray-100 animate-in fade-in zoom-in duration-200">

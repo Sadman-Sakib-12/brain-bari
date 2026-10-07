@@ -3,40 +3,24 @@
 import React from "react";
 import Link from "next/link";
 import { Moon, Sun, Globe, Check, ChevronDown, Search, X } from "lucide-react";
-import siteSettings from "@/data/siteSettings.json";
-
-// 20 World & Regional Languages
-const languages = [
-  { code: "en", name: "English", nativeName: "English (US)", flag: "🇺🇸" },
-  { code: "bn", name: "Bengali", nativeName: "বাংলা", flag: "🇧🇩" },
-  { code: "ar", name: "Arabic", nativeName: "العربية", flag: "🇸🇦" },
-  { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸" },
-  { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷" },
-  { code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪" },
-  { code: "zh", name: "Chinese", nativeName: "简体中文", flag: "🇨🇳" },
-  { code: "ja", name: "Japanese", nativeName: "日本語", flag: "🇯🇵" },
-  { code: "ko", name: "Korean", nativeName: "한국어", flag: "🇰🇷" },
-  { code: "hi", name: "Hindi", nativeName: "हिन्दी", flag: "🇮🇳" },
-  { code: "pt", name: "Portuguese", nativeName: "Português", flag: "🇵🇹" },
-  { code: "ru", name: "Russian", nativeName: "Русский", flag: "🇷🇺" },
-  { code: "it", name: "Italian", nativeName: "Italiano", flag: "🇮🇹" },
-  { code: "tr", name: "Turkish", nativeName: "Türkçe", flag: "🇹🇷" },
-  { code: "nl", name: "Dutch", nativeName: "Nederlands", flag: "🇳🇱" },
-  { code: "id", name: "Indonesian", nativeName: "Bahasa Indonesia", flag: "🇮🇩" },
-  { code: "ms", name: "Malay", nativeName: "Bahasa Melayu", flag: "🇲🇾" },
-  { code: "vi", name: "Vietnamese", nativeName: "Tiếng Việt", flag: "🇻🇳" },
-  { code: "ur", name: "Urdu", nativeName: "اردو", flag: "🇵🇰" },
-  { code: "sv", name: "Swedish", nativeName: "Svenska", flag: "🇸🇪" },
-];
+import { useSiteSettings, useCmsContent } from "@/hooks/useApi";
+import { switchLanguage } from "@/components/GoogleTranslate";
 
 export default function Footer() {
-  const [legalModal, setLegalModal] = React.useState<{ title: string; content: string } | null>(null);
   const [theme, setTheme] = React.useState<"light" | "dark">("light");
   const [mounted, setMounted] = React.useState(false);
-  const [selectedLang, setSelectedLang] = React.useState(languages[0]);
+  const [selectedLang, setSelectedLang] = React.useState<any>(null);
   const [isLangOpen, setIsLangOpen] = React.useState(false);
   const [langSearch, setLangSearch] = React.useState("");
   const langDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  const { data: rawSettings } = useSiteSettings();
+  const siteSettings: any = rawSettings || {};
+  const { data: cmsLanguages } = useCmsContent<any[]>("footer-languages");
+
+  const availableLanguages: any[] = React.useMemo(() => {
+    return Array.isArray(cmsLanguages) ? cmsLanguages : [];
+  }, [cmsLanguages]);
 
   React.useEffect(() => {
     setMounted(true);
@@ -51,15 +35,19 @@ export default function Footer() {
       document.documentElement.classList.remove("dark");
       document.documentElement.setAttribute("data-theme", "light");
     }
-  }, []);
+
+    if (availableLanguages.length > 0) {
+      const saved = localStorage.getItem("user_lang");
+      if (saved) {
+        const match = availableLanguages.find((l: any) => l.code === saved);
+        setSelectedLang(match || availableLanguages[0]);
+      } else {
+        setSelectedLang(availableLanguages[0]);
+      }
+    }
+  }, [availableLanguages]);
 
   React.useEffect(() => {
-    const saved = localStorage.getItem("user_lang");
-    if (saved) {
-      const match = languages.find((l) => l.code === saved);
-      if (match) setSelectedLang(match);
-    }
-
     const handleClickOutside = (event: MouseEvent) => {
       if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
         setIsLangOpen(false);
@@ -69,10 +57,10 @@ export default function Footer() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filteredLanguages = languages.filter((l) =>
-    l.name.toLowerCase().includes(langSearch.toLowerCase()) ||
-    l.nativeName.toLowerCase().includes(langSearch.toLowerCase()) ||
-    l.code.toLowerCase().includes(langSearch.toLowerCase())
+  const filteredLanguages = availableLanguages.filter((l: any) =>
+    l.name?.toLowerCase().includes(langSearch.toLowerCase()) ||
+    l.nativeName?.toLowerCase().includes(langSearch.toLowerCase()) ||
+    l.code?.toLowerCase().includes(langSearch.toLowerCase())
   );
 
   const toggleTheme = () => {
@@ -89,22 +77,28 @@ export default function Footer() {
     }
   };
 
-  const contact = siteSettings?.contact || {
-    email: "contact@brainbari.com",
-    phone: "+880 1711-000000",
-    phoneFormatted: "+880 1711-000000"
+  const siteName = siteSettings?.siteName || "Brain Bari";
+  const rawWhatsapp =
+    siteSettings?.contact?.whatsapp ||
+    siteSettings?.whatsapp ||
+    siteSettings?.phone ||
+    "";
+  const whatsappUrl =
+    siteSettings?.contact?.whatsappUrl ||
+    (rawWhatsapp
+      ? `https://wa.me/${rawWhatsapp.replace(/[^0-9]/g, "")}?text=Hello%20${encodeURIComponent(siteName)}`
+      : "/contact");
+
+  const contact = {
+    email: siteSettings?.email || siteSettings?.contact?.email || "",
+    phone: siteSettings?.phone || siteSettings?.contact?.phone || "",
+    phoneFormatted: siteSettings?.phone || siteSettings?.contact?.phoneFormatted || siteSettings?.contact?.phone || "",
+    whatsappUrl,
   };
 
-  const socials = siteSettings?.socials || {
-    linkedin: "https://linkedin.com",
-    upwork: "https://upwork.com",
-    twitter: "https://x.com",
-    facebook: "https://facebook.com",
-    instagram: "https://instagram.com",
-    youtube: "https://youtube.com"
-  };
+  const socials = (siteSettings?.socialLinks as any) || siteSettings?.socials || {};
 
-  const footerCopy = siteSettings?.footer?.copyright || "© 2026 Brain Bari. All rights reserved.";
+  const footerCopy = siteSettings?.footer?.copyright || `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
 
   return (
     <footer className="bg-black text-white py-16 relative">
@@ -115,31 +109,35 @@ export default function Footer() {
           {/* Left Column: Let's talk */}
           <div className="text-left mb-10 md:mb-0 max-w-md">
             <h2 className="text-[36px] md:text-[44px] font-bold font-sans mb-3 tracking-tight">
-              Let&apos;s talk
+              {siteSettings?.footer?.headline || "Let's talk"}
             </h2>
             {siteSettings?.footer?.aboutText && (
               <p className="text-gray-400 text-xs sm:text-sm mb-4 leading-relaxed font-light">
                 {siteSettings.footer.aboutText}
               </p>
             )}
-            <p className="text-white text-[15px] mb-2 font-medium">
-              Email:{" "}
-              <a 
-                href={`mailto:${contact.email}`} 
-                className="hover:text-gray-300 transition-colors"
-              >
-                {contact.email}
-              </a>
-            </p>
-            <p className="text-white text-[15px] font-medium">
-              Phone:{" "}
-              <a 
-                href={`tel:${contact.phone}`} 
-                className="hover:text-gray-300 transition-colors"
-              >
-                {contact.phoneFormatted || contact.phone}
-              </a>
-            </p>
+            {contact.email && (
+              <p className="text-white text-[15px] mb-2 font-medium">
+                Email:{" "}
+                <a 
+                  href={`mailto:${contact.email}`} 
+                  className="hover:text-gray-300 transition-colors"
+                >
+                  {contact.email}
+                </a>
+              </p>
+            )}
+            {contact.phone && (
+              <p className="text-white text-[15px] font-medium">
+                Phone:{" "}
+                <a 
+                  href={`tel:${contact.phone}`} 
+                  className="hover:text-gray-300 transition-colors"
+                >
+                  {contact.phoneFormatted || contact.phone}
+                </a>
+              </p>
+            )}
             <div className="flex flex-wrap items-center gap-3 mt-4">
               <Link
                 href="/contact"
@@ -251,36 +249,42 @@ export default function Footer() {
 
             {/* Page Navigation */}
             <div className="flex flex-wrap justify-center md:justify-end gap-6 text-[15px] font-medium">
-              <Link className="hover:text-gray-300 transition-colors" href="/new-work">Our Work</Link>
-              <Link className="hover:text-gray-300 transition-colors" href="/about">About Us</Link>
-              <Link className="hover:text-gray-300 transition-colors" href="/industries">Industries</Link>
-              <Link className="hover:text-gray-300 transition-colors" href="/product">Product</Link>
-              <Link className="hover:text-white transition-colors text-indigo-300 font-semibold" href="/blog">Blog</Link>
-              <Link className="hover:text-white transition-colors text-indigo-300 font-semibold" href="/contact">Contact</Link>
+              {Array.isArray(siteSettings?.footer?.links) && siteSettings.footer.links.length > 0 ? (
+                siteSettings.footer.links.map((link: any, i: number) => (
+                  <Link
+                    key={link.id || i}
+                    className="hover:text-gray-300 transition-colors"
+                    href={link.href}
+                  >
+                    {link.label}
+                  </Link>
+                ))
+              ) : (
+                <>
+                  <Link className="hover:text-gray-300 transition-colors" href="/new-work">Our Work</Link>
+                  <Link className="hover:text-gray-300 transition-colors" href="/about">About Us</Link>
+                  <Link className="hover:text-gray-300 transition-colors" href="/industries">Industries</Link>
+                  <Link className="hover:text-gray-300 transition-colors" href="/product">Product</Link>
+                  <Link className="hover:text-white transition-colors text-indigo-300 font-semibold" href="/blog">Blog</Link>
+                  <Link className="hover:text-white transition-colors text-indigo-300 font-semibold" href="/contact">Contact</Link>
+                </>
+              )}
             </div>
 
             {/* Legal Tags & Language Selector */}
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-5 sm:gap-6 text-[14px] font-medium text-white/70 mt-2">
-              <button
-                type="button"
-                onClick={() => setLegalModal({
-                  title: "Terms & Conditions",
-                  content: siteSettings?.footer?.termsText || "All intellectual property rights and code developed by Brain Bari belong to the client upon full payment completion as per project agreement terms."
-                })}
-                className="hover:text-white transition-colors cursor-pointer underline underline-offset-4 decoration-white/30"
+              <Link
+                href="/terms"
+                className="hover:text-white transition-colors underline underline-offset-4 decoration-white/30"
               >
-                Terms & Conditions
-              </button>
-              <button
-                type="button"
-                onClick={() => setLegalModal({
-                  title: "Privacy Policy",
-                  content: siteSettings?.footer?.privacyText || "Brain Bari values your privacy. We never share customer data, proprietary AI training datasets, or business strategies with any third parties."
-                })}
-                className="hover:text-white transition-colors cursor-pointer underline underline-offset-4 decoration-white/30"
+                Terms &amp; Conditions
+              </Link>
+              <Link
+                href="/privacy"
+                className="hover:text-white transition-colors underline underline-offset-4 decoration-white/30"
               >
                 Privacy Policy
-              </button>
+              </Link>
 
               {/* Language Selector Component */}
               <div className="relative inline-block text-left" ref={langDropdownRef}>
@@ -292,8 +296,8 @@ export default function Footer() {
                   title="Change Language"
                 >
                   <Globe className="w-3.5 h-3.5 text-indigo-300" />
-                  <span>{selectedLang.flag}</span>
-                  <span className="hidden sm:inline">{selectedLang.name}</span>
+                  <span>{selectedLang?.flag || "🌐"}</span>
+                  <span className="hidden sm:inline">{selectedLang?.name || "Language"}</span>
                   <ChevronDown className={`w-3 h-3 text-white/60 transition-transform duration-200 ${isLangOpen ? "rotate-180" : ""}`} />
                 </button>
 
@@ -304,7 +308,7 @@ export default function Footer() {
                     <div className="flex items-center justify-between px-2 pb-2 mb-2 border-b border-white/10">
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-white/90">
                         <Globe className="w-3.5 h-3.5 text-indigo-400" />
-                        <span>Select Language ({languages.length})</span>
+                        <span>Select Language ({availableLanguages.length})</span>
                       </div>
                       <button
                         type="button"
@@ -331,15 +335,15 @@ export default function Footer() {
                     {/* Language Scrollable List */}
                     <div className="max-h-[220px] overflow-y-auto space-y-1 pr-1 custom-scrollbar">
                       {filteredLanguages.map((lang) => {
-                        const isSelected = selectedLang.code === lang.code;
+                        const isSelected = selectedLang?.code === lang.code;
                         return (
                           <button
                             key={lang.code}
                             type="button"
                             onClick={() => {
                               setSelectedLang(lang);
-                              localStorage.setItem("user_lang", lang.code);
                               setIsLangOpen(false);
+                              switchLanguage(lang.code);
                             }}
                             className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer text-left ${
                               isSelected
@@ -385,35 +389,12 @@ export default function Footer() {
 
       </div>
 
-      {/* Legal Content Modal */}
-      {legalModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="bg-slate-900 border border-slate-700 text-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
-            <h3 className="text-xl font-bold mb-3 text-white">
-              {legalModal.title}
-            </h3>
-            <p className="text-slate-300 text-sm leading-relaxed mb-6">
-              {legalModal.content}
-            </p>
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={() => setLegalModal(null)}
-                className="px-5 py-2 bg-white text-slate-900 font-semibold rounded-xl text-xs hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Floating Action Buttons: WhatsApp on top, Dark/Light mode toggle below */}
       <aside aria-label="Quick Actions" className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3.5 select-none">
         
         {/* WhatsApp Button (Upore) */}
         <a
-          href={siteSettings.contact?.whatsappUrl || "https://wa.me/8801754958008?text=Hello%20Brain%20Bari%20Team"}
+          href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Chat on WhatsApp"

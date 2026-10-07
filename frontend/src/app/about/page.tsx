@@ -1,16 +1,47 @@
 import React from "react";
 import Link from "next/link";
 import { Metadata } from "next";
-import aboutData from "@/data/about.json";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "About Us – Brain Bari",
   description: "Brain Bari is an AI & Software Solutions company in Bangladesh specializing in precision AI, custom software, and digital transformation.",
 };
 
-export default function AboutPage() {
-  const data = aboutData as any;
+async function getAboutData() {
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  try {
+    const res = await fetch(`${API_BASE}/cms/content/about`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data || null;
+  } catch (err) {
+    return null;
+  }
+}
+
+async function getSiteSettings() {
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  try {
+    const res = await fetch(`${API_BASE}/cms/settings`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data || null;
+  } catch (err) {
+    return null;
+  }
+}
+
+export default async function AboutPage() {
+  const [data, settings] = await Promise.all([getAboutData(), getSiteSettings()]);
   const milestones = data?.journey?.milestones || [];
+  const brandName = settings?.siteName || "Brain Bari";
+  const tagline = settings?.tagline || "AI & Software Solutions";
+  const logoUrl = settings?.logoUrl || settings?.logo;
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-800 pt-20">
@@ -44,13 +75,23 @@ export default function AboutPage() {
             <h1 className="text-[32px] md:text-[36px] font-bold text-black leading-snug mb-10 tracking-tight">
               {data?.hero?.headline || "Precision AI for Smarter, Scalable Business Growth"}
             </h1>
-            <div className="bg-[#f8f8f8] rounded-tl-[16px] rounded-br-[16px] rounded-tr-[100px] rounded-bl-[100px] flex items-center justify-center relative aspect-[1.1/1] w-full max-w-[480px] mx-auto lg:mx-0 overflow-hidden shadow-sm border border-purple-100">
-              <div className="flex flex-col items-center justify-center p-12 text-center">
-                <div className="w-24 h-24 rounded-3xl bg-[#602b0c] text-white flex items-center justify-center shadow-xl mb-4">
-                  <span className="text-3xl font-black tracking-tight font-sans">BB</span>
-                </div>
-                <h3 className="text-2xl font-black text-gray-900 tracking-tight">Brain Bari</h3>
-                <span className="text-xs tracking-widest text-[#8a421a] font-bold uppercase mt-1">AI &amp; Software Solutions</span>
+            <div className="bg-[#f8f8f8] rounded-tl-[16px] rounded-br-[16px] rounded-tr-[100px] rounded-bl-[100px] flex items-center justify-center relative aspect-[1.1/1] w-full max-w-[480px] mx-auto lg:mx-0 overflow-hidden shadow-sm border border-purple-100 p-8">
+              <div className="flex flex-col items-center justify-center text-center">
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt={brandName}
+                    className="max-h-24 max-w-[220px] object-contain mb-4"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-3xl bg-blue-600 text-white flex items-center justify-center shadow-xl shadow-blue-500/20 mb-4">
+                    <span className="text-3xl font-black tracking-tight font-sans">
+                      {brandName.slice(0, 2).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                <h3 className="text-2xl font-black text-gray-900 tracking-tight">{brandName}</h3>
+                <span className="text-xs tracking-widest text-blue-600 font-bold uppercase mt-1">{tagline}</span>
               </div>
             </div>
           </div>
@@ -162,16 +203,16 @@ export default function AboutPage() {
       <section className="py-20 bg-[#ebe8fd] text-center border-b border-gray-200">
         <div className="max-w-[800px] mx-auto px-6">
           <h2 className="text-[34px] font-bold font-sans text-[#111111] mb-4 tracking-tight">
-            {data?.cta?.heading || "Ready to transfer your Business"}
+            {data?.cta?.heading || "Ready to transform your Business"}
           </h2>
           <p className="text-[#333333] text-[14px] max-w-[650px] mx-auto mb-6 leading-relaxed">
-            {data?.cta?.desc}
+            {data?.cta?.desc || "Schedule a 60-minute strategy call with our AI engineers to discuss your product roadmap and technical architecture."}
           </p>
           <Link
-            href={data?.cta?.buttonLink || "/schedule/"}
-            className="inline-block px-10 py-3.5 bg-[#602b0c] hover:bg-[#4a2008] text-white rounded-[3px] font-medium text-[14px] transition-colors duration-normal"
+            href={data?.cta?.buttonLink || settings?.navbar?.ctaLink || "/schedule"}
+            className="inline-block px-10 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-[14px] transition-all duration-200 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/35"
           >
-            {data?.cta?.buttonText || "Schedule A Consultation"}
+            {data?.cta?.buttonText || settings?.navbar?.ctaText || "Schedule A Consultation"}
           </Link>
         </div>
       </section>

@@ -20,8 +20,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import ConversionCTA from "@/components/ConversionCTA";
-import caseStudiesData from "@/data/caseStudies.json";
-import pageData from "@/data/caseStudiesPage.json";
+import { useCmsContent } from "@/hooks/useApi";
 
 // --- TypeScript Contracts for Real-World Data Safety ---
 interface CapabilityItem {
@@ -78,7 +77,12 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export default function CaseStudiesPage() {
-  // Defensive fallbacks to ensure smooth zero-crash rendering in all environments
+  const { data: rawPageData } = useCmsContent<any>("caseStudiesPage");
+  const { data: rawCaseStudies } = useCmsContent<any[]>("caseStudies");
+  const { data: rawReviews = [] } = useCmsContent<any[]>("reviews");
+  const pageData = rawPageData || {};
+  const caseStudiesData = Array.isArray(rawCaseStudies) ? rawCaseStudies : [];
+
   const hero: HeroConfig = {
     badge: pageData?.hero?.badge || "Solutions & Capabilities",
     title: pageData?.hero?.title || "What product do you want to",
@@ -91,7 +95,17 @@ export default function CaseStudiesPage() {
   };
 
   const capabilities: CapabilityItem[] = (pageData?.capabilities as CapabilityItem[]) || [];
-  const testimonials: TestimonialItem[] = (pageData?.testimonials as TestimonialItem[]) || [];
+
+  // Unified testimonials: Use centralized CMS reviews from the admin panel with fallback
+  const testimonials: TestimonialItem[] = (Array.isArray(rawReviews) && rawReviews.length > 0)
+    ? rawReviews.map((r: any, idx: number) => ({
+        id: r.id || `rev-${idx}`,
+        name: r.clientName || r.name || "Client",
+        company: r.role || r.company || "Enterprise Partner",
+        text: r.review || r.text || "",
+        rating: r.rating || 5,
+      }))
+    : ((pageData?.testimonials as TestimonialItem[]) || []);
   const caseStudies: CaseStudyItem[] = (caseStudiesData as CaseStudyItem[]) || [];
 
   return (
@@ -107,12 +121,9 @@ export default function CaseStudiesPage() {
               Home
             </Link>
             <span className="text-gray-400" aria-hidden="true">/</span>
-            <Link 
-              href="/resources" 
-              className="hover:text-black font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600 rounded"
-            >
+            <span className="font-medium text-gray-700">
               Resources
-            </Link>
+            </span>
             <span className="text-gray-400" aria-hidden="true">/</span>
             <span className="text-gray-900 font-semibold" aria-current="page">Case Studies</span>
           </nav>
@@ -137,7 +148,7 @@ export default function CaseStudiesPage() {
           <div className="pt-4">
             <Link
               href={hero.buttonLink}
-              className="inline-flex items-center justify-center px-8 py-3.5 bg-[#602b0c] hover:bg-[#4a2008] text-white rounded-full font-bold text-sm transition-all shadow-sm hover:shadow-md active:scale-98"
+              className="inline-flex items-center justify-center px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-sm transition-all shadow-md shadow-blue-500/25 hover:shadow-blue-500/35 active:scale-98"
             >
               {hero.buttonText}
             </Link>
@@ -168,7 +179,7 @@ export default function CaseStudiesPage() {
                   <div>
                     <div className="flex items-center justify-between mb-5">
                       <div 
-                        className="w-12 h-12 rounded-xl bg-purple-50 text-purple-900 flex items-center justify-center group-hover:bg-[#602b0c] group-hover:text-white transition-colors duration-200"
+                        className="w-12 h-12 rounded-xl bg-purple-50 text-purple-900 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors duration-200"
                         aria-hidden="true"
                       >
                         <IconComponent className="w-6 h-6" />

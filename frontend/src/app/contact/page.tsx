@@ -1,48 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import siteSettings from "@/data/siteSettings.json";
-import faqsData from "@/data/faqs.json";
-
-const serviceHelpOptions = [
-  "Website design",
-  "UX design",
-  "Cloud and develop solution",
-  "API development and integration",
-  "API and automation",
-  "Consultancy",
-  "Web and mobile development",
-];
-
-const fallbackFaqs = [
-  {
-    q: "What services do you provide in AI development?",
-    a: "We provide comprehensive AI development services including custom chatbot creation, intelligent automation, predictive analytics, and natural language processing solutions tailored to your business needs.",
-  },
-  {
-    q: "Can you integrate AI into my existing website or app?",
-    a: "Yes, we can seamlessly integrate AI features such as predictive analytics, natural language processing, and automation tools into your current platform.",
-  },
-  {
-    q: "Do you offer custom web development services?",
-    a: "Absolutely. We design and develop responsive websites, e-commerce platforms, and dynamic web applications using modern frameworks like React, Next.js, and custom coding.",
-  },
-  {
-    q: "How secure are your AI and web solutions?",
-    a: "Security is a top priority. We follow industry best practices, including data encryption, secure APIs, and compliance with GDPR and other regulations.",
-  }
-];
-
-const faqs = (faqsData && faqsData.length > 0)
-  ? faqsData.map((f: any) => ({
-      q: f.question || f.q,
-      a: f.answer || f.a
-    }))
-  : fallbackFaqs;
+import api from "@/lib/axios";
+import { useFaqs, useSiteSettings } from "@/hooks/useApi";
+import { useServices } from "@/hooks/useApi";
 
 export default function ContactPage() {
+  const { data: siteSettings } = useSiteSettings();
+  const { data: liveFaqs = [] } = useFaqs();
+  const faqs = (liveFaqs || []).map((f: any) => ({
+    q: f.question || f.q,
+    a: f.answer || f.a
+  }));
+  const { data: services = [] } = useServices();
+  const serviceHelpOptions = (services || []).map((s: any) => s.title).filter(Boolean);
+  const contactPhone = siteSettings?.phone || (siteSettings as any)?.contact?.phone || "";
+  const contactPhoneFormatted = (siteSettings as any)?.contact?.phoneFormatted || contactPhone;
+  const contactEmail = siteSettings?.email || (siteSettings as any)?.contact?.email || "";
+  const twitterUrl = (siteSettings?.socialLinks as any)?.twitter || (siteSettings as any)?.socials?.twitter || "";
+  const officeAddress = (siteSettings as any)?.contact?.address || siteSettings?.address || "";
+  const workingHours = (siteSettings as any)?.contact?.workingHours || "";
+  const mapEmbedUrl = (siteSettings as any)?.contact?.mapEmbedUrl ||
+    (officeAddress ? `https://maps.google.com/maps?q=${encodeURIComponent(officeAddress)}&t=&z=14&ie=UTF8&iwloc=&output=embed` : null);
+  const rawWhatsapp = (siteSettings as any)?.contact?.whatsapp || siteSettings?.phone || "";
+  const whatsappUrl = (siteSettings as any)?.contact?.whatsappUrl ||
+    (rawWhatsapp ? `https://wa.me/${rawWhatsapp.replace(/[^0-9]/g, "")}` : "#");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -68,22 +52,13 @@ export default function ContactPage() {
 
     setIsSending(true);
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          message,
-          selectedServices,
-        }),
+      await api.post("/cms/contact", {
+        name,
+        email,
+        phone,
+        message,
+        selectedServices,
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to send message");
-      }
 
       toast.success("Thank you! Your message has been received. We'll contact you within 24 hours.");
       setName("");
@@ -278,7 +253,7 @@ export default function ContactPage() {
               <ul className="space-y-4 text-[15px] text-blue-600 font-semibold">
                 <li>
                   <a
-                    href="https://wa.me/8801754958008"
+                    href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-4 hover:text-blue-700 transition-colors"
@@ -293,7 +268,7 @@ export default function ContactPage() {
                 </li>
                 <li>
                   <a
-                    href={`mailto:${siteSettings.contact.email}`}
+                    href={`mailto:${contactEmail}`}
                     className="flex items-center gap-4 hover:text-blue-700 transition-colors"
                   >
                     <div className="w-10 h-10 rounded-full bg-blue-50 group-hover:bg-blue-600 group-hover:text-white transition-colors flex items-center justify-center">
@@ -301,12 +276,12 @@ export default function ContactPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
                     </div>
-                    {siteSettings.contact.email}
+                    {contactEmail}
                   </a>
                 </li>
                 <li>
                   <a
-                    href={siteSettings.socials.twitter}
+                    href={twitterUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-4 hover:text-blue-700 transition-colors"
@@ -326,11 +301,11 @@ export default function ContactPage() {
             <div className="bg-white rounded-[32px] p-5 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 group">
               <h3 className="font-bold text-[18px] text-gray-900 mb-2">Call us</h3>
               <p className="text-[13px] sm:text-[14px] text-gray-500 mb-6">
-                Call our team Monday to Friday from 8:00 a.m. to 5:00 p.m.
+                {workingHours}
               </p>
               <div className="text-[15px] text-blue-600 font-semibold">
                 <a
-                  href={`tel:${siteSettings.contact.phone}`}
+                  href={`tel:${contactPhone}`}
                   className="flex items-center gap-4 hover:text-blue-700 transition-colors"
                 >
                   <div className="w-10 h-10 rounded-full bg-blue-50 group-hover:bg-blue-600 group-hover:text-white transition-colors flex items-center justify-center">
@@ -338,7 +313,7 @@ export default function ContactPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                   </div>
-                  {siteSettings.contact.phoneFormatted}
+                  {contactPhoneFormatted}
                 </a>
               </div>
             </div>
@@ -357,31 +332,34 @@ export default function ContactPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
-                  Brain Bari, Khagan, Birulia, Dhaka
+                  {officeAddress}
                 </div>
               </div>
-              <div className="w-full h-[220px] bg-gray-200 rounded-[20px] overflow-hidden relative shadow-inner">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3648.575105218204!2d90.30730711124659!3d23.869217184114536!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c3002a1ca911%3A0xf8add437f44edc7f!2sBot%20Bari!5e0!3m2!1sen!2sbd!4v1783682980340!5m2!1sen!2sbd"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen={false}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Brain Bari Office Location"
-                ></iframe>
-              </div>
+              {mapEmbedUrl ? (
+                <div className="w-full h-[220px] bg-gray-200 rounded-[20px] overflow-hidden relative shadow-inner">
+                  <iframe
+                    src={mapEmbedUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen={false}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Brain Bari Office Location"
+                  ></iframe>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
 
         {/* FAQ Accordion Section */}
-        <div className="max-w-[800px] mx-auto px-6 pb-24">
-          <h2 className="text-[22px] font-bold text-center text-[#333] mb-8 font-sans">
-            Frequently asked question
-          </h2>
-          <div className="space-y-3">
+        {faqs.length > 0 && (
+          <div className="max-w-[800px] mx-auto px-6 pb-24">
+            <h2 className="text-[22px] font-bold text-center text-[#333] mb-8 font-sans">
+              Frequently asked question
+            </h2>
+            <div className="space-y-3">
             {faqs.map((faq, idx) => {
               const isOpen = openFaq === idx;
               return (
@@ -418,6 +396,7 @@ export default function ContactPage() {
             })}
           </div>
         </div>
+        )}
       </div>
     </div>
   );

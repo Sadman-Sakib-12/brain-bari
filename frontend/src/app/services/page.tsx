@@ -15,7 +15,7 @@ import {
   ChevronRight,
   ShoppingCart
 } from "lucide-react";
-import coreServices from "@/data/coreServices.json";
+import { useServices, useCmsContent } from "@/hooks/useApi";
 import ConversionCTA from "@/components/ConversionCTA";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -30,6 +30,8 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 export default function ServicesPage() {
+  const { data: services = [] } = useServices();
+  const { data: pageCms } = useCmsContent<any>("servicesPage");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("default");
@@ -37,17 +39,28 @@ export default function ServicesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  const categories = [
-    { id: "all", label: "All Services" },
-    { id: "ai-chatbot", label: "AI Chatbots" },
-    { id: "ai-saas", label: "AI SaaS" },
-    { id: "custom-ai", label: "Custom Assistants" },
-    { id: "ai-3d", label: "3D & Web Apps" }
-  ];
+  const categories = useMemo(() => {
+    const map = new Map<string, string>();
+    map.set("all", "All Services");
+    (services || []).forEach((s: any) => {
+      if (s.category && !map.has(s.category)) {
+        const label = s.category
+          .split("-")
+          .map((w: string) => (w.length <= 2 ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1)))
+          .join(" ");
+        map.set(s.category, label);
+      }
+    });
+    return Array.from(map.entries()).map(([id, label]) => ({ id, label }));
+  }, [services]);
+
+  const heroTitle = pageCms?.hero?.title || "Enterprise AI & Software";
+  const heroHighlight = pageCms?.hero?.titleHighlight || "Capabilities";
+  const heroDesc = pageCms?.hero?.description || "Tailor-made conversational intelligence, production-ready SaaS frameworks, and custom digital infrastructure designed to scale your business.";
 
   // Search, Sort, and Filter Logic
   const filteredServices = useMemo(() => {
-    let result = [...coreServices];
+    let result = [...services];
 
     // 1. Search filter
     if (searchTerm.trim()) {
@@ -115,13 +128,13 @@ export default function ServicesPage() {
         <div className="max-w-[1240px] mx-auto px-6">
           <div className="max-w-3xl space-y-4">
             <h1 className="text-3xl sm:text-5xl font-black text-[#1a1a1a] tracking-tight leading-tight">
-              Enterprise AI &amp; Software{" "}
+              {heroTitle}{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff7e5f] to-[#e464a4]">
-                Capabilities
+                {heroHighlight}
               </span>
             </h1>
             <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
-              Tailor-made conversational intelligence, production-ready SaaS frameworks, and custom digital infrastructure designed to scale your business.
+              {heroDesc}
             </p>
           </div>
         </div>
@@ -190,7 +203,7 @@ export default function ServicesPage() {
                 onClick={() => handleCategoryChange(cat.id)}
                 className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                   selectedCategory === cat.id
-                    ? "bg-[#602b0c] text-white shadow-sm"
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/25"
                     : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"
                 }`}
               >
@@ -206,7 +219,7 @@ export default function ServicesPage() {
           {searchTerm && (
             <button
               onClick={() => setSearchTerm("")}
-              className="text-[#602b0c] hover:underline cursor-pointer"
+              className="text-blue-600 hover:underline cursor-pointer"
             >
               Clear search
             </button>
@@ -225,10 +238,10 @@ export default function ServicesPage() {
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-900 flex items-center justify-center group-hover:bg-[#602b0c] group-hover:text-white transition-colors duration-200">
+                      <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-900 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors duration-200">
                         <Icon className="w-6 h-6" />
                       </div>
-                      <span className="text-[11px] font-bold text-[#602b0c] bg-amber-50 border border-amber-200/60 px-2.5 py-1 rounded-full">
+                      <span className="text-[11px] font-bold text-blue-600 bg-blue-50 border border-blue-200/60 px-2.5 py-1 rounded-full">
                         {srv.badge}
                       </span>
                     </div>
@@ -298,7 +311,7 @@ export default function ServicesPage() {
                 setSelectedCategory("all");
                 setMaxPrice(1000);
               }}
-              className="px-5 py-2.5 bg-[#602b0c] text-white text-xs font-bold rounded-xl cursor-pointer"
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl cursor-pointer shadow-md shadow-blue-500/25"
             >
               Reset Filters
             </button>
@@ -323,7 +336,7 @@ export default function ServicesPage() {
                 onClick={() => setCurrentPage(page)}
                 className={`w-10 h-10 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   currentPage === page
-                    ? "bg-[#602b0c] text-white shadow-xs"
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/25"
                     : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
                 }`}
               >

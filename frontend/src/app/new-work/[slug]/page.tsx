@@ -2,7 +2,6 @@ import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import portfolioData from "@/data/portfolio.json";
 import ConversionCTA from "@/components/ConversionCTA";
 import { 
   ArrowLeft, 
@@ -20,19 +19,71 @@ import {
   Cpu
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return portfolioData.map((item) => ({
-    slug: item.slug,
-  }));
+async function fetchProject(slug: string) {
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  try {
+    const res = await fetch(`${API_BASE}/portfolios/${slug}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data || null;
+  } catch (err) {
+    return null;
+  }
+}
+
+async function fetchAllProjects() {
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  try {
+    const res = await fetch(`${API_BASE}/portfolios`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return Array.isArray(json.data) ? json.data : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function normalizeProject(p: any) {
+  if (!p) return null;
+  return {
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    category: p.category || "",
+    status: p.featured ? "Featured" : (p.status || "Production"),
+    statusColor: "purple",
+    shortDesc: p.description || "",
+    overview: p.overview || p.description || "",
+    client: p.client || "",
+    year: new Date(p.createdAt || Date.now()).getFullYear().toString(),
+    duration: p.duration || p.timeline || "",
+    role: p.role || "",
+    techStack: Array.isArray(p.tags) ? p.tags : [],
+    metrics: p.metrics || "",
+    challenge: p.challenge || p.description || "",
+    solution: p.solution || p.description || "",
+    results: p.results || "",
+    image: p.thumbnail || p.image || "",
+    clientQuote: p.clientQuote || "",
+    clientAuthor: p.clientAuthor || p.client || "",
+    liveUrl: p.liveUrl || "",
+  };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const project = portfolioData.find((p) => p.slug.toLowerCase() === slug.toLowerCase());
+  const rawProject = await fetchProject(slug);
+  const project = normalizeProject(rawProject);
 
   if (!project) {
     return {
@@ -53,13 +104,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CaseStudyDetailPage({ params }: Props) {
   const { slug } = await params;
-  const project: any = portfolioData.find((p) => p.slug.toLowerCase() === slug.toLowerCase());
+  const rawProject = await fetchProject(slug);
+  const project: any = normalizeProject(rawProject);
 
   if (!project) {
     notFound();
   }
 
-  const otherProjects = portfolioData.filter((p) => p.slug !== project.slug);
+  const allProjects = await fetchAllProjects();
+  const otherProjects = allProjects
+    .filter((p: any) => p.slug !== project.slug)
+    .map(normalizeProject);
 
   return (
     <div className="min-h-screen bg-[#ebe8fd] font-sans flex flex-col justify-between relative overflow-hidden pt-32 md:pt-36">

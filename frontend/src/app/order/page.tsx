@@ -4,6 +4,7 @@ import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { useCreateOrder, useServices, useChatbots } from "@/hooks/useApi";
 import { 
   User, 
   Mail, 
@@ -17,50 +18,55 @@ import {
   Clock
 } from "lucide-react";
 
-const baseServices = [
-  "Ai Chatbot",
-  "Ai Saas",
-  "Custom Ai Assistant",
-  "Ai & 3d website/apps",
-  "AI Health Chatbot",
-  "Custom Website Chatbot",
-  "Social Media Chatbot",
-  "Auto Order Chatbot",
-  "Web & Mobile Development",
-  "Cloud & DevOps Solutions",
-  "AI & Automation",
-  "Consultancy",
-];
-
-const slugToNameMap: Record<string, string> = {
-  "ai-chatbot": "Ai Chatbot",
-  "ai-saas": "Ai Saas",
-  "custom-ai": "Custom Ai Assistant",
-  "ai-3d": "Ai & 3d website/apps",
-  "ai-health-chatbot": "AI Health Chatbot",
-  "custom-website-chatbot": "Custom Website Chatbot",
-  "social-media-chatbot": "Social Media Chatbot",
-  "auto-order-chatbot": "Auto Order Chatbot",
-  "enterprise-cyber-security-audit": "Consultancy",
-};
-
 function OrderForm() {
   const searchParams = useSearchParams();
   const rawQuery = searchParams.get("service") || searchParams.get("bot") || "";
-  const resolvedService = slugToNameMap[rawQuery.toLowerCase().trim()] || rawQuery || "Ai Chatbot";
+
+  const { data: dbServices = [] } = useServices();
+  const { data: dbChatbots = [] } = useChatbots();
+
+  const dynamicServiceNames = Array.from(
+    new Set([
+      ...dbServices.map((s: any) => s.title),
+      ...dbChatbots.map((c: any) => c.name),
+    ].filter(Boolean))
+  );
+
+  const matchedService = rawQuery
+    ? (dbServices.find((s: any) => s.slug === rawQuery.toLowerCase().trim() || s.title?.toLowerCase() === rawQuery.toLowerCase().trim())?.title ||
+       dbChatbots.find((c: any) => c.id === rawQuery || c.name?.toLowerCase() === rawQuery.toLowerCase().trim())?.name ||
+       rawQuery)
+    : "";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [selectedServices, setSelectedServices] = useState<string[]>([resolvedService]);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [message, setMessage] = useState(
-    rawQuery ? `Order inquiry for: ${resolvedService}` : ""
+    rawQuery ? `Order inquiry for: ${matchedService || rawQuery}` : ""
   );
-  const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Ensure current selected service is always available
-  const availableServices = Array.from(new Set([...baseServices, resolvedService]));
+  React.useEffect(() => {
+    if (selectedServices.length === 0) {
+      if (matchedService) {
+        setSelectedServices([matchedService]);
+      } else if (dynamicServiceNames.length > 0) {
+        setSelectedServices([dynamicServiceNames[0]]);
+      }
+    }
+  }, [matchedService, dynamicServiceNames]);
+
+  const [submitted, setSubmitted] = useState(false);
+  const createOrderMutation = useCreateOrder();
+  const isSubmitting = createOrderMutation.isPending;
+
+  // Available services directly from database
+  const availableServices = Array.from(
+    new Set([
+      ...dynamicServiceNames,
+      ...(matchedService ? [matchedService] : [])
+    ].filter(Boolean))
+  );
 
   const toggleService = (svc: string) => {
     if (selectedServices.includes(svc)) {
@@ -81,33 +87,25 @@ function OrderForm() {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          selectedServices,
-          message,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to place order");
+    createOrderMutation.mutate(
+      {
+        name,
+        email,
+        phone,
+        selectedServices,
+        message,
+      },
+      {
+        onSuccess: () => {
+          setSubmitted(true);
+          toast.success("Order placed successfully! We will contact you within 24 hours.");
+        },
+        onError: (err: any) => {
+          console.error("Order submit error:", err);
+          toast.error(err.message || "Failed to submit order. Please try again.");
+        },
       }
-
-      setSubmitted(true);
-      toast.success("Order placed successfully! We will contact you within 24 hours.");
-    } catch (err: any) {
-      console.error("Order submit error:", err);
-      toast.error(err.message || "Failed to submit order. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    );
   };
 
   return (
@@ -242,35 +240,41 @@ function OrderForm() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-                    {availableServices.map((svc) => {
-                      const isSelected = selectedServices.includes(svc);
-                      return (
-                        <button
-                          type="button"
-                          key={svc}
-                          onClick={() => toggleService(svc)}
-                          className={`group p-2.5 sm:p-3 rounded-xl border text-left transition-all duration-150 flex items-center justify-between gap-2 cursor-pointer select-none active:scale-[0.98] ${
-                            isSelected
-                              ? "bg-blue-50/90 dark:bg-blue-950/60 border-blue-500 text-blue-900 dark:text-blue-200 font-semibold shadow-2xs"
-                              : "bg-gray-50/80 dark:bg-slate-800/50 border-gray-200/90 dark:border-slate-700/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-100/70"
-                          }`}
-                        >
-                          <span className="text-xs sm:text-[12.5px] truncate">
-                            {svc}
-                          </span>
-                          
-                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                            isSelected 
-                              ? "bg-blue-600 text-white" 
-                              : "border border-gray-300 dark:border-slate-600 group-hover:border-gray-400"
-                          }`}>
-                            {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {availableServices.length === 0 ? (
+                    <div className="py-6 text-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-slate-800/40 rounded-xl border border-gray-200/80 dark:border-slate-700/80">
+                      No services currently available in database.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                      {availableServices.map((svc) => {
+                        const isSelected = selectedServices.includes(svc);
+                        return (
+                          <button
+                            type="button"
+                            key={svc}
+                            onClick={() => toggleService(svc)}
+                            className={`group p-2.5 sm:p-3 rounded-xl border text-left transition-all duration-150 flex items-center justify-between gap-2 cursor-pointer select-none active:scale-[0.98] ${
+                              isSelected
+                                ? "bg-blue-50/90 dark:bg-blue-950/60 border-blue-500 text-blue-900 dark:text-blue-200 font-semibold shadow-2xs"
+                                : "bg-gray-50/80 dark:bg-slate-800/50 border-gray-200/90 dark:border-slate-700/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-100/70"
+                            }`}
+                          >
+                            <span className="text-xs sm:text-[12.5px] truncate">
+                              {svc}
+                            </span>
+                            
+                            <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                              isSelected 
+                                ? "bg-blue-600 text-white" 
+                                : "border border-gray-300 dark:border-slate-600 group-hover:border-gray-400"
+                            }`}>
+                              {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* 5. Message / Order Details */}
@@ -288,7 +292,7 @@ function OrderForm() {
                   />
                 </div>
 
-                {/* 6. Submit Button: BotBari Signature Dark Brown Pill Button */}
+                {/* 6. Submit Button: Brain Bari Signature Dark Brown Pill Button */}
                 <div className="pt-2">
                   <button
                     type="submit"
