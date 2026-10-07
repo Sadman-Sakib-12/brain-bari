@@ -53,7 +53,116 @@ const getProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const register = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.registerUser(req.body);
+
+  res.cookie('token', result.token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: 'User registered successfully. Welcome email sent.',
+    data: result,
+  });
+});
+
+const login = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.loginUser(req.body);
+
+  res.cookie('token', result.token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Login successful.',
+    data: result,
+  });
+});
+
+const googleAuth = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.googleOAuthLogin(req.body);
+
+  res.cookie('token', result.token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Google authentication successful.',
+    data: result,
+  });
+});
+
+const sendRegisterOtp = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.sendRegisterOtp(req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: result.message,
+    data: result,
+  });
+});
+
+const verifyRegisterOtp = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.verifyRegisterOtp(req.body);
+
+  res.cookie('token', result.token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: 'OTP verified! Admin account created successfully.',
+    data: result,
+  });
+});
+
+const sendForgotPasswordOtp = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.sendForgotPasswordOtp(req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: result.message,
+    data: result,
+  });
+});
+
+const resetPasswordWithOtp = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.resetPasswordWithOtp(req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: result.message,
+    data: result,
+  });
+});
+
 export const AuthController = {
+  register,
+  sendRegisterOtp,
+  verifyRegisterOtp,
+  sendForgotPasswordOtp,
+  resetPasswordWithOtp,
+  login,
+  googleAuth,
   syncAndGetToken,
   logout,
   getProfile,
