@@ -10,14 +10,19 @@ const app: Application = express();
 // Middlewares
 app.use(
   cors({
-    origin: [
-      config.cors.client_url,
-      config.cors.admin_url,
-      'http://localhost:5173',
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:5174',
-    ],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        origin.includes('vercel.app') ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1') ||
+        origin === config.cors.client_url ||
+        origin === config.cors.admin_url
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
