@@ -26,7 +26,7 @@ const nextConfig = {
       {
         // Proxy all /api routes to Express backend EXCEPT NextAuth internal routes (/api/auth/*)
         source: '/api/:path((?!auth(?:/|$)).*)',
-        destination: `${process.env.BACKEND_INTERNAL_URL || 'http://localhost:5000'}/api/:path*`,
+        destination: `${process.env.BACKEND_INTERNAL_URL || 'https://brain-bari-production.up.railway.app'}/api/:path*`,
       },
     ];
   },

@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     };
 
     // Forward to backend REST API (PostgreSQL database via NeonDB)
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
     const backendRes = await fetch(`${API_BASE}/cms/contact`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

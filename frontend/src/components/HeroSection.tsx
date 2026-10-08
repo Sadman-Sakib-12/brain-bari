@@ -53,7 +53,19 @@ function TypingDots({
 export default function HeroSection() {
   const router = useRouter();
   const { data: liveSettings, isLoading } = useSiteSettings();
-  const heroData = (liveSettings as any)?.hero || null;
+  const rawHeroData = (liveSettings as any)?.hero || null;
+  const heroData = rawHeroData || {
+    headline: "Powering Ideas\nwith",
+    headlineGradient: "AI & Software",
+    subheadline: "Crafting intelligent conversational agents, custom software, and scalable SaaS platforms for businesses worldwide.",
+    speechBubble1: "Hi! How can I help you?",
+    speechBubble2: "Hi Skilabot! I need your help.",
+    filterPills: ["AI Solutions", "Custom Software", "SaaS Development"],
+    robotImage: "/images/hero_robot.jpg",
+    ctaText: "Start Your Project",
+    searchPlaceholder: "What do you want to build?",
+    badge: "✨ Next-Gen AI Automation Platform",
+  };
 
   const rawHeadline = heroData?.headline || "";
   const headline = rawHeadline;
@@ -88,7 +100,7 @@ export default function HeroSection() {
   const [wishModalOpen, setWishModalOpen] = useState(false);
   const [selectedWish, setSelectedWish] = useState("");
 
-  if (isLoading) {
+  if (isLoading && !rawHeroData) {
     return (
       <section className="relative w-full bg-[#ebe8fd] dark:bg-[#0f1523] pt-36 pb-16 md:pt-36 md:pb-24 overflow-hidden transition-colors duration-300">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 flex justify-center items-center min-h-[400px]">
@@ -96,10 +108,6 @@ export default function HeroSection() {
         </div>
       </section>
     );
-  }
-
-  if (!heroData) {
-    return null;
   }
 
   const handleSearchSubmit = (e: React.FormEvent) => {

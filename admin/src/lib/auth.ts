@@ -5,7 +5,7 @@ import GoogleProvider from "next-auth/providers/google";
 const BACKEND_URL =
   process.env.BACKEND_INTERNAL_URL ||
   process.env.BACKEND_URL ||
-  "http://localhost:5000";
+  "https://brain-bari-production.up.railway.app";
 
 export const authOptions: NextAuthOptions = {
   session: {

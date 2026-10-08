@@ -26,7 +26,7 @@ interface Props {
 }
 
 async function fetchProject(slug: string) {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
   try {
     const res = await fetch(`${API_BASE}/portfolios/${slug}`, {
       cache: "no-store",
@@ -40,7 +40,7 @@ async function fetchProject(slug: string) {
 }
 
 async function fetchAllProjects() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
   try {
     const res = await fetch(`${API_BASE}/portfolios`, {
       cache: "no-store",

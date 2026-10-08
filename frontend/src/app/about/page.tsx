@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 async function getAboutData() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
   try {
     const res = await fetch(`${API_BASE}/cms/content/about`, {
       cache: "no-store",
@@ -23,7 +23,7 @@ async function getAboutData() {
 }
 
 async function getSiteSettings() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
   try {
     const res = await fetch(`${API_BASE}/cms/settings`, {
       cache: "no-store",

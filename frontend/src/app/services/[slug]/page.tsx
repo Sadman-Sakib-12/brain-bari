@@ -10,7 +10,7 @@ interface PageProps {
 }
 
 async function fetchService(slug: string) {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
   try {
     const res = await fetch(`${API_BASE}/services/${slug}`, {
       cache: "no-store",
@@ -24,7 +24,7 @@ async function fetchService(slug: string) {
 }
 
 async function fetchServicePackages() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
   try {
     const res = await fetch(`${API_BASE}/cms/content/servicePackages`, {
       cache: "no-store",

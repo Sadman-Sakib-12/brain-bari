@@ -67,7 +67,7 @@ export default function RegisterPage() {
 
     setLoading(true);
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
     try {
       const res = await fetch(`${API_BASE}/auth/register-otp`, {
         method: "POST",
@@ -109,7 +109,7 @@ export default function RegisterPage() {
     if (resendCountdown > 0) return;
     setLoading(true);
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
     try {
       const res = await fetch(`${API_BASE}/auth/register-otp`, {
         method: "POST",
@@ -151,7 +151,7 @@ export default function RegisterPage() {
 
     setLoading(true);
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
     try {
       // 1. Verify OTP with backend
       const res = await fetch(`${API_BASE}/auth/verify-register-otp`, {

@@ -101,7 +101,7 @@ export default function LoginPage() {
     }
 
     setLoading(true);
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
 
     try {
       const res = await fetch(`${API_BASE}/auth/forgot-password`, {
@@ -137,7 +137,7 @@ export default function LoginPage() {
   const handleResendForgotOtp = async () => {
     if (resendCountdown > 0) return;
     setLoading(true);
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
 
     try {
       const res = await fetch(`${API_BASE}/auth/forgot-password`, {
@@ -184,7 +184,7 @@ export default function LoginPage() {
     }
 
     setLoading(true);
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://brain-bari-production.up.railway.app/api";
 
     try {
       const res = await fetch(`${API_BASE}/auth/reset-password`, {

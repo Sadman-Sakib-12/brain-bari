@@ -5,7 +5,7 @@ import { getToken } from "next-auth/jwt";
 const BACKEND_ORIGIN =
   process.env.BACKEND_INTERNAL_URL ||
   process.env.BACKEND_URL ||
-  "http://localhost:5000";
+  "https://brain-bari-production.up.railway.app";
 
 // Public pages that do not require authentication
 const PUBLIC_PATHS = ["/login", "/register"];

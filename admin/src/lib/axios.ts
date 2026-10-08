@@ -3,7 +3,7 @@ import axios from "axios";
 const isClient = typeof window !== "undefined";
 const API_BASE_URL = isClient
   ? (process.env.NEXT_PUBLIC_API_URL || "/api")
-  : `${process.env.BACKEND_INTERNAL_URL || "http://localhost:5000"}/api`;
+  : `${process.env.BACKEND_INTERNAL_URL || "https://brain-bari-production.up.railway.app"}/api`;
 export const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
 
 export const api = axios.create({
