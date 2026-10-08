@@ -136,7 +136,7 @@ export default function ImageUpload({
     <div className="space-y-1.5 w-full">
       {label && (
         <div className="flex items-center justify-between">
-          <label className="block text-xs font-bold text-slate-700">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
             {label}
             {required && <span className="text-rose-500 ml-1">*</span>}
           </label>
@@ -144,7 +144,7 @@ export default function ImageUpload({
             <button
               type="button"
               onClick={() => setIsManualEdit(!isManualEdit)}
-              className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer"
+              className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer"
             >
               <LinkIcon className="w-3 h-3" />
               <span>{isManualEdit ? "Close URL" : "Paste URL"}</span>
@@ -165,13 +165,13 @@ export default function ImageUpload({
 
       {/* Manual URL Input dropdown / toggle */}
       {isManualEdit && (
-        <div className="flex items-center gap-1.5 p-2 bg-slate-50 border border-slate-200 rounded-xl">
+        <div className="flex items-center gap-1.5 p-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl">
           <input
             type="text"
             value={manualUrl}
             onChange={(e) => setManualUrl(e.target.value)}
             placeholder="Paste image URL..."
-            className="flex-1 px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-lg font-mono"
+            className="flex-1 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg font-mono outline-none"
           />
           <button
             type="button"
@@ -186,14 +186,14 @@ export default function ImageUpload({
       {/* Active Image Preview & Controls */}
       {value ? (
         <div
-          className={`relative border border-slate-200 bg-white rounded-xl overflow-hidden p-2.5 flex items-center gap-3 transition-colors ${
+          className={`relative border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl overflow-hidden p-2.5 flex items-center gap-3 transition-colors ${
             compact ? "h-16" : "h-24"
           }`}
         >
           {/* Thumbnail preview */}
-          <div className="relative h-full aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-100 flex-shrink-0 flex items-center justify-center">
+          <div className="relative h-full aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden border border-slate-100 dark:border-slate-800 flex-shrink-0 flex items-center justify-center">
             {value.endsWith(".pdf") ? (
-              <span className="text-xs font-bold font-mono text-indigo-600 uppercase">PDF</span>
+              <span className="text-xs font-bold font-mono text-indigo-600 dark:text-indigo-400 uppercase">PDF</span>
             ) : (
               <img
                 src={value}
@@ -210,11 +210,11 @@ export default function ImageUpload({
           {/* Details */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
                 Optimized
               </span>
             </div>
-            <p className="text-[11px] font-mono text-slate-500 truncate mt-0.5" title={value}>
+            <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate mt-0.5" title={value}>
               {value}
             </p>
           </div>
@@ -224,17 +224,17 @@ export default function ImageUpload({
             <button
               type="button"
               onClick={handleCopyUrl}
-              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
               title="Copy Image URL"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
 
             <a
               href={value}
               target="_blank"
               rel="noreferrer"
-              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
               title="Open full size"
             >
               <ExternalLink className="w-3.5 h-3.5" />
@@ -244,7 +244,7 @@ export default function ImageUpload({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="px-2.5 py-1 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1"
+              className="px-2.5 py-1 text-xs font-semibold text-white bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1"
             >
               {isUploading ? (
                 <>
@@ -259,7 +259,7 @@ export default function ImageUpload({
             <button
               type="button"
               onClick={handleClear}
-              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-200 transition-colors cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
               title="Remove"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -275,25 +275,25 @@ export default function ImageUpload({
           onClick={() => !isUploading && fileInputRef.current?.click()}
           className={`border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${
             isDragging
-              ? "border-indigo-500 bg-indigo-50/50 scale-[0.99]"
-              : "border-slate-200 hover:border-slate-400 hover:bg-slate-50/50 bg-white"
+              ? "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 scale-[0.99]"
+              : "border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 bg-white dark:bg-slate-900/40"
           } ${compact ? "p-3 py-4" : "p-5"}`}
         >
           {isUploading ? (
-            <div className="flex flex-col items-center justify-center gap-2 text-indigo-600">
+            <div className="flex flex-col items-center justify-center gap-2 text-indigo-600 dark:text-indigo-400">
               <Loader2 className="w-6 h-6 animate-spin" />
               <span className="text-xs font-semibold">Uploading image...</span>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center text-center gap-1.5">
-              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
-                <UploadCloud className="w-4 h-4 text-indigo-600" />
+              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
+                <UploadCloud className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <div className="text-xs font-semibold text-slate-700">
+              <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                 <span>Click to upload image</span>{" "}
-                <span className="text-slate-400 font-normal">or drag &amp; drop</span>
+                <span className="text-slate-400 dark:text-slate-500 font-normal">or drag &amp; drop</span>
               </div>
-              <div className="text-[10px] text-slate-400 font-medium">
+              <div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                 PNG, JPG, WebP, SVG up to 10MB · Instant cloud upload
               </div>
             </div>
@@ -301,7 +301,7 @@ export default function ImageUpload({
         </div>
       )}
 
-      {helpText && <p className="text-[11px] text-slate-400">{helpText}</p>}
+      {helpText && <p className="text-[11px] text-slate-400 dark:text-slate-500">{helpText}</p>}
     </div>
   );
 }

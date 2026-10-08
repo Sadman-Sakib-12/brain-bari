@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Eye, Edit2, Trash2 } from "lucide-react";
+import { Eye, Edit2, Trash2, Image as ImageIcon } from "lucide-react";
 import SearchBar from "@/components/ui/SearchBar";
 import FilterBar from "@/components/ui/FilterBar";
 import StatusBadge from "@/components/ui/StatusBadge";
@@ -75,7 +75,7 @@ export default function BlogTableTab({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200/80">
-                <th className="py-3 px-5">Title</th>
+                <th className="py-3 px-5">Article &amp; Cover</th>
                 <th className="py-3 px-5">Author</th>
                 <th className="py-3 px-5">Category</th>
                 <th className="py-3 px-5">Status</th>
@@ -91,20 +91,39 @@ export default function BlogTableTab({
                   </td>
                 </tr>
               ) : (
-                paginatedBlogs.map((b) => (
-                  <tr key={b.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="py-3.5 px-5 max-w-xs">
-                      <div className="font-semibold text-slate-900 line-clamp-1">{b.title}</div>
-                      <div className="text-[11px] text-slate-400 line-clamp-1">{b.excerpt || b.content}</div>
-                    </td>
-                    <td className="py-3.5 px-5 text-slate-700 font-medium whitespace-nowrap">
-                      {b.author || "Brain Bari Editorial"}
-                    </td>
-                    <td className="py-3.5 px-5 whitespace-nowrap">
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                        {b.category || "AI Trends"}
-                      </span>
-                    </td>
+                paginatedBlogs.map((b) => {
+                  const cover = b.image || b.coverImage || b.thumbnail;
+                  return (
+                    <tr key={b.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-3.5 px-5 max-w-sm">
+                        <div className="flex items-center gap-3">
+                          {cover ? (
+                            <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 shadow-2xs">
+                              <img
+                                src={cover}
+                                alt={b.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-11 h-11 rounded-xl shrink-0 border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400">
+                              <ImageIcon className="w-4 h-4" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="font-semibold text-slate-900 line-clamp-1">{b.title}</div>
+                            <div className="text-[11px] text-slate-400 line-clamp-1">{b.excerpt || b.content}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-5 text-slate-700 font-medium whitespace-nowrap">
+                        {b.author || "Brain Bari Editorial"}
+                      </td>
+                      <td className="py-3.5 px-5 whitespace-nowrap">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                          {b.category || "AI Trends"}
+                        </span>
+                      </td>
                     <td className="py-3.5 px-5 whitespace-nowrap">
                       <button
                         type="button"
@@ -147,8 +166,9 @@ export default function BlogTableTab({
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
+                );
+              })
+            )}
             </tbody>
           </table>
         </div>

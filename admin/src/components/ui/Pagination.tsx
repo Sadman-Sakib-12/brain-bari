@@ -22,18 +22,18 @@ export default function Pagination({
 
   if (totalPages <= 1 && totalItems <= pageSize) {
     return (
-      <div className={`flex items-center justify-between text-xs text-slate-500 py-3 px-4 ${className}`}>
+      <div className={`flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 py-3 px-4 ${className}`}>
         <span>Showing all {totalItems} entries</span>
       </div>
     );
   }
 
   return (
-    <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500 py-3 px-4 border-t border-slate-200 ${className}`}>
+    <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 py-3 px-4 border-t border-slate-200 dark:border-slate-800 ${className}`}>
       <div>
-        Showing <span className="font-semibold text-slate-900">{startIdx}</span> to{" "}
-        <span className="font-semibold text-slate-900">{endIdx}</span> of{" "}
-        <span className="font-semibold text-slate-900">{totalItems}</span> entries
+        Showing <span className="font-semibold text-slate-900 dark:text-slate-200">{startIdx}</span> to{" "}
+        <span className="font-semibold text-slate-900 dark:text-slate-200">{endIdx}</span> of{" "}
+        <span className="font-semibold text-slate-900 dark:text-slate-200">{totalItems}</span> entries
       </div>
 
       <div className="flex items-center gap-1">
@@ -41,14 +41,13 @@ export default function Pagination({
           type="button"
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
-          className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 bg-white disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-2xs"
+          className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 bg-white dark:bg-slate-900 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-2xs transition-colors"
           title="Previous Page"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
 
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
-          // If many pages, keep first, current, last
           if (totalPages > 6 && Math.abs(p - currentPage) > 2 && p !== 1 && p !== totalPages) {
             return null;
           }
@@ -59,8 +58,8 @@ export default function Pagination({
               onClick={() => onPageChange(p)}
               className={`min-w-[32px] h-8 px-2 text-xs font-semibold rounded-lg border cursor-pointer transition-colors ${
                 currentPage === p
-                  ? "bg-slate-900 text-white border-slate-900 font-bold shadow-2xs"
-                  : "bg-white text-slate-700 hover:text-slate-900 hover:bg-slate-50 border-slate-200"
+                  ? "bg-slate-900 dark:bg-blue-600 text-white border-slate-900 dark:border-blue-600 font-bold shadow-2xs"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700"
               }`}
             >
               {p}
@@ -72,7 +71,7 @@ export default function Pagination({
           type="button"
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
-          className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 bg-white disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-2xs"
+          className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 bg-white dark:bg-slate-900 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-2xs transition-colors"
           title="Next Page"
         >
           <ChevronRight className="w-4 h-4" />

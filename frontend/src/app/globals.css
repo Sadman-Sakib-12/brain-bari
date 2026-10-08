@@ -48,77 +48,166 @@ html.dark header .text-\[\#0d2a4a\] {
 }
 
 html.dark header nav.rounded-full,
-html.dark header nav.rounded-\[30px\] {
+html.dark header nav.rounded-\[30px\],
+html.dark header nav.rounded-\[34px\] {
   border-color: rgba(168, 85, 247, 0.35) !important;
 }
 
 html.dark header nav.rounded-full a,
 html.dark header nav.rounded-full button,
 html.dark header nav.rounded-\[30px\] a,
-html.dark header nav.rounded-\[30px\] button {
+html.dark header nav.rounded-\[30px\] button,
+html.dark header nav.rounded-\[34px\] a,
+html.dark header nav.rounded-\[34px\] button {
   color: #e2e8f0 !important;
 }
 
 html.dark header nav.rounded-full a:hover,
 html.dark header nav.rounded-full button:hover,
 html.dark header nav.rounded-\[30px\] a:hover,
-html.dark header nav.rounded-\[30px\] button:hover {
+html.dark header nav.rounded-\[30px\] button:hover,
+html.dark header nav.rounded-\[34px\] a:hover,
+html.dark header nav.rounded-\[34px\] button:hover {
   color: #c084fc !important;
 }
 
-html.dark .bg-\[\#ebe8fd\] {
-  background-color: #0f1523 !important;
+/* Comprehensive Dark Mode Overrides for White & Off-White Backgrounds */
+html.dark .bg-white:not([class*="dark:bg-"]),
+html.dark [class*="bg-white/"]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-white:not([class*="dark:bg-"]),
+[data-theme="dark"] [class*="bg-white/"]:not([class*="dark:bg-"]) {
+  background-color: #121927 !important;
 }
 
-html.dark .bg-\[\#fcfbfe\],
-html.dark .bg-\[\#f8f9fa\],
-html.dark .bg-gray-50 {
+html.dark .backdrop-blur-lg[class*="bg-white/"]:not([class*="dark:bg-"]),
+html.dark .backdrop-blur-md[class*="bg-white/"]:not([class*="dark:bg-"]),
+html.dark .backdrop-blur-sm[class*="bg-white/"]:not([class*="dark:bg-"]),
+[data-theme="dark"] .backdrop-blur-lg[class*="bg-white/"]:not([class*="dark:bg-"]),
+[data-theme="dark"] .backdrop-blur-md[class*="bg-white/"]:not([class*="dark:bg-"]),
+[data-theme="dark"] .backdrop-blur-sm[class*="bg-white/"]:not([class*="dark:bg-"]) {
+  background-color: rgba(18, 25, 39, 0.88) !important;
+}
+
+/* Page Background Colors */
+html.dark .bg-\[\#ebe8fd\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#fcfbfe\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#f8f9fa\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#f4f2fe\]:not([class*="dark:bg-"]),
+html.dark .bg-gray-50:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#ebe8fd\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#fcfbfe\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#f8f9fa\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#f4f2fe\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-gray-50:not([class*="dark:bg-"]) {
   background-color: #090d16 !important;
 }
 
-html.dark .bg-white {
+/* Inner Card Light Tint Backgrounds */
+html.dark .bg-\[\#fbfaff\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#fcfbff\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#fdfcff\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#f4f7fe\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#f8f7ff\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#f8f8f8\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#f5f3ff\]:not([class*="dark:bg-"]),
+html.dark .bg-\[\#faf5ff\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#fbfaff\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#fcfbff\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#fdfcff\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#f4f7fe\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#f8f7ff\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#f8f8f8\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#f5f3ff\]:not([class*="dark:bg-"]),
+[data-theme="dark"] .bg-\[\#faf5ff\]:not([class*="dark:bg-"]) {
   background-color: #121927 !important;
 }
 
-html.dark .bg-white\/80,
-html.dark .bg-white\/90,
-html.dark .bg-white\/95 {
-  background-color: rgba(18, 25, 39, 0.9) !important;
+/* Gradient overrides for dark hero sections */
+html.dark [class*="from-\[\#ebe8fd\]"]:not([class*="dark:from-"]),
+[data-theme="dark"] [class*="from-\[\#ebe8fd\]"]:not([class*="dark:from-"]) {
+  --tw-gradient-from: #0f172a var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(15 23 42 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+html.dark [class*="via-\[\#f4f2fe\]"]:not([class*="dark:via-"]),
+html.dark [class*="via-white"]:not([class*="dark:via-"]),
+[data-theme="dark"] [class*="via-\[\#f4f2fe\]"]:not([class*="dark:via-"]),
+[data-theme="dark"] [class*="via-white"]:not([class*="dark:via-"]) {
+  --tw-gradient-to: rgb(9 13 22 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), #090d16 var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
+}
+html.dark [class*="to-white"]:not([class*="dark:to-"]),
+[data-theme="dark"] [class*="to-white"]:not([class*="dark:to-"]) {
+  --tw-gradient-to: #090d16 var(--tw-gradient-to-position) !important;
 }
 
-html.dark .text-gray-950,
-html.dark .text-gray-900,
-html.dark .text-gray-800 {
+/* Text Colors */
+html.dark .text-gray-950:not([class*="dark:text-"]),
+html.dark .text-gray-900:not([class*="dark:text-"]),
+html.dark .text-gray-800:not([class*="dark:text-"]),
+html.dark .text-black:not([class*="dark:text-"]),
+html.dark .text-\[\#1a1a1a\]:not([class*="dark:text-"]),
+html.dark .text-\[\#111111\]:not([class*="dark:text-"]),
+html.dark .text-\[\#1f2937\]:not([class*="dark:text-"]),
+html.dark .text-\[\#333\]:not([class*="dark:text-"]),
+html.dark .text-\[\#333333\]:not([class*="dark:text-"]),
+[data-theme="dark"] .text-gray-950:not([class*="dark:text-"]),
+[data-theme="dark"] .text-gray-900:not([class*="dark:text-"]),
+[data-theme="dark"] .text-gray-800:not([class*="dark:text-"]),
+[data-theme="dark"] .text-black:not([class*="dark:text-"]),
+[data-theme="dark"] .text-\[\#1a1a1a\]:not([class*="dark:text-"]),
+[data-theme="dark"] .text-\[\#111111\]:not([class*="dark:text-"]),
+[data-theme="dark"] .text-\[\#1f2937\]:not([class*="dark:text-"]),
+[data-theme="dark"] .text-\[\#333\]:not([class*="dark:text-"]),
+[data-theme="dark"] .text-\[\#333333\]:not([class*="dark:text-"]) {
   color: #f8fafc !important;
 }
 
-html.dark .text-gray-700,
-html.dark .text-gray-600 {
+html.dark .text-gray-700:not([class*="dark:text-"]),
+html.dark .text-gray-600:not([class*="dark:text-"]),
+[data-theme="dark"] .text-gray-700:not([class*="dark:text-"]),
+[data-theme="dark"] .text-gray-600:not([class*="dark:text-"]) {
   color: #cbd5e1 !important;
 }
 
-html.dark .text-gray-500 {
+html.dark .text-gray-500:not([class*="dark:text-"]),
+html.dark .text-\[\#8c96a3\]:not([class*="dark:text-"]),
+[data-theme="dark"] .text-gray-500:not([class*="dark:text-"]),
+[data-theme="dark"] .text-\[\#8c96a3\]:not([class*="dark:text-"]) {
   color: #94a3b8 !important;
 }
 
-html.dark .border-gray-100,
-html.dark .border-gray-200,
-html.dark .border-purple-100,
-html.dark .border-purple-200\/80 {
+/* Borders */
+html.dark [class*="border-gray-100"],
+html.dark [class*="border-gray-200"],
+html.dark [class*="border-white/"],
+html.dark [class*="border-purple-100"],
+html.dark [class*="border-purple-200"],
+html.dark [class*="border-\[\#c8c2eb\]"],
+[data-theme="dark"] [class*="border-gray-100"],
+[data-theme="dark"] [class*="border-gray-200"],
+[data-theme="dark"] [class*="border-white/"],
+[data-theme="dark"] [class*="border-purple-100"],
+[data-theme="dark"] [class*="border-purple-200"],
+[data-theme="dark"] [class*="border-\[\#c8c2eb\]"] {
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-html.dark .bg-\[\#f8f7ff\],
-html.dark .bg-\[\#f8f8f8\] {
-  background-color: #121927 !important;
+/* Petal/Organic Badges on Industries Page */
+html.dark .industry-petal-btn,
+[data-theme="dark"] .industry-petal-btn {
+  background-color: rgba(30, 41, 59, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
-
-html.dark .text-black,
-html.dark .text-\[\#1a1a1a\],
-html.dark .text-\[\#111111\],
-html.dark .text-\[\#333\],
-html.dark .text-\[\#333333\] {
-  color: #f8fafc !important;
+html.dark .industry-petal-btn svg,
+html.dark .industry-petal-btn span,
+[data-theme="dark"] .industry-petal-btn svg,
+[data-theme="dark"] .industry-petal-btn span {
+  color: #f1f5f9 !important;
+}
+html.dark .industry-petal-btn:hover,
+[data-theme="dark"] .industry-petal-btn:hover {
+  background-color: rgba(51, 65, 85, 0.95) !important;
 }
 
 html.dark .gooey-pill {

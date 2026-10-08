@@ -33,20 +33,20 @@ export default function StatusBadge({
   const normalized = (variant || status.toLowerCase().replace(/\s+/g, "_")) as StatusVariant;
 
   const styleMap: Record<StatusVariant, { badge: string; dot: string }> = {
-    pending: { badge: "bg-amber-500/10 text-amber-700 border-amber-500/20", dot: "bg-amber-500" },
-    approved: { badge: "bg-blue-500/10 text-blue-700 border-blue-500/20", dot: "bg-blue-500" },
-    in_progress: { badge: "bg-purple-500/10 text-purple-700 border-purple-500/20", dot: "bg-purple-500 animate-pulse" },
-    completed: { badge: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20", dot: "bg-emerald-500" },
-    rejected: { badge: "bg-rose-500/10 text-rose-700 border-rose-500/20", dot: "bg-rose-500" },
-    active: { badge: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20", dot: "bg-emerald-500" },
-    inactive: { badge: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" },
-    draft: { badge: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" },
-    published: { badge: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20", dot: "bg-emerald-500" },
-    upcoming: { badge: "bg-indigo-500/10 text-indigo-700 border-indigo-500/20", dot: "bg-indigo-500" },
-    new: { badge: "bg-cyan-500/10 text-cyan-700 border-cyan-500/20", dot: "bg-cyan-500 animate-pulse" },
-    read: { badge: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" },
-    responded: { badge: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20", dot: "bg-emerald-500" },
-    default: { badge: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" }
+    pending: { badge: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20", dot: "bg-amber-500" },
+    approved: { badge: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20", dot: "bg-blue-500" },
+    in_progress: { badge: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20", dot: "bg-purple-500 animate-pulse" },
+    completed: { badge: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20", dot: "bg-emerald-500" },
+    rejected: { badge: "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20", dot: "bg-rose-500" },
+    active: { badge: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20", dot: "bg-emerald-500" },
+    inactive: { badge: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700", dot: "bg-slate-400" },
+    draft: { badge: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700", dot: "bg-slate-400" },
+    published: { badge: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20", dot: "bg-emerald-500" },
+    upcoming: { badge: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-500/20", dot: "bg-indigo-500" },
+    new: { badge: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20", dot: "bg-cyan-500 animate-pulse" },
+    read: { badge: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700", dot: "bg-slate-400" },
+    responded: { badge: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20", dot: "bg-emerald-500" },
+    default: { badge: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700", dot: "bg-slate-400" }
   };
 
   const current = styleMap[normalized] || styleMap.default;

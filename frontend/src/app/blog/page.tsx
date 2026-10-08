@@ -64,14 +64,14 @@ export default function BlogPage() {
   });
 
   const headingText = pageCms?.heading || "Innovation meets expertise in our range of service";
-  const bannerImg = pageCms?.bannerImage || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1400&auto=format&fit=crop&q=80";
+  const bannerImg = pageCms?.bannerImage || "";
   const placeholderText = pageCms?.searchPlaceholder || "Type to start searching...";
 
   return (
-    <div className="min-h-screen bg-white font-sans flex flex-col overflow-x-hidden pt-40 md:pt-36">
+    <div className="min-h-screen bg-white dark:bg-[#090d16] font-sans flex flex-col overflow-x-hidden pt-40 md:pt-36 transition-colors">
       {/* 1. Header Title */}
       <section className="text-center px-6 mb-8">
-        <h1 className="text-[34px] md:text-[40px] font-medium text-black tracking-tight leading-snug max-w-[600px] mx-auto font-sans">
+        <h1 className="text-[34px] md:text-[40px] font-medium text-black dark:text-white tracking-tight leading-snug max-w-[600px] mx-auto font-sans">
           {headingText}
         </h1>
       </section>
@@ -79,27 +79,29 @@ export default function BlogPage() {
       {/* 2. Banner with Centered Search Box */}
       <section className="px-6 mb-12">
         <div className="max-w-[1300px] mx-auto relative rounded-3xl overflow-hidden shadow-sm h-[200px] md:h-[260px] bg-gradient-to-r from-purple-900 via-indigo-950 to-blue-900">
-          <img
-            src={bannerImg}
-            alt="AI Service Banner"
-            className="w-full h-full object-cover object-center opacity-40 mix-blend-overlay"
-          />
+          {bannerImg ? (
+            <img
+              src={bannerImg}
+              alt="AI Service Banner"
+              className="w-full h-full object-cover object-center opacity-40 mix-blend-overlay"
+            />
+          ) : null}
           <div className="absolute inset-0 bg-black/20"></div>
           <div className="absolute bottom-8 left-0 w-full flex justify-center px-6 z-10">
             <form
               onSubmit={(e) => e.preventDefault()}
-              className="flex items-center w-full max-w-[600px] bg-white rounded-full border border-blue-400 p-1 shadow-sm"
+              className="flex items-center w-full max-w-[600px] bg-white dark:bg-[#121927] rounded-full border border-blue-400 dark:border-blue-500/40 p-1 shadow-sm"
             >
               <input
                 type="text"
                 placeholder={placeholderText}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-grow bg-transparent text-[13px] sm:text-[14px] px-3 sm:px-6 py-2 border-none outline-none text-gray-800 min-w-0"
+                className="flex-grow bg-transparent text-[13px] sm:text-[14px] px-3 sm:px-6 py-2 border-none outline-none text-gray-800 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 min-w-0"
               />
               <button
                 type="submit"
-                className="bg-[#2b2b2b] text-white px-4 sm:px-8 py-2 sm:py-2.5 text-[13px] sm:text-[14px] rounded-full font-medium hover:bg-black transition-colors shrink-0"
+                className="bg-[#2b2b2b] dark:bg-blue-600 text-white px-4 sm:px-8 py-2 sm:py-2.5 text-[13px] sm:text-[14px] rounded-full font-medium hover:bg-black dark:hover:bg-blue-500 transition-colors shrink-0"
               >
                 Search
               </button>
@@ -117,8 +119,11 @@ export default function BlogPage() {
                 <React.Fragment key={cat}>
                   <button
                     onClick={() => setSelectedCategory(cat)}
-                    className={`text-[14px] md:text-[15px] whitespace-nowrap transition-colors font-medium cursor-pointer ${selectedCategory === cat ? "text-blue-600 font-bold" : "text-black hover:text-blue-600"
-                      }`}
+                    className={`text-[14px] md:text-[15px] whitespace-nowrap transition-colors font-medium cursor-pointer ${
+                      selectedCategory === cat
+                        ? "text-blue-600 dark:text-blue-400 font-bold"
+                        : "text-black dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
+                    }`}
                   >
                     {cat}
                   </button>
@@ -139,28 +144,30 @@ export default function BlogPage() {
             filteredBlogs.map((post) => (
               <div
                 key={post.id}
-                className="flex flex-col md:flex-row bg-[#ebe8fd] rounded-[20px] overflow-hidden shadow-[0_2px_15px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_25px_rgba(0,0,0,0.06)] transition-all duration-300"
+                className="flex flex-col md:flex-row bg-[#ebe8fd] dark:bg-[#121927] border border-transparent dark:border-slate-800 rounded-[20px] overflow-hidden shadow-[0_2px_15px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_25px_rgba(0,0,0,0.06)] dark:hover:border-slate-700 transition-all duration-300"
               >
-                <div className="relative w-full md:w-[32%] h-[240px] md:h-auto shrink-0">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-full object-cover md:object-center"
-                  />
-                </div>
+                {post.image ? (
+                  <div className="relative w-full md:w-[32%] h-[240px] md:h-auto shrink-0 bg-slate-900">
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      className="w-full h-full object-cover md:object-center"
+                    />
+                  </div>
+                ) : null}
 
-                <div className="w-full md:w-[68%] p-6 md:py-8 md:px-10 flex flex-col justify-between">
+                <div className={`w-full ${post.image ? "md:w-[68%]" : "w-full"} p-6 md:py-8 md:px-10 flex flex-col justify-between`}>
                   <div>
-                    <h2 className="text-[18px] md:text-[20px] font-medium text-black mb-2 leading-snug font-sans">
+                    <h2 className="text-[18px] md:text-[20px] font-medium text-black dark:text-white mb-2 leading-snug font-sans">
                       {post.title}
                     </h2>
-                    <div className="text-[13px] text-gray-800 leading-relaxed font-light space-y-3">
+                    <div className="text-[13px] text-gray-800 dark:text-slate-300 leading-relaxed font-light space-y-3">
                       {post.previewHeading && (
-                        <p className="font-semibold text-gray-900">{post.previewHeading}</p>
+                        <p className="font-semibold text-gray-900 dark:text-slate-200">{post.previewHeading}</p>
                       )}
-                      <p className="text-gray-700">{post.excerpt}</p>
+                      <p className="text-gray-700 dark:text-slate-300">{post.excerpt}</p>
                       {post.points && (
-                        <ul className="list-disc pl-5 space-y-0.5 text-gray-700 text-xs">
+                        <ul className="list-disc pl-5 space-y-0.5 text-gray-700 dark:text-slate-400 text-xs">
                           {post.points.map((pt, pIdx) => (
                             <li key={pIdx}>{pt}</li>
                           ))}
@@ -172,7 +179,7 @@ export default function BlogPage() {
                   <div className="mt-6 flex justify-end">
                     <Link
                       href={`/contact?subject=Inquiry regarding: ${encodeURIComponent(post.title)}`}
-                      className="inline-block bg-[#752a02] text-white text-[13px] font-medium px-6 py-2 rounded-full hover:bg-[#571e00] transition-colors shadow-sm"
+                      className="inline-block bg-[#752a02] hover:bg-[#571e00] text-white text-[13px] font-medium px-6 py-2 rounded-full transition-colors shadow-sm"
                     >
                       Read more
                     </Link>
@@ -181,9 +188,9 @@ export default function BlogPage() {
               </div>
             ))
           ) : (
-            <div className="text-center py-16 bg-[#ebe8fd] rounded-[20px] p-8 max-w-[600px] mx-auto">
-              <h3 className="text-lg font-bold text-gray-900">No blog posts found</h3>
-              <p className="text-sm text-gray-600 mt-2">Articles and insights will be published here shortly.</p>
+            <div className="text-center py-16 bg-[#ebe8fd] dark:bg-[#121927] border dark:border-slate-800 rounded-[20px] p-8 max-w-[600px] mx-auto">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">No blog posts found</h3>
+              <p className="text-sm text-gray-600 dark:text-slate-400 mt-2">Articles and insights will be published here shortly.</p>
             </div>
           )}
         </div>

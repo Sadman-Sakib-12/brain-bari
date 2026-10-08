@@ -24,8 +24,8 @@ export default function Navbar() {
     (siteSettings.contact?.whatsapp
       ? `https://wa.me/${siteSettings.contact.whatsapp.replace(/[^0-9]/g, "")}`
       : siteSettings.phone
-      ? `tel:${siteSettings.phone}`
-      : "/contact");
+        ? `tel:${siteSettings.phone}`
+        : "/contact");
   const secondaryCtaText = (siteSettings.navbar as any)?.secondaryCtaText || "Get a Quote";
   const resourcesLinks = siteSettings.navbar?.resourcesLinks;
 
@@ -156,19 +156,21 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Mobile Toggle Button */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden w-10 h-10 rounded-full bg-blue-50/90 dark:bg-white/10 border border-blue-200/90 dark:border-white/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 z-10 shadow-xs active:scale-90 transition-transform cursor-pointer"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
-          </button>
+          {/* Mobile Right Controls: Hamburger */}
+          <div className="lg:hidden flex items-center gap-2 z-10 shrink-0">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="w-10 h-10 rounded-full bg-blue-50/90 dark:bg-white/10 border border-blue-200/90 dark:border-white/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shadow-xs active:scale-90 transition-transform cursor-pointer"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Quick Action Buttons Row */}
@@ -207,11 +209,10 @@ export default function Navbar() {
                     <button
                       type="button"
                       onClick={() => setServicesOpen((prev) => !prev)}
-                      className={`flex items-center gap-1.5 text-[16px] transition-colors duration-200 font-medium select-none cursor-pointer ${
-                        pathname.startsWith("/services") || servicesOpen
+                      className={`flex items-center gap-1.5 text-[16px] transition-colors duration-200 font-medium select-none cursor-pointer ${pathname.startsWith("/services") || servicesOpen
                           ? "text-[#8b4ec9] dark:text-[#c084fc] font-bold"
                           : "text-gray-800 dark:text-gray-200 hover:text-[#8b4ec9] dark:hover:text-[#c084fc]"
-                      }`}
+                        }`}
                     >
                       <span>{link.label}</span>
                       <ChevronDown className="w-3.5 h-3.5 opacity-70" />
@@ -240,11 +241,10 @@ export default function Navbar() {
                     <button
                       type="button"
                       onClick={() => setResourcesOpen((prev) => !prev)}
-                      className={`flex items-center gap-1.5 text-[16px] transition-colors duration-200 font-medium select-none cursor-pointer ${
-                        pathname.startsWith("/resources") || resourcesOpen
+                      className={`flex items-center gap-1.5 text-[16px] transition-colors duration-200 font-medium select-none cursor-pointer ${pathname.startsWith("/resources") || resourcesOpen
                           ? "text-[#8b4ec9] dark:text-[#c084fc] font-bold"
                           : "text-gray-800 dark:text-gray-200 hover:text-[#8b4ec9] dark:hover:text-[#c084fc]"
-                      }`}
+                        }`}
                     >
                       <span>{link.label}</span>
                       <ChevronDown className="w-3.5 h-3.5 opacity-70" />
@@ -267,11 +267,10 @@ export default function Navbar() {
                 <Link
                   key={link.id || i}
                   href={link.href}
-                  className={`text-[16px] transition-colors duration-200 font-medium select-none ${
-                    isActive
+                  className={`text-[16px] transition-colors duration-200 font-medium select-none ${isActive
                       ? "text-[#8b4ec9] dark:text-[#c084fc] font-bold"
                       : "text-gray-800 dark:text-gray-200 hover:text-[#8b4ec9] dark:hover:text-[#c084fc]"
-                  }`}
+                    }`}
                 >
                   {link.label}
                 </Link>
@@ -282,11 +281,10 @@ export default function Navbar() {
               {/* Home */}
               <Link
                 href="/"
-                className={`text-[16px] transition-colors duration-200 font-medium select-none ${
-                  pathname === "/"
+                className={`text-[16px] transition-colors duration-200 font-medium select-none ${pathname === "/"
                     ? "text-[#8b4ec9] dark:text-[#c084fc] font-bold"
                     : "text-gray-800 dark:text-gray-200 hover:text-[#8b4ec9] dark:hover:text-[#c084fc]"
-                }`}
+                  }`}
               >
                 Home
               </Link>
@@ -294,11 +292,10 @@ export default function Navbar() {
               {/* About */}
               <Link
                 href="/about"
-                className={`text-[16px] transition-colors duration-200 font-medium select-none ${
-                  pathname === "/about"
+                className={`text-[16px] transition-colors duration-200 font-medium select-none ${pathname === "/about"
                     ? "text-[#8b4ec9] dark:text-[#c084fc] font-bold"
                     : "text-gray-800 dark:text-gray-200 hover:text-[#8b4ec9] dark:hover:text-[#c084fc]"
-                }`}
+                  }`}
               >
                 About
               </Link>
@@ -312,11 +309,10 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setServicesOpen((prev) => !prev)}
-                  className={`flex items-center gap-1.5 text-[16px] transition-colors duration-200 font-medium select-none cursor-pointer ${
-                    pathname.startsWith("/services") || servicesOpen
+                  className={`flex items-center gap-1.5 text-[16px] transition-colors duration-200 font-medium select-none cursor-pointer ${pathname.startsWith("/services") || servicesOpen
                       ? "text-[#8b4ec9] dark:text-[#c084fc] font-bold"
                       : "text-gray-800 dark:text-gray-200 hover:text-[#8b4ec9] dark:hover:text-[#c084fc]"
-                  }`}
+                    }`}
                 >
                   <span>Services</span>
                   <ChevronDown className="w-3.5 h-3.5 opacity-70" />
@@ -337,11 +333,10 @@ export default function Navbar() {
               {/* Work */}
               <Link
                 href="/new-work"
-                className={`text-[16px] transition-colors duration-200 font-medium select-none ${
-                  pathname === "/new-work"
+                className={`text-[16px] transition-colors duration-200 font-medium select-none ${pathname === "/new-work"
                     ? "text-[#8b4ec9] dark:text-[#c084fc] font-bold"
                     : "text-gray-800 dark:text-gray-200 hover:text-[#8b4ec9] dark:hover:text-[#c084fc]"
-                }`}
+                  }`}
               >
                 Work
               </Link>
@@ -349,11 +344,10 @@ export default function Navbar() {
               {/* Industries */}
               <Link
                 href="/industries"
-                className={`text-[16px] transition-colors duration-200 font-medium select-none ${
-                  pathname === "/industries"
+                className={`text-[16px] transition-colors duration-200 font-medium select-none ${pathname === "/industries"
                     ? "text-[#8b4ec9] dark:text-[#c084fc] font-bold"
                     : "text-gray-800 dark:text-gray-200 hover:text-[#8b4ec9] dark:hover:text-[#c084fc]"
-                }`}
+                  }`}
               >
                 Industries
               </Link>
@@ -367,11 +361,10 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setResourcesOpen((prev) => !prev)}
-                  className={`flex items-center gap-1.5 text-[16px] transition-colors duration-200 font-medium select-none cursor-pointer ${
-                    pathname.startsWith("/resources") || resourcesOpen
+                  className={`flex items-center gap-1.5 text-[16px] transition-colors duration-200 font-medium select-none cursor-pointer ${pathname.startsWith("/resources") || resourcesOpen
                       ? "text-[#8b4ec9] dark:text-[#c084fc] font-bold"
                       : "text-gray-800 dark:text-gray-200 hover:text-[#8b4ec9] dark:hover:text-[#c084fc]"
-                  }`}
+                    }`}
                 >
                   <span>Resources</span>
                   <ChevronDown className="w-3.5 h-3.5 opacity-70" />
@@ -392,11 +385,10 @@ export default function Navbar() {
               {/* Product */}
               <Link
                 href="/product"
-                className={`text-[16px] transition-colors duration-200 font-medium select-none ${
-                  pathname === "/product" || pathname === "/products"
+                className={`text-[16px] transition-colors duration-200 font-medium select-none ${pathname === "/product" || pathname === "/products"
                     ? "text-[#8b4ec9] dark:text-[#c084fc] font-bold"
                     : "text-gray-800 dark:text-gray-200 hover:text-[#8b4ec9] dark:hover:text-[#c084fc]"
-                }`}
+                  }`}
               >
                 Product
               </Link>
@@ -405,7 +397,7 @@ export default function Navbar() {
         </nav>
 
         {/* Desktop Right Action Buttons */}
-        <div className="hidden lg:flex items-center gap-3.5 shrink-0">
+        <div className="hidden lg:flex items-center gap-3 shrink-0">
           <Link
             href={primaryCtaLink}
             className="inline-block px-6 py-3 border-2 border-blue-600 text-blue-600 dark:text-blue-400 text-[14.5px] font-bold rounded-full hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors duration-200 shrink-0 whitespace-nowrap cursor-pointer shadow-2xs"

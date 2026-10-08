@@ -125,30 +125,30 @@ function DashboardContent() {
       <RecentOrdersTable orders={orders} />
 
       {/* Activity Log */}
-      <Card header={<h3 className="text-sm font-bold text-slate-900">Recent Platform Activity</h3>}>
+      <Card header={<h3 className="text-sm font-bold text-slate-900 dark:text-white">Recent Platform Activity</h3>}>
         {activityLog.length === 0 ? (
-          <div className="py-8 text-center text-xs text-slate-400">
+          <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
             No recent activity logged in the database yet.
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {activityLog.slice(0, 6).map((log: any) => (
               <div key={log.id} className="py-3 flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 text-slate-600 mt-0.5">
+                  <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 text-slate-600 dark:text-slate-300 mt-0.5">
                     <Activity className="w-3.5 h-3.5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-900">{log.action}</span>
-                      <span className="text-[10px] px-2 py-0.2 rounded-full font-semibold uppercase bg-slate-100 text-slate-600 border border-slate-200">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">{log.action}</span>
+                      <span className="text-[10px] px-2 py-0.2 rounded-full font-semibold uppercase bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                         {log.type}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-600 mt-0.5">{log.details}</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">{log.details}</p>
                   </div>
                 </div>
-                <span className="text-[11px] text-slate-400 whitespace-nowrap shrink-0">{log.time}</span>
+                <span className="text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap shrink-0">{log.time}</span>
               </div>
             ))}
           </div>

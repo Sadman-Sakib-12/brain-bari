@@ -177,38 +177,38 @@ export default function UsersPage() {
 
       {/* Stats KPI */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-xs text-slate-500 font-medium">Total Registered</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{users.length}</p>
+        <div className="p-4 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 transition-colors">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Registered</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{users.length}</p>
         </div>
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-xs text-slate-500 font-medium">System Admins</p>
-          <p className="text-2xl font-bold text-purple-600 mt-1">{adminCount}</p>
+        <div className="p-4 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 transition-colors">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">System Admins</p>
+          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">{adminCount}</p>
         </div>
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-xs text-slate-500 font-medium">Enterprise Clients</p>
-          <p className="text-2xl font-bold text-cyan-600 mt-1">{clientCount}</p>
+        <div className="p-4 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 transition-colors">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Enterprise Clients</p>
+          <p className="text-2xl font-bold text-cyan-600 dark:text-cyan-400 mt-1">{clientCount}</p>
         </div>
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-xs text-slate-500 font-medium">Active Status</p>
-          <p className="text-2xl font-bold text-emerald-600 mt-1">{activeCount}</p>
+        <div className="p-4 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 transition-colors">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Active Status</p>
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{activeCount}</p>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search users by name, email, company..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-xs bg-white focus:outline-none focus:border-slate-800 transition-colors"
+            className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-slate-800 dark:focus:border-slate-700 transition-colors"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 self-start sm:self-auto bg-slate-100 p-1 rounded-xl">
+        <div className="flex items-center gap-1.5 self-start sm:self-auto bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
           {["ALL", "ADMIN", "CLIENT"].map((role) => (
             <button
               key={role}
@@ -216,8 +216,8 @@ export default function UsersPage() {
               onClick={() => setFilterRole(role)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 filterRole === role
-                  ? "bg-white text-slate-900 shadow-2xs font-bold"
-                  : "text-slate-500 hover:text-slate-900"
+                  ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs font-bold"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               {role === "ALL" ? "All Users" : role === "ADMIN" ? "Admins" : "Clients"}

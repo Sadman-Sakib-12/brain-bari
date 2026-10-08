@@ -5,10 +5,10 @@ import Link from "next/link";
 import { Moon, Sun, Globe, Check, ChevronDown, Search, X } from "lucide-react";
 import { useSiteSettings, useCmsContent } from "@/hooks/useApi";
 import { switchLanguage } from "@/components/GoogleTranslate";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Footer() {
-  const [theme, setTheme] = React.useState<"light" | "dark">("light");
-  const [mounted, setMounted] = React.useState(false);
+  const { theme, toggleTheme, mounted } = useTheme();
   const [selectedLang, setSelectedLang] = React.useState<any>(null);
   const [isLangOpen, setIsLangOpen] = React.useState(false);
   const [langSearch, setLangSearch] = React.useState("");
@@ -23,19 +23,6 @@ export default function Footer() {
   }, [cmsLanguages]);
 
   React.useEffect(() => {
-    setMounted(true);
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    const isDark = savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    if (isDark) {
-      setTheme("dark");
-      document.documentElement.classList.add("dark");
-      document.documentElement.setAttribute("data-theme", "dark");
-    } else {
-      setTheme("light");
-      document.documentElement.classList.remove("dark");
-      document.documentElement.setAttribute("data-theme", "light");
-    }
-
     if (availableLanguages.length > 0) {
       const saved = localStorage.getItem("user_lang");
       if (saved) {
@@ -62,20 +49,6 @@ export default function Footer() {
     l.nativeName?.toLowerCase().includes(langSearch.toLowerCase()) ||
     l.code?.toLowerCase().includes(langSearch.toLowerCase())
   );
-
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    if (newTheme === "dark") {
-      document.documentElement.classList.add("dark");
-      document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      document.documentElement.setAttribute("data-theme", "light");
-      localStorage.setItem("theme", "light");
-    }
-  };
 
   const siteName = siteSettings?.siteName || "Brain Bari";
   const rawWhatsapp =

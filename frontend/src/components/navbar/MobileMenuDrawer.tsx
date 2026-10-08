@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, ArrowRight, Briefcase, Handshake, Calendar, UserCheck, Layers, BookOpen } from "lucide-react";
+import { ChevronDown, ArrowRight, Briefcase, Handshake, Calendar, UserCheck, Layers, BookOpen, Sun, Moon } from "lucide-react";
 import { useCmsContent } from "@/hooks/useApi";
+import { useTheme } from "@/context/ThemeContext";
 import { DynamicServiceItem } from "./navbarHelpers";
 
 interface MobileMenuDrawerProps {
@@ -21,6 +22,7 @@ export default function MobileMenuDrawer({
   dynamicServices,
   siteSettings,
 }: MobileMenuDrawerProps) {
+  const { theme, toggleTheme, mounted } = useTheme();
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
   const { data: spotlight } = useCmsContent<any>("navbarSpotlight");
@@ -173,6 +175,25 @@ export default function MobileMenuDrawer({
         </Link>
 
         <div className="p-5 flex flex-col gap-3">
+          {/* Mobile Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer shadow-2xs active:scale-98 transition-all"
+          >
+            <div className="flex items-center gap-2">
+              {mounted && theme === "dark" ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-600" />
+              )}
+              <span>Appearance</span>
+            </div>
+            <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400">
+              {mounted && theme === "dark" ? "Dark Mode (Active)" : "Light Mode (Active)"}
+            </span>
+          </button>
+
           <Link
             href={siteSettings.navbar?.ctaLink || "/schedule"}
             onClick={onClose}
