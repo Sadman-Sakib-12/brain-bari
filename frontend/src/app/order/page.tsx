@@ -4,7 +4,7 @@ import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { useCreateOrder, useServices, useChatbots } from "@/hooks/useApi";
+import { useCreateOrder, useCmsContent } from "@/hooks/useApi";
 import { 
   User, 
   Mail, 
@@ -19,62 +19,23 @@ import {
 } from "lucide-react";
 
 function OrderForm() {
-  const searchParams = useSearchParams();
-  const rawQuery = searchParams.get("service") || searchParams.get("bot") || "";
-
-  const { data: dbServices = [] } = useServices();
-  const { data: dbChatbots = [] } = useChatbots();
-
-  const dynamicServiceNames = Array.from(
-    new Set([
-      ...dbServices.map((s: any) => s.title),
-      ...dbChatbots.map((c: any) => c.name),
-    ].filter(Boolean))
-  );
-
-  const matchedService = rawQuery
-    ? (dbServices.find((s: any) => s.slug === rawQuery.toLowerCase().trim() || s.title?.toLowerCase() === rawQuery.toLowerCase().trim())?.title ||
-       dbChatbots.find((c: any) => c.id === rawQuery || c.name?.toLowerCase() === rawQuery.toLowerCase().trim())?.name ||
-       rawQuery)
-    : "";
+  // 100% loaded directly from backend database
+  const { data: cmsServices = [], isLoading } = useCmsContent<string[]>("orderFormServices");
+  const allServices = Array.isArray(cmsServices) ? cmsServices : [];
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [message, setMessage] = useState(
-    rawQuery ? `Order inquiry for: ${matchedService || rawQuery}` : ""
-  );
-
-  React.useEffect(() => {
-    if (selectedServices.length === 0) {
-      if (matchedService) {
-        setSelectedServices([matchedService]);
-      } else if (dynamicServiceNames.length > 0) {
-        setSelectedServices([dynamicServiceNames[0]]);
-      }
-    }
-  }, [matchedService, dynamicServiceNames]);
+  const [message, setMessage] = useState("");
 
   const [submitted, setSubmitted] = useState(false);
   const createOrderMutation = useCreateOrder();
   const isSubmitting = createOrderMutation.isPending;
 
-  // Available services directly from database
-  const availableServices = Array.from(
-    new Set([
-      ...dynamicServiceNames,
-      ...(matchedService ? [matchedService] : [])
-    ].filter(Boolean))
-  );
-
   const toggleService = (svc: string) => {
     if (selectedServices.includes(svc)) {
-      if (selectedServices.length > 1) {
-        setSelectedServices(selectedServices.filter((s) => s !== svc));
-      } else {
-        toast.info("Please keep at least one service selected");
-      }
+      setSelectedServices(selectedServices.filter((s) => s !== svc));
     } else {
       setSelectedServices([...selectedServices, svc]);
     }
@@ -84,6 +45,10 @@ function OrderForm() {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !phone.trim()) {
       toast.error("Please fill in your name, email and phone number");
+      return;
+    }
+    if (selectedServices.length === 0) {
+      toast.error("Please select at least one service");
       return;
     }
 
@@ -231,7 +196,7 @@ function OrderForm() {
 
                 {/* 4. Services: Interactive Chips Grid (Replacing old plain checkboxes) */}
                 <div>
-                  <div className="flex items-center justify-between mb-2.5 ml-0.5">
+                  <div className="flex items-center justify-between mb-3 ml-0.5">
                     <label className="block text-[13px] font-semibold text-gray-700 dark:text-gray-300">
                       Services:
                     </label>
@@ -240,37 +205,39 @@ function OrderForm() {
                     </span>
                   </div>
 
-                  {availableServices.length === 0 ? (
-                    <div className="py-6 text-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-slate-800/40 rounded-xl border border-gray-200/80 dark:border-slate-700/80">
-                      No services currently available in database.
+                  {isLoading ? (
+                    <div className="py-6 text-center text-xs text-gray-400 font-sans">
+                      Loading services from backend...
+                    </div>
+                  ) : allServices.length === 0 ? (
+                    <div className="py-6 text-center text-xs text-gray-400 font-sans">
+                      No services configured in backend.
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-                      {availableServices.map((svc) => {
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-3.5 gap-x-5 pt-1">
+                      {allServices.map((svc) => {
                         const isSelected = selectedServices.includes(svc);
                         return (
-                          <button
-                            type="button"
+                          <label
                             key={svc}
-                            onClick={() => toggleService(svc)}
-                            className={`group p-2.5 sm:p-3 rounded-xl border text-left transition-all duration-150 flex items-center justify-between gap-2 cursor-pointer select-none active:scale-[0.98] ${
-                              isSelected
-                                ? "bg-blue-50/90 dark:bg-blue-950/60 border-blue-500 text-blue-900 dark:text-blue-200 font-semibold shadow-2xs"
-                                : "bg-gray-50/80 dark:bg-slate-800/50 border-gray-200/90 dark:border-slate-700/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-100/70"
-                            }`}
+                            className="flex items-center gap-2.5 cursor-pointer select-none group"
                           >
-                            <span className="text-xs sm:text-[12.5px] truncate">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleService(svc)}
+                              className="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600"
+                            />
+                            <span
+                              className={`text-[13px] transition-colors ${
+                                isSelected
+                                  ? "font-semibold text-gray-900 dark:text-white"
+                                  : "text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white"
+                              }`}
+                            >
                               {svc}
                             </span>
-                            
-                            <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                              isSelected 
-                                ? "bg-blue-600 text-white" 
-                                : "border border-gray-300 dark:border-slate-600 group-hover:border-gray-400"
-                            }`}>
-                              {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                            </div>
-                          </button>
+                          </label>
                         );
                       })}
                     </div>

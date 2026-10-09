@@ -32,7 +32,7 @@ export const config = {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: Number(process.env.SMTP_PORT) || 587,
     user: process.env.SMTP_USER || 'bscl.com.bd@gmail.com',
-    pass: process.env.SMTP_PASS || 'ucpzbdfpjqkqyulc',
+    pass: process.env.SMTP_PASS || '',
   },
 };
 

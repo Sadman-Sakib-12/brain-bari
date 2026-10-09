@@ -25,6 +25,7 @@ import EmailSettingsTab from "./components/EmailSettingsTab";
 import ProfileSettingsTab from "./components/ProfileSettingsTab";
 import SecuritySettingsTab from "./components/SecuritySettingsTab";
 import BookingSlotsTab from "./components/BookingSlotsTab";
+import OrderServicesTab from "./components/OrderServicesTab";
 
 type SettingsTab =
   | "general"
@@ -33,7 +34,8 @@ type SettingsTab =
   | "email"
   | "profile"
   | "security"
-  | "bookingSlots";
+  | "bookingSlots"
+  | "orderServices";
 
 function SettingsContent() {
   const searchParams = useSearchParams();
@@ -46,6 +48,7 @@ function SettingsContent() {
 
   // Dynamic CMS collections
   const [bookingSlots, setBookingSlots] = useState<string[]>([]);
+  const [orderServices, setOrderServices] = useState<string[]>([]);
 
   // Admin profile state
   const [profileName, setProfileName] = useState("");
@@ -85,6 +88,12 @@ function SettingsContent() {
       }
     }).catch(() => {});
 
+    adminApi.getContent("orderFormServices").then((res) => {
+      if (res && Array.isArray(res)) {
+        setOrderServices(res);
+      }
+    }).catch(() => {});
+
     try {
       const user = localStorage.getItem("brainbari_admin_user");
       if (user) {
@@ -102,7 +111,7 @@ function SettingsContent() {
 
   useEffect(() => {
     const tab = searchParams.get("tab") as SettingsTab;
-    if (tab && ["general", "seo", "social", "email", "profile", "security", "bookingSlots"].includes(tab)) {
+    if (tab && ["general", "seo", "social", "email", "profile", "security", "bookingSlots", "orderServices"].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -134,6 +143,7 @@ function SettingsContent() {
       await Promise.all([
         adminApi.updateSettings(mergedPayload),
         adminApi.saveContent("bookingSlots", bookingSlots),
+        adminApi.saveContent("orderFormServices", orderServices),
       ]);
 
       try {
@@ -200,6 +210,7 @@ function SettingsContent() {
             { id: "profile", label: "Admin Profile", icon: User },
             { id: "security", label: "Security", icon: ShieldCheck },
             { id: "bookingSlots", label: "Booking Slots", icon: Clock },
+            { id: "orderServices", label: "Order Form Services", icon: Layers },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -285,6 +296,14 @@ function SettingsContent() {
         <BookingSlotsTab
           bookingSlots={bookingSlots}
           setBookingSlots={setBookingSlots}
+        />
+      )}
+
+      {/* TAB 8: ORDER FORM SERVICES */}
+      {activeTab === "orderServices" && (
+        <OrderServicesTab
+          orderServices={orderServices}
+          setOrderServices={setOrderServices}
         />
       )}
     </div>
